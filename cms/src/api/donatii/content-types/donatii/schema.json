@@ -1,0 +1,54 @@
+{
+  "kind": "collectionType",
+  "collectionName": "donatiis",
+  "info": {
+    "singularName": "donatii",
+    "pluralName": "donatiis",
+    "displayName": "donatii"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "campanie_de_donatii": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::campanie-de-donatii.campanie-de-donatii"
+    },
+    "suma": {
+      "type": "decimal",
+      "required": true
+    },
+    "emailDonator": {
+      "type": "email",
+      "required": true
+    },
+    "numeDonator": {
+      "type": "string"
+    },
+    "stare": {
+      "type": "enumeration",
+      "required": true,
+      "enum": [
+        "pending",
+        "completed",
+        "failed",
+        "refunded"
+      ]
+    },
+    "metodaDePlata": {
+      "type": "enumeration",
+      "enum": [
+        "card",
+        "transfer bancar"
+      ]
+    },
+    "transactionId": {
+      "type": "string"
+    },
+    "mesaj": {
+      "type": "richtext"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "kind": "collectionType",
+  "collectionName": "campanie_de_donatiis",
+  "info": {
+    "singularName": "campanie-de-donatii",
+    "pluralName": "campanie-de-donatiis",
+    "displayName": "campanie de donatii"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "image": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "stare": {
+      "type": "enumeration",
+      "required": true,
+      "enum": [
+        "draft",
+        "active",
+        "completed",
+        "paused"
+      ]
+    },
+    "suma": {
+      "type": "decimal",
+      "default": 0
+    }
+  }
+}
