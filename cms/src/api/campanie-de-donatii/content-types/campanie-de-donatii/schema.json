@@ -11,9 +11,9 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "image": {
+    "coverImage": {
       "type": "media",
-      "multiple": true,
+      "multiple": false,
       "allowedTypes": [
         "images",
         "files",
@@ -31,9 +31,53 @@
         "paused"
       ]
     },
-    "suma": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "shortDescription": {
+      "type": "text"
+    },
+    "body": {
+      "type": "richtext"
+    },
+    "goal": {
+      "type": "decimal"
+    },
+    "gallery": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "donatiis": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::donatii.donatii",
+      "mappedBy": "campanie_de_donatii"
+    },
+    "raised": {
       "type": "decimal",
       "default": 0
+    },
+    "idFeatured": {
+      "type": "boolean",
+      "default": false
+    },
+    "startDate": {
+      "type": "date"
+    },
+    "endDate": {
+      "type": "date"
     }
   }
 }

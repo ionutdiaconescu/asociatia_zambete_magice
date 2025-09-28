@@ -13,8 +13,9 @@
   "attributes": {
     "campanie_de_donatii": {
       "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::campanie-de-donatii.campanie-de-donatii"
+      "relation": "manyToOne",
+      "target": "api::campanie-de-donatii.campanie-de-donatii",
+      "inversedBy": "donatiis"
     },
     "suma": {
       "type": "decimal",
@@ -22,7 +23,7 @@
     },
     "emailDonator": {
       "type": "email",
-      "required": true
+      "required": false
     },
     "numeDonator": {
       "type": "string"
@@ -30,25 +31,45 @@
     "stare": {
       "type": "enumeration",
       "required": true,
-      "enum": [
-        "pending",
-        "completed",
-        "failed",
-        "refunded"
-      ]
+      "enum": ["pending", "completed", "failed", "refunded"]
     },
     "metodaDePlata": {
       "type": "enumeration",
-      "enum": [
-        "card",
-        "transfer bancar"
-      ]
+      "enum": ["card", "transfer bancar"]
     },
     "transactionId": {
       "type": "string"
     },
     "mesaj": {
       "type": "richtext"
+    },
+    "isAnonymous": {
+      "type": "boolean",
+      "default": false
+    },
+    "currency": {
+      "type": "enumeration",
+      "default": "RON",
+      "enum": ["RON", "EUR", "USD"]
+    },
+    "stripePaymentIntentId": {
+      "type": "string"
+    },
+    "receiptUrl": {
+      "type": "string"
+    },
+    "amountInMinorUnit": {
+      "type": "integer"
+    },
+    "netAmount": {
+      "type": "integer"
+    },
+    "donorCountry": {
+      "type": "string"
+    },
+    "stripeSessionId": {
+      "type": "string",
+      "unique": true
     }
   }
 }

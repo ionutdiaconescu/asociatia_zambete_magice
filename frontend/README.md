@@ -1,73 +1,219 @@
-# React + TypeScript + Vite
+## Frontend – Zâmbete Magice
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Stack: React 19 + TypeScript + Vite + React Router v7 + Tailwind CSS 3.4.x.
 
-Currently, two official plugins are available:
+### Folder Structure (simplified)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+  main.tsx        # Bootstrap (BrowserRouter + App)
+  App.tsx         # Declares top-level <Routes/>
+  components/
+    Navbar.tsx
+    Layout.tsx    # Navbar + <Outlet/> + Footer wrapper
+    ui/
+      Button.tsx
+      Card.tsx
+      Section.tsx
+  pages/
+    Home.tsx
+    Campaigns.tsx
+    CampaignDetail.tsx
+    About.tsx
+    Contact.tsx
+    DonateSuccess.tsx
+    DonateCancel.tsx
+  assets/         # Static assets (images, svgs, etc.)
+  index.css       # Tailwind entry (@tailwind directives)
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Routing
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Routes are nested under a single `Layout` component so Navbar / Footer are centralized:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+<Route element={<Layout/>}>
+  <Route index element={<Home/>} />
+  <Route path="campaigns" element={<Campaigns/>} />
+  <Route path="campaigns/:id" element={<CampaignDetail/>} />
+  <Route path="about" element={<About/>} />
+  <Route path="contact" element={<Contact/>} />
+  <Route path="donate/success" element={<DonateSuccess/>} />
+  <Route path="donate/cancel" element={<DonateCancel/>} />
+  <Route path="*" element={<NotFound/>}/> (inline for now)
+</Route>
+```
+
+Add a new page:
+
+1. Create the file in `src/pages/YourPage.tsx`.
+2. Import it in `App.tsx` and add a `<Route path="your-path" element={<YourPage/>} />` inside the layout route.
+
+### Styling & Tailwind
+
+Tailwind is configured in `tailwind.config.js` with custom brand palette and container centering. Base directives live in `src/index.css`:
+
+```
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+Custom brand colors: `brand: { 50..900 }` plus default shadows extended. Use `className="text-brand-600"` etc.
+
+### Navbar
+
+- Uses `NavLink` to auto-apply active styles.
+- Mobile menu uses a controlled `open` state + `max-height` CSS transition.
+- CTA button path `/donate` (placeholder until donation flow built).
+
+### Layout
+
+`Layout.tsx` centralizes structural chrome (navbar, main spacing, footer). All pages render through `<Outlet/>`.
+
+### Environment & Commands
+
+Install dependencies (already done usually):
+
+```
+npm install
+```
+
+Run dev server:
+
+```
+npm run dev
+```
+
+Build production:
+
+```
+npm run build
+```
+
+Preview production build:
+
+```
+npm run preview
+```
+
+### Conventions
+
+- Components: PascalCase in `components/`.
+- Pages: One default export per file, minimal logic; data fetching (future) via hooks/services.
+- Avoid inline complex logic in JSX; extract helpers.
+- Use semantic HTML (`<section>`, `<header>`, `<nav>`, etc.) for accessibility.
+
+### UI Primitives
+
+- `Button` variants: `primary | secondary | outline | ghost` (+ `loading` prop spinner)
+- `Card` + `CardHeader` + `CardTitle` + `CardContent`
+- `Section` wrapper with spacing (`sm|md|lg`), optional title / description, container handling
+
+Example:
+
+```
+<Section title="Campanii" description="Proiecte active">
+  <div className="grid gap-6 md:grid-cols-2">
+    <Card>
+      <CardHeader><CardTitle>Exemplu</CardTitle></CardHeader>
+      <CardContent>Text...</CardContent>
+    </Card>
+  </div>
+</Section>
+```
+
+### Donate Flow (Current State)
+
+`/donate` pagina include:
+
+- Sume preset: 25 / 50 / 100 / 250 RON
+- Input sumă personalizată (numeric only)
+- Rezumat donație + buton „Continuă către plată” (simulat cu alert)
+
+Integrare Stripe (plan):
+
+1. Trimite `POST /api/donations/session` cu `{ amount }`.
+2. Primește `url` de redirecționare (Checkout Session / Payment Link).
+3. Redirecționare: `window.location = url`.
+4. Success/Cancel redirecționează către rutele existente `/donate/success` și `/donate/cancel`.
+
+### Services Layer
+
+`src/services/campaigns.ts` oferă funcții mock:
+
+- `fetchCampaigns()` – listă campanii (mock + delay)
+- `fetchCampaignDetail(id)` – detaliu campanie
+
+Înlocuire viitoare: substituie mock cu request real (fetch/axios) spre backend.
+
+### Planned Next Steps
+
+1. Add reusable UI primitives (Button, Card, Section wrapper).
+2. Integrate backend API for campaigns list & detail (replace mocks).
+3. Wire Stripe Checkout creation endpoint + redirect.
+4. Global loading & error boundaries.
+5. SEO meta tags & OpenGraph (per route) – possibly via `react-helmet-async`.
+6. Add skeleton loaders (loading states).
+7. Accessibility enhancements (skip link, focus outlines).
+8. Extract shared formatting utils (currency, dates).
+
+### Manual QA Checklist (Current Milestone)
+
+- Navbar fixed at top, becomes opaque enough to read content.
+- All nav links navigate without full page reload.
+- Mobile menu opens/closes smoothly, closes after clicking a link.
+- 404 message appears for unknown route (test `/xyz`).
+- Tailwind utilities applied (inspect an element – classes expand in dev tools).
+- Donate page (`/donate`):
+  - Clicking preset amount highlights selection.
+  - Custom amount input accepts only digits and updates total.
+  - Button disabled when no amount selected; enabled when valid amount.
+  - Loading spinner appears briefly after clicking donate (simulated).
+  - Responsive layout collapses columns on mobile.
+- NotFound route shows 404 component.
+- UI primitives:
+  - Button variants render distinct styles.
+  - Card hover shadow appears (desktop) when hover prop active.
+  - Section spacing changes with spacing prop.
+
+### Troubleshooting
+
+| Symptom                      | Possible Cause                                 | Fix                                                                                       |
+| ---------------------------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Classes not applied          | Forgot `@tailwind` directives                  | Check `src/index.css` for the three directives.                                           |
+| New component styles missing | File path not in `content` globs               | Ensure `tailwind.config.js` includes `./src/**/*.{js,ts,jsx,tsx}`. Restart dev if needed. |
+| 404 for API calls            | Backend dev server not running / proxy missing | Start backend or configure Vite proxy in `vite.config.ts`.                                |
+| Mobile menu doesn’t animate  | Removed transition classes                     | Restore `transition-[max-height] duration-300`.                                           |
+
+### Quick Verification Script (Manual)
+
+1. `npm run dev` – ensure server starts without errors.
+2. Open `/` – see home placeholder.
+3. Navigate to each route via navbar – URL and content update.
+4. Resize below 768px – hamburger appears; open & close works.
+5. Enter an unknown path (e.g. `/abc`) – 404 message displays.
+6. Run `npm run build` – build completes successfully.
+7. `npm run preview` – confirm built site serves same routes.
+
+### Adding Data Fetching (Preview Pattern)
+
+Create a service file, e.g. `src/services/campaigns.ts`:
+
+```
+export async function fetchCampaigns() {
+  const res = await fetch('/api/campaigns');
+  if (!res.ok) throw new Error('Failed to load campaigns');
+  return res.json();
+}
+```
+
+Then in a page component use `useEffect` or a data fetching hook library (e.g. TanStack Query) later.
+
+### License
+
+Internal project – adapt as needed.
+
+---
+
+Original Vite template documentation has been replaced with project-specific notes above. Refer to Vite docs for advanced configuration.

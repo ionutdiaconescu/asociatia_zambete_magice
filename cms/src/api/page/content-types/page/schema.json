@@ -15,13 +15,30 @@
       "type": "string",
       "required": true
     },
-    "descriere": {
+    "body": {
       "type": "richtext",
       "required": true
     },
     "image": {
       "type": "media",
       "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title"
+    },
+    "seoDescription": {
+      "type": "string"
+    },
+    "coverImage": {
+      "type": "media",
+      "multiple": false,
       "allowedTypes": [
         "images",
         "files",

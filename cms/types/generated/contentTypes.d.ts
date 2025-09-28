@@ -479,13 +479,21 @@ export interface ApiCampanieDeDonatiiCampanieDeDonatii
     draftAndPublish: true;
   };
   attributes: {
+    body: Schema.Attribute.RichText;
+    coverImage: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    image: Schema.Attribute.Media<
+    donatiis: Schema.Attribute.Relation<'oneToMany', 'api::donatii.donatii'>;
+    endDate: Schema.Attribute.Date;
+    gallery: Schema.Attribute.Media<
       'images' | 'files' | 'videos' | 'audios',
       true
     >;
+    goal: Schema.Attribute.Decimal;
+    idFeatured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -493,11 +501,15 @@ export interface ApiCampanieDeDonatiiCampanieDeDonatii
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
+    raised: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
+    shortDescription: Schema.Attribute.Text;
+    slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
     stare: Schema.Attribute.Enumeration<
       ['draft', 'active', 'completed', 'paused']
     > &
       Schema.Attribute.Required;
-    suma: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
+    startDate: Schema.Attribute.Date;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -515,14 +527,19 @@ export interface ApiDonatiiDonatii extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    amountInMinorUnit: Schema.Attribute.Integer;
     campanie_de_donatii: Schema.Attribute.Relation<
-      'oneToOne',
+      'manyToOne',
       'api::campanie-de-donatii.campanie-de-donatii'
     >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    emailDonator: Schema.Attribute.Email & Schema.Attribute.Required;
+    currency: Schema.Attribute.Enumeration<['RON', 'EUR', 'USD']> &
+      Schema.Attribute.DefaultTo<'RON'>;
+    donorCountry: Schema.Attribute.String;
+    emailDonator: Schema.Attribute.Email;
+    isAnonymous: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -531,12 +548,16 @@ export interface ApiDonatiiDonatii extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     mesaj: Schema.Attribute.RichText;
     metodaDePlata: Schema.Attribute.Enumeration<['card', 'transfer bancar']>;
+    netAmount: Schema.Attribute.Integer;
     numeDonator: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
+    receiptUrl: Schema.Attribute.String;
     stare: Schema.Attribute.Enumeration<
       ['pending', 'completed', 'failed', 'refunded']
     > &
       Schema.Attribute.Required;
+    stripePaymentIntentId: Schema.Attribute.String;
+    stripeSessionId: Schema.Attribute.String & Schema.Attribute.Unique;
     suma: Schema.Attribute.Decimal & Schema.Attribute.Required;
     transactionId: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
@@ -556,10 +577,13 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    body: Schema.Attribute.RichText & Schema.Attribute.Required;
+    coverImage: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    descriere: Schema.Attribute.RichText & Schema.Attribute.Required;
     image: Schema.Attribute.Media<
       'images' | 'files' | 'videos' | 'audios',
       true
@@ -568,6 +592,8 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::page.page'> &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
+    seoDescription: Schema.Attribute.String;
+    slug: Schema.Attribute.UID<'title'>;
     title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
