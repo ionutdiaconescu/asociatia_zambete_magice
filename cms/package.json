@@ -15,13 +15,14 @@
     "upgrade:dry": "npx @strapi/upgrade latest --dry",
     "migrate:isFeatured": "ts-node src/scripts/migrate-isFeatured.ts",
     "recompute:raised": "ts-node src/scripts/recompute-raised.ts",
-    "sync:donations": "ts-node src/scripts/sync-donation-suma.ts"
+    "sync:donations": "ts-node src/scripts/sync-donation-suma.ts",
+    "postinstall": "npm rebuild better-sqlite3 || true"
   },
   "dependencies": {
     "@strapi/plugin-cloud": "5.24.1",
     "@strapi/plugin-users-permissions": "5.24.1",
     "@strapi/strapi": "5.24.1",
-    "better-sqlite3": "^9.4.0",
+    "better-sqlite3": "9.4.0",
     "pg": "8.8.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
@@ -37,7 +38,7 @@
     "ts-node": "^10.9.2"
   },
   "engines": {
-    "node": ">=18.0.0 <=22.x.x",
+    "node": ">=18.0.0 <21.0.0",
     "npm": ">=6.0.0"
   },
   "strapi": {
