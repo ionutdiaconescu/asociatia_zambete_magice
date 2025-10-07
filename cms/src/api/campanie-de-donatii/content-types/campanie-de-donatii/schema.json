@@ -14,22 +14,12 @@
     "coverImage": {
       "type": "media",
       "multiple": false,
-      "allowedTypes": [
-        "images",
-        "files",
-        "videos",
-        "audios"
-      ]
+      "allowedTypes": ["images", "files", "videos", "audios"]
     },
     "stare": {
       "type": "enumeration",
       "required": true,
-      "enum": [
-        "draft",
-        "active",
-        "completed",
-        "paused"
-      ]
+      "enum": ["draft", "active", "completed", "paused"]
     },
     "title": {
       "type": "string",
@@ -52,12 +42,7 @@
     "gallery": {
       "type": "media",
       "multiple": true,
-      "allowedTypes": [
-        "images",
-        "files",
-        "videos",
-        "audios"
-      ]
+      "allowedTypes": ["images", "files", "videos", "audios"]
     },
     "donatiis": {
       "type": "relation",
@@ -69,7 +54,7 @@
       "type": "decimal",
       "default": 0
     },
-    "idFeatured": {
+    "isFeatured": {
       "type": "boolean",
       "default": false
     },

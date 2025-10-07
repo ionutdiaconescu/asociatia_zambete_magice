@@ -1,6 +1,6 @@
 // Service layer for campaigns API integration (no React imports here).
 // Falls back to mock data if backend not reachable (early dev convenience).
-import type { CampaignSummary, CampaignDetail } from "../types/campaign";
+import type { CampaignSummary, CampaignDetail } from "../types/Campaign";
 import { enhanceCampaign, enhanceMany } from "../utils/campaign";
 
 // Mock data (fallback)

@@ -12,7 +12,10 @@
     "start": "strapi start",
     "strapi": "strapi",
     "upgrade": "npx @strapi/upgrade latest",
-    "upgrade:dry": "npx @strapi/upgrade latest --dry"
+    "upgrade:dry": "npx @strapi/upgrade latest --dry",
+    "migrate:isFeatured": "ts-node src/scripts/migrate-isFeatured.ts",
+    "recompute:raised": "ts-node src/scripts/recompute-raised.ts",
+    "sync:donations": "ts-node src/scripts/sync-donation-suma.ts"
   },
   "dependencies": {
     "@strapi/plugin-cloud": "5.24.1",

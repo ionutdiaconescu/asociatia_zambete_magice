@@ -5,6 +5,7 @@ import { Suspense, lazy } from "react";
 import Home from "./pages/Home"; // keep Home eagerly loaded (landing)
 const Campaigns = lazy(() => import("./pages/Campaigns"));
 const CampaignDetail = lazy(() => import("./pages/CampaignDetail"));
+const CampaignsHistory = lazy(() => import("./pages/CampaignsHistory"));
 const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
 const DonateSuccess = lazy(() => import("./pages/DonateSuccess"));
@@ -29,6 +30,7 @@ function App() {
           <Route index element={<Home />} />
           <Route path="campaigns" element={<Campaigns />} />
           <Route path="campaigns/:slug" element={<CampaignDetail />} />
+          <Route path="campaigns/history" element={<CampaignsHistory />} />
           <Route path="about" element={<About />} />
           <Route path="contact" element={<Contact />} />
           <Route path="donate" element={<Donate />} />

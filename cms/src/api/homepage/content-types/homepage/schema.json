@@ -1,0 +1,128 @@
+{
+  "kind": "singleType",
+  "collectionName": "homepages",
+  "info": {
+    "singularName": "homepage",
+    "pluralName": "homepages",
+    "displayName": "Homepage"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "heroTitle": {
+      "type": "string"
+    },
+    "heroSubtitle": {
+      "type": "string"
+    },
+    "heroDescription": {
+      "type": "blocks"
+    },
+    "heroBackgroundMedia": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images", "files", "videos", "audios"]
+    },
+    "heroCtaText": {
+      "type": "string"
+    },
+    "heroCtaLink": {
+      "type": "string"
+    },
+    "statsYearsActive": {
+      "type": "integer",
+      "default": 0
+    },
+    "statsTotalBeneficiaries": {
+      "type": "integer",
+      "default": 0
+    },
+    "statsCompletedProjects": {
+      "type": "integer",
+      "default": 0
+    },
+    "statsActiveVolunteers": {
+      "type": "integer",
+      "default": 0
+    },
+    "howWeWorkTitle": {
+      "type": "string"
+    },
+    "howWeWorkDescription": {
+      "type": "blocks"
+    },
+    "impactGalleryTitle": {
+      "type": "string"
+    },
+    "impactGalleryDescription": {
+      "type": "blocks"
+    },
+    "impactGalleryImages": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": ["images", "files", "videos", "audios"]
+    },
+    "teamTitle": {
+      "type": "string"
+    },
+    "teamDescription": {
+      "type": "blocks"
+    },
+    "transparencyTitle": {
+      "type": "string"
+    },
+    "annualReports": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": ["images", "files", "videos", "audios"]
+    },
+    "certifications": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": ["images", "files", "videos", "audios"]
+    },
+    "howWeWorkSteps": {
+      "type": "component",
+      "component": "homepage.work-step",
+      "repeatable": true
+    },
+    "impactTestimonials": {
+      "type": "component",
+      "component": "homepage.testimonial",
+      "repeatable": true
+    },
+    "teamMembers": {
+      "type": "component",
+      "component": "homepage.team-member",
+      "repeatable": true
+    },
+    "donationIban": {
+      "type": "string"
+    },
+    "donationBankName": {
+      "type": "string"
+    },
+    "donationBeneficiaryName": {
+      "type": "string"
+    },
+    "donationInstructions": {
+      "type": "blocks"
+    },
+    "donationReferenceHint": {
+      "type": "string"
+    },
+    "seoTitle": {
+      "type": "string"
+    },
+    "seoDescription": {
+      "type": "text"
+    },
+    "seoSocialImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images", "files", "videos", "audios"]
+    }
+  }
+}

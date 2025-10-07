@@ -1,4 +1,4 @@
-import type { CampaignSummary } from "../types/campaign";
+import type { CampaignSummary } from "../types/Campaign";
 
 export function computeProgress(raised: number, goal: number): number {
   if (!goal || goal <= 0) return 0;

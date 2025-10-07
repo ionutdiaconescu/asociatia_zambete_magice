@@ -1,3 +1,22 @@
+export interface Campaign {
+  id: number;
+  slug: string;
+  title: string;
+  shortDescription: string;
+  description?: string;
+  goal: number;
+  raised: number;
+  status: string;
+  coverImage: string | null;
+  donorCount?: number;
+  daysLeft?: number | string;
+  isFeatured?: boolean;
+  startDate?: string; // ISO date (YYYY-MM-DD)
+  endDate?: string; // ISO date (YYYY-MM-DD)
+  // Derived (not persisted) classification flags (set in mapping/util):
+  isActiveNow?: boolean;
+  isHistorical?: boolean;
+}
 export interface CampaignSummary {
   id: string;
   title: string;
@@ -12,6 +31,11 @@ export interface CampaignSummary {
   progressPercent?: number; // 0..100 (rounded integer)
   remaining?: number; // goal - raised (never negative)
   isCompleted?: boolean; // true if raised >= goal and goal>0
+  isFeatured?: boolean; // featured flag
+  startDate?: string;
+  endDate?: string;
+  isActiveNow?: boolean;
+  isHistorical?: boolean;
 }
 
 export interface CampaignDetail extends CampaignSummary {

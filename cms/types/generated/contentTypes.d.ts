@@ -493,7 +493,7 @@ export interface ApiCampanieDeDonatiiCampanieDeDonatii
       true
     >;
     goal: Schema.Attribute.Decimal;
-    idFeatured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    isFeatured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -560,6 +560,83 @@ export interface ApiDonatiiDonatii extends Struct.CollectionTypeSchema {
     stripeSessionId: Schema.Attribute.String & Schema.Attribute.Unique;
     suma: Schema.Attribute.Decimal & Schema.Attribute.Required;
     transactionId: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiHomepageHomepage extends Struct.SingleTypeSchema {
+  collectionName: 'homepages';
+  info: {
+    displayName: 'Homepage';
+    pluralName: 'homepages';
+    singularName: 'homepage';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    annualReports: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
+    certifications: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    donationBankName: Schema.Attribute.String;
+    donationBeneficiaryName: Schema.Attribute.String;
+    donationIban: Schema.Attribute.String;
+    donationInstructions: Schema.Attribute.Blocks;
+    donationReferenceHint: Schema.Attribute.String;
+    heroBackgroundMedia: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios'
+    >;
+    heroCtaLink: Schema.Attribute.String;
+    heroCtaText: Schema.Attribute.String;
+    heroDescription: Schema.Attribute.Blocks;
+    heroSubtitle: Schema.Attribute.String;
+    heroTitle: Schema.Attribute.String;
+    howWeWorkDescription: Schema.Attribute.Blocks;
+    howWeWorkSteps: Schema.Attribute.Component<'homepage.work-step', true>;
+    howWeWorkTitle: Schema.Attribute.String;
+    impactGalleryDescription: Schema.Attribute.Blocks;
+    impactGalleryImages: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
+    impactGalleryTitle: Schema.Attribute.String;
+    impactTestimonials: Schema.Attribute.Component<
+      'homepage.testimonial',
+      true
+    >;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::homepage.homepage'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    seoDescription: Schema.Attribute.Text;
+    seoSocialImage: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios'
+    >;
+    seoTitle: Schema.Attribute.String;
+    statsActiveVolunteers: Schema.Attribute.Integer &
+      Schema.Attribute.DefaultTo<0>;
+    statsCompletedProjects: Schema.Attribute.Integer &
+      Schema.Attribute.DefaultTo<0>;
+    statsTotalBeneficiaries: Schema.Attribute.Integer &
+      Schema.Attribute.DefaultTo<0>;
+    statsYearsActive: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    teamDescription: Schema.Attribute.Blocks;
+    teamMembers: Schema.Attribute.Component<'homepage.team-member', true>;
+    teamTitle: Schema.Attribute.String;
+    transparencyTitle: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1114,6 +1191,7 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser;
       'api::campanie-de-donatii.campanie-de-donatii': ApiCampanieDeDonatiiCampanieDeDonatii;
       'api::donatii.donatii': ApiDonatiiDonatii;
+      'api::homepage.homepage': ApiHomepageHomepage;
       'api::page.page': ApiPagePage;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
