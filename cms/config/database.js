@@ -67,6 +67,19 @@ module.exports = ({ env }) => {
       console.log(
         `[database.js] Using Postgres -> host=${host} port=${port} db=${database} user=${user} schema=${schema} ssl=${sslEnabled} rejectUnauthorized=${rejectUnauthorized}`
       );
+      console.log(
+        "[database.js] Full connection object (sanitized password length):",
+        {
+          host,
+          port,
+          database,
+          user,
+          passwordLength: password ? password.length : 0,
+          schema,
+          sslEnabled,
+          rejectUnauthorized,
+        }
+      );
     }
     return {
       connection: {
@@ -88,6 +101,7 @@ module.exports = ({ env }) => {
           min: env.int("DATABASE_POOL_MIN", 2),
           max: env.int("DATABASE_POOL_MAX", 10),
         },
+        debug: debug,
       },
     };
   }
