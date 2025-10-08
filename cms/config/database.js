@@ -9,18 +9,35 @@ try {
 module.exports = ({ env }) => {
   const client = (env("DATABASE_CLIENT", "sqlite") || "sqlite").toLowerCase();
 
+  // Lightweight debug info to confirm which DB config is actually loaded at runtime.
+  // Set DEBUG_DB_CONFIG=1 in env to print this (avoids noisy logs in production by default).
+  const debug = env.bool
+    ? env.bool("DEBUG_DB_CONFIG", false)
+    : env("DEBUG_DB_CONFIG") === "true";
+
   if (client === "postgres") {
     const host = env("DATABASE_HOST", "127.0.0.1");
+    const port = env.int
+      ? env.int("DATABASE_PORT", 5432)
+      : parseInt(env("DATABASE_PORT", "5432"), 10);
+    const database = env("DATABASE_NAME", "strapi");
+    const user = env("DATABASE_USERNAME", "strapi");
+    const schema = env("DATABASE_SCHEMA", "public");
+    if (debug) {
+      console.log(
+        `[database.js] Using Postgres -> host=${host} port=${port} db=${database} user=${user} schema=${schema} ssl=${env("DATABASE_SSL", "false")}`
+      );
+    }
     return {
       connection: {
         client: "postgres",
         connection: {
           host,
-          port: env.int("DATABASE_PORT", 5432),
-          database: env("DATABASE_NAME", "strapi"),
-          user: env("DATABASE_USERNAME", "strapi"),
+          port,
+          database,
+          user,
           password: env("DATABASE_PASSWORD", "strapi"),
-          schema: env("DATABASE_SCHEMA", "public"),
+          schema,
           ssl: env.bool("DATABASE_SSL", false)
             ? {
                 rejectUnauthorized: env.bool(
