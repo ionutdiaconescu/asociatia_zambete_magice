@@ -16,6 +16,7 @@
     "migrate:isFeatured": "ts-node src/scripts/migrate-isFeatured.ts",
     "recompute:raised": "ts-node src/scripts/recompute-raised.ts",
     "sync:donations": "ts-node src/scripts/sync-donation-suma.ts",
+    "export:content": "node scripts/export-content.js",
     "postinstall": "npm rebuild better-sqlite3 || true"
   },
   "dependencies": {

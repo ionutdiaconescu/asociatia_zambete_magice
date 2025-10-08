@@ -2,6 +2,14 @@
 // If this loads you'll see the console.log marker.
 
 import path from "path";
+// Force IPv4 first to avoid ENETUNREACH errors when the platform cannot reach IPv6 addresses
+// (Render free services sometimes fail on IPv6-only first DNS result for Supabase hostnames)
+try {
+  // Node 18+ provides dns.setDefaultResultOrder
+  // We guard with optional chaining to avoid crashes on older runtimes.
+  // @ts-ignore - suppress if TS doesn't know about the method
+  require("dns").setDefaultResultOrder?.("ipv4first");
+} catch {}
 
 export default ({ env }) => {
   const client = env("DATABASE_CLIENT", "sqlite").toLowerCase();

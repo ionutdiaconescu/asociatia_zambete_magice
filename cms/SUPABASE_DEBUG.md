@@ -29,7 +29,8 @@
 Înlocuiește configurația din .env cu:
 
 ```
-DATABASE_URL=postgresql://ionutdiaconescu:14081995.IonuttttS@gbzwxjdsinimqdgkvtsu.supabase.co:5432/asociatia_zambete_magice?sslmode=require
+# Exemplu (NU FOLOSI PAROLA REALĂ ÎN REPO):
+DATABASE_URL=postgresql://USER:PAROLA@xxxx.supabase.co:5432/NUME_BD?sslmode=require
 ```
 
 ### 5. Verifică statusul Supabase
@@ -41,6 +42,7 @@ DATABASE_URL=postgresql://ionutdiaconescu:14081995.IonuttttS@gbzwxjdsinimqdgkvts
 
 ```bash
 # În terminal:
-$env:DATABASE_URL="postgresql://ionutdiaconescu:14081995.IonuttttS@gbzwxjdsinimqdgkvtsu.supabase.co:5432/asociatia_zambete_magice?sslmode=require"
+# PowerShell exemplu (înlocuiește USER, PAROLA, HOST, DB):
+$env:DATABASE_URL="postgresql://USER:PAROLA@HOST.supabase.co:5432/DB?sslmode=require"
 npm run develop
 ```
