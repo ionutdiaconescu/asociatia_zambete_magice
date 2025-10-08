@@ -17,6 +17,9 @@
     "recompute:raised": "ts-node src/scripts/recompute-raised.ts",
     "sync:donations": "ts-node src/scripts/sync-donation-suma.ts",
     "export:content": "node scripts/export-content.js",
+    "bootstrap:db": "node scripts/bootstrap-db.js",
+    "admin:create": "node scripts/create-admin-user.js",
+    "admin:reset": "node scripts/reset-admin-password.js",
     "postinstall": "npm rebuild better-sqlite3 || true"
   },
   "dependencies": {
