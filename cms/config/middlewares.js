@@ -11,7 +11,6 @@ module.exports = ({ env }) => [
       enabled: true,
       origin: [
         env("FRONTEND_URL", "http://localhost:5173"),
-        // You can add additional allowed origins here or via CORS_EXTRA_ORIGINS
         ...(env("CORS_EXTRA_ORIGINS") || "")
           .split(",")
           .map((s) => s.trim())
@@ -32,7 +31,15 @@ module.exports = ({ env }) => [
       includeUnparsed: true,
     },
   },
-  "strapi::session",
+  {
+    name: "strapi::session",
+    config: {
+      cookie: {
+        secure: env.bool("SESSION_COOKIE_SECURE", true),
+        sameSite: "lax",
+      },
+    },
+  },
   "strapi::favicon",
   "strapi::public",
 ];
