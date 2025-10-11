@@ -1,0 +1,15 @@
+{
+  "connection": {
+    "client": "postgres",
+    "connection": {
+      "connectionString": "postgresql://postgres:14081995.IonuttttS@ajmvymmpwmtivuzgxwdh.supabase.co:6543/postgres?schema=public&pgbouncer=true",
+      "ssl": {
+        "rejectUnauthorized": false
+      }
+    },
+    "pool": {
+      "min": 0,
+      "max": 5
+    }
+  }
+}
