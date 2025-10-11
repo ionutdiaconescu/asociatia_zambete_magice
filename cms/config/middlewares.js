@@ -35,7 +35,7 @@ module.exports = ({ env }) => [
     name: "strapi::session",
     config: {
       cookie: {
-        secure: env.bool("SESSION_COOKIE_SECURE", true),
+        secure: false, //env.bool("SESSION_COOKIE_SECURE", true),
         sameSite: "lax",
       },
     },
