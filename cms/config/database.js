@@ -83,43 +83,39 @@ module.exports = ({ env }) => {
       );
     }
     return {
+      client: "postgres",
       connection: {
-        client: "postgres",
-        connection: {
-          host,
-          port,
-          database,
-          user,
-          password,
-          schema,
-          ssl: sslEnabled
-            ? {
-                rejectUnauthorized,
-              }
-            : false,
-        },
-        pool: {
-          min: env.int("DATABASE_POOL_MIN", 2),
-          max: env.int("DATABASE_POOL_MAX", 10),
-        },
-        debug: debug,
+        host,
+        port,
+        database,
+        user,
+        password,
+        schema,
+        ssl: sslEnabled
+          ? {
+              rejectUnauthorized,
+            }
+          : false,
       },
+      pool: {
+        min: env.int("DATABASE_POOL_MIN", 2),
+        max: env.int("DATABASE_POOL_MAX", 10),
+      },
+      debug: debug,
     };
   }
 
   // sqlite fallback
   return {
+    client: "sqlite",
     connection: {
-      client: "sqlite",
-      connection: {
-        filename: path.join(
-          __dirname,
-          "..",
-          "..",
-          env("DATABASE_FILENAME", ".tmp/data.db")
-        ),
-      },
-      useNullAsDefault: true,
+      filename: path.join(
+        __dirname,
+        "..",
+        "..",
+        env("DATABASE_FILENAME", ".tmp/data.db")
+      ),
     },
+    useNullAsDefault: true,
   };
 };
