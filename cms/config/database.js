@@ -1,3 +1,4 @@
+console.log("=== database.js loaded ===");
 // JS mirror of database.ts so Strapi config loader (expects .js/.json) works for standalone ts-node scripts.
 const path = require("path");
 // Force IPv4 resolution first to avoid ENETUNREACH on environments without IPv6 routing
