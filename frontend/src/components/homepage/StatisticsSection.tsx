@@ -1,5 +1,3 @@
-import React from "react";
-
 interface StatisticsSectionProps {
   yearsActive: number;
   totalBeneficiaries: number;

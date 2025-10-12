@@ -1,5 +1,3 @@
-import React from "react";
-
 interface HowWeWorkSectionProps {
   title?: string | null;
   description?: string | null;

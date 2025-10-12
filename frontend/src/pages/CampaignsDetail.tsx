@@ -1,4 +1,3 @@
-import React from "react";
 import { useParams, Link } from "react-router-dom";
 import { useCampaign } from "../hooks/useCampaign";
 import { formatRON } from "../utils/format";

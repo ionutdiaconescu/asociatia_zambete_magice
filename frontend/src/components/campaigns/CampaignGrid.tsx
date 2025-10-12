@@ -1,4 +1,3 @@
-import React from "react";
 import { useCampaigns } from "../../hooks/useCampaigns";
 import { CampaignCard, CampaignCardSkeleton } from "./CampaignCard";
 

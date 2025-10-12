@@ -1,5 +1,3 @@
-import React from "react";
-
 interface TransparencySectionProps {
   title?: string | null;
 }
