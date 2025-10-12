@@ -11,6 +11,7 @@ module.exports = ({ env }) => [
       enabled: true,
       origin: [
         env("FRONTEND_URL", "http://localhost:5173"),
+        "https://asociatia-zambete-magice.vercel.app",
         ...(env("CORS_EXTRA_ORIGINS") || "")
           .split(",")
           .map((s) => s.trim())
