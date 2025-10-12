@@ -3,10 +3,10 @@ console.log("=== database.js loaded ===");
 const path = require("path");
 
 const env = (key, def) => process.env[key] || def;
-
 const debug = env("DEBUG_DB_CONFIG", "false") === "true";
-
 const client = (env("DATABASE_CLIENT", "sqlite") || "sqlite").toLowerCase();
+
+let config;
 
 if (client === "postgres") {
   const rawUrl = env("DATABASE_URL");
@@ -66,7 +66,7 @@ if (client === "postgres") {
     );
   }
 
-  module.exports = {
+  config = {
     client: "postgres",
     connection: {
       host,
@@ -88,7 +88,7 @@ if (client === "postgres") {
     debug: debug,
   };
 } else {
-  module.exports = {
+  config = {
     client: "sqlite",
     connection: {
       filename: path.join(
@@ -101,3 +101,5 @@ if (client === "postgres") {
     useNullAsDefault: true,
   };
 }
+
+module.exports = config;
