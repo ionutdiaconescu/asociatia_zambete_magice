@@ -1,6 +1,6 @@
 import type { StaticPage } from "../types/page";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "/api";
+const API_BASE = import.meta.env.VITE_API_CMS_URL || "/api";
 
 interface StrapiPageAttr {
   title?: string;

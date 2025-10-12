@@ -99,7 +99,7 @@ export function useHomepage() {
       try {
         setLoading(true);
         const apiUrl =
-          import.meta.env.VITE_API_BASE_URL || "http://localhost:1337/api";
+          import.meta.env.VITE_API_CMS_URL || "http://localhost:1337/api";
         const response = await fetch(`${apiUrl}/homepage?populate=*`);
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);

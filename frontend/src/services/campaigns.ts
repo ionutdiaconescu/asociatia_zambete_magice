@@ -29,7 +29,7 @@ const mockCampaigns: CampaignSummary[] = [
 ];
 
 // Base API: prefer explicit env, otherwise relative '/api' (may point to frontend dev server and 404)
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "/api"; // expected: http://localhost:1337/api
+const API_BASE = import.meta.env.VITE_API_CMS_URL || "/api"; // expected: http://localhost:1337/api
 // If API_BASE is relative, try to guess Strapi dev origin (1337) as a fallback at runtime in browser
 function computeCandidateBases(): string[] {
   const bases: string[] = [API_BASE];
