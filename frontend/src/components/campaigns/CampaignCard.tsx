@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
 import { Progress } from "../ui/Progress";
-import type { CampaignSummary } from "../../types/Campaign";
+import type { CampaignSummary } from "../../types/campaign";
 import { formatRON, formatPercent } from "../../utils/format";
 
 interface CampaignCardProps {

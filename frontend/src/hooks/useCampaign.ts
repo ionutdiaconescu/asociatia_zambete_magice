@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { Campaign } from "../types/Campaign";
+import type { Campaign } from "../types/campaign";
 
 // Canonical detail fetch using slug filter against plural collection route.
 export function useCampaign(slug: string) {

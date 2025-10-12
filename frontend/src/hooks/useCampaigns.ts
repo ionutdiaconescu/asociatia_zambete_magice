@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { CampaignSummary, AsyncState } from "../types/Campaign";
+import type { CampaignSummary, AsyncState } from "../types/campaign";
 
 // Canonical Strapi collection route: /api/campanie-de-donatiis
 // We bypass the older service fallback logic and hit the definitive endpoint.
