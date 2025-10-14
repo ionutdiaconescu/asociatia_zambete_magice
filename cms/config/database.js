@@ -1,12 +1,20 @@
 module.exports = ({ env }) => {
-  console.log("DATABASE_URL:", env("DATABASE_URL"));
-  console.log("DATABASE_CLIENT:", env("DATABASE_CLIENT"));
-  console.log("DATABASE_SSL:", env("DATABASE_SSL"));
+  const client = env("DATABASE_CLIENT", "postgres");
+  const url = env("DATABASE_URL");
+  const ssl = env.bool("DATABASE_SSL", true);
+  if (client !== "postgres") {
+    throw new Error("Only Postgres is supported in this deployment!");
+  }
+  if (!url) {
+    throw new Error("DATABASE_URL is not set!");
+  }
   return {
     connection: {
-      client: env("DATABASE_CLIENT", "postgres"),
-      connection: env("DATABASE_URL"),
-      ssl: env.bool("DATABASE_SSL", true),
+      client: "postgres",
+      connection: {
+        connectionString: url,
+        ssl: ssl ? { rejectUnauthorized: false } : false,
+      },
     },
   };
 };
