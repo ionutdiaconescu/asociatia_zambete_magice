@@ -1,3 +1,9 @@
+console.log(
+  "ENV DEBUG:",
+  process.env.DATABASE_CLIENT,
+  process.env.DATABASE_URL,
+  process.env.DATABASE_SSL
+);
 module.exports = ({ env }) => {
   const client = env("DATABASE_CLIENT", "postgres");
   const url = env("DATABASE_URL");
