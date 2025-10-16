@@ -35,15 +35,18 @@ module.exports = ({ env }) => {
     const dbName = parsed.pathname
       ? parsed.pathname.replace(/^\//, "")
       : undefined;
-    const dbUser = parsed.username || undefined;
-    const dbPassword = parsed.password || undefined;
+    // Prefer explicit env overrides for username/password if present
+    const parsedUser = parsed.username || undefined;
+    const parsedPassword = parsed.password || undefined;
+    const envUser = env("DATABASE_USERNAME", parsedUser);
+    const envPassword = env("DATABASE_PASSWORD", parsedPassword);
 
     const connectionObj = {
       host: dbHost,
       port: dbPort,
       database: dbName,
-      user: dbUser,
-      password: dbPassword,
+      user: envUser,
+      password: envPassword,
       ssl: ssl ? { rejectUnauthorized: false } : false,
     };
 
@@ -59,6 +62,19 @@ module.exports = ({ env }) => {
         ", db=",
         connectionObj.database
       );
+      // If the parsed user differs from the env override, log that we overrode it
+      if (parsedUser && envUser && parsedUser !== envUser) {
+        try {
+          console.log(
+            "[db-config] INFO: DATABASE_USERNAME override in effect. parsedUser=",
+            parsedUser,
+            "-> using=",
+            envUser
+          );
+        } catch (e) {
+          // ignore
+        }
+      }
     } catch (e) {
       // ignore
     }
