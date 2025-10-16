@@ -8,6 +8,14 @@ module.exports = ({ env }) => {
     const safeUrl = url ? url.replace(/:[^:@]+@/, ":***@") : url;
     console.log("[db-config] DATABASE_CLIENT=", client);
     console.log("[db-config] DATABASE_URL=", safeUrl);
+    // Parse and log the username part from the URL so we can confirm which DB user is used
+    try {
+      const m = url && url.match(/^postgres(?:ql)?:\/\/([^:@]+)(?::|@)/i);
+      const dbUser = m ? m[1] : undefined;
+      console.log("[db-config] DB_USER=", dbUser || "(none)");
+    } catch (e) {
+      console.log("[db-config] DB_USER= (parse-error)");
+    }
     console.log("[db-config] DATABASE_SSL=", ssl);
   } catch (e) {
     // swallow logging errors to avoid breaking startup
@@ -18,13 +26,46 @@ module.exports = ({ env }) => {
   if (!url) {
     throw new Error("DATABASE_URL is not set!");
   }
-  return {
-    connection: {
-      client: "postgres",
+  // Parse the DATABASE_URL and provide explicit connection fields to the pg client.
+  // This avoids ambiguity where some environments or drivers may prefer separate fields.
+  try {
+    const parsed = new URL(url);
+    const dbHost = parsed.hostname;
+    const dbPort = parsed.port || 5432;
+    const dbName = parsed.pathname
+      ? parsed.pathname.replace(/^\//, "")
+      : undefined;
+    const dbUser = parsed.username || undefined;
+    const dbPassword = parsed.password || undefined;
+
+    const connectionObj = {
+      host: dbHost,
+      port: dbPort,
+      database: dbName,
+      user: dbUser,
+      password: dbPassword,
+      ssl: ssl ? { rejectUnauthorized: false } : false,
+    };
+
+    // Keep connectionString as fallback for any driver expectations
+    connectionObj.connectionString = url;
+
+    return {
       connection: {
-        connectionString: url,
-        ssl: ssl ? { rejectUnauthorized: false } : false,
+        client: "postgres",
+        connection: connectionObj,
       },
-    },
-  };
+    };
+  } catch (e) {
+    // If parsing fails, fall back to connectionString
+    return {
+      connection: {
+        client: "postgres",
+        connection: {
+          connectionString: url,
+          ssl: ssl ? { rejectUnauthorized: false } : false,
+        },
+      },
+    };
+  }
 };
