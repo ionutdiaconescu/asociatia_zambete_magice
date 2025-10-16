@@ -47,9 +47,23 @@ module.exports = ({ env }) => {
       ssl: ssl ? { rejectUnauthorized: false } : false,
     };
 
-    // Keep connectionString as fallback for any driver expectations
-    connectionObj.connectionString = url;
+    // Log a masked preview of the parsed connection object so we can confirm
+    try {
+      const maskedUser = connectionObj.user || "(none)";
+      const maskedHost = connectionObj.host || "(none)";
+      console.log(
+        "[db-config] parsed connection -> user=",
+        maskedUser,
+        ", host=",
+        maskedHost,
+        ", db=",
+        connectionObj.database
+      );
+    } catch (e) {
+      // ignore
+    }
 
+    // Return explicit connection fields (do not pass connectionString to avoid driver fallbacks)
     return {
       connection: {
         client: "postgres",
