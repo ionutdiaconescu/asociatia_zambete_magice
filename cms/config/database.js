@@ -79,11 +79,16 @@ module.exports = ({ env }) => {
       // ignore
     }
 
-    // Return explicit connection fields (do not pass connectionString to avoid driver fallbacks)
+    // For reliability in this environment prefer passing the full connectionString
+    // (DATABASE_URL) to the driver. This ensures the exact credentials in the URL
+    // are used by the pg client. This is a safe, temporary measure for debugging.
     return {
       connection: {
         client: "postgres",
-        connection: connectionObj,
+        connection: {
+          connectionString: url,
+          ssl: ssl ? { rejectUnauthorized: false } : false,
+        },
       },
     };
   } catch (e) {
