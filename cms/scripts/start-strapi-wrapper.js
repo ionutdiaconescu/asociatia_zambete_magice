@@ -83,6 +83,36 @@ async function runDiagnostics() {
     }
   }
 
+  // If the deploy platform provides the pooler CA via POOLER_CA (PEM string),
+  // write it to a temp file and set NODE_EXTRA_CA_CERTS so Node and spawned
+  // processes trust the Supabase pooler root CA. This helps avoid
+  // SELF_SIGNED_CERT_IN_CHAIN errors on platforms where the root is not trusted.
+  try {
+    const poolerCa = process.env.POOLER_CA;
+    if (poolerCa) {
+      const os = require("os");
+      const path = require("path");
+      const tmpDir = os.tmpdir();
+      const pemPath = path.join(tmpDir, "pooler-root.pem");
+      try {
+        fs.writeFileSync(pemPath, poolerCa, { encoding: "utf8" });
+        // Ensure child processes inherit this environment so they also use the
+        // extra trusted CA when establishing TLS connections.
+        process.env.NODE_EXTRA_CA_CERTS = pemPath;
+        console.log(
+          `[wrapper] Wrote POOLER_CA to ${pemPath} and set NODE_EXTRA_CA_CERTS`
+        );
+      } catch (e) {
+        console.warn(
+          "[wrapper] Failed to write POOLER_CA to disk:",
+          e && e.message
+        );
+      }
+    }
+  } catch (e) {
+    // ignore any issues here
+  }
+
   await runDiagnostics();
 
   // If caller set SKIP_STRAPI_START=true we don't spawn Strapi (useful for testing)
