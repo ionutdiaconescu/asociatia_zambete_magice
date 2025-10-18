@@ -16,6 +16,20 @@ module.exports = ({ env }) => {
         ? parsed.pathname.replace(/^\//, "")
         : env("DATABASE_NAME", "postgres");
 
+      // Populate process.env early so any code that reads process.env directly
+      // (before our startup scripts run) sees consistent credentials.
+      try {
+        if (!process.env.PGUSER && user) process.env.PGUSER = user;
+        if (!process.env.PGPASSWORD && password)
+          process.env.PGPASSWORD = password;
+        if (!process.env.DATABASE_USERNAME && user)
+          process.env.DATABASE_USERNAME = user;
+        if (!process.env.DATABASE_PASSWORD && password)
+          process.env.DATABASE_PASSWORD = password;
+      } catch (e) {
+        // ignore
+      }
+
       return {
         connection: {
           client: "postgres",
