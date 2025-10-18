@@ -95,7 +95,7 @@ module.exports = ({ env }) => {
   }
 
   // 3) No DATABASE_URL; build from PG env vars or defaults.
-  return {
+  const result = {
     connection: {
       client,
       connection: {
@@ -124,4 +124,26 @@ module.exports = ({ env }) => {
       },
     },
   };
+
+  // Guard: detect if effective user is default 'postgres' and fail fast with a masked message
+  try {
+    const effectiveUser = result.connection.connection.user;
+    const mask = (v) => (v ? "***" : "");
+    if (!effectiveUser || effectiveUser === "postgres") {
+      const msg =
+        `DB config guard: refusing to start with user=${effectiveUser || "<empty>"}.` +
+        ` Ensure DATABASE_URL contains the pooler username or set PGUSER/PGPASSWORD in env.`;
+      console.error(
+        "[db-guard]",
+        msg,
+        "masked_password=",
+        mask(result.connection.connection.password)
+      );
+      throw new Error(msg);
+    }
+  } catch (e) {
+    throw e;
+  }
+
+  return result;
 };

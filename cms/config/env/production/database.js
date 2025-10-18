@@ -28,7 +28,7 @@ module.exports = ({ env }) => {
         // ignore
       }
 
-      return {
+      const result = {
         connection: {
           client: "postgres",
           connection: {
@@ -41,6 +41,31 @@ module.exports = ({ env }) => {
           },
         },
       };
+
+      // Fail-fast guard: if the effective user looks like the default 'postgres'
+      // (and not the pooler user), throw with a masked message so any process
+      // that loads the config will stop and log the reason.
+      try {
+        const mask = (v) => (v ? "***" : "");
+        const effectiveUser = result.connection.connection.user;
+        if (!effectiveUser || effectiveUser === "postgres") {
+          const msg =
+            `DB config guard: refusing to start with user=${effectiveUser || "<empty>"}.` +
+            ` Ensure DATABASE_URL contains the pooler username or set PGUSER/PGPASSWORD in env.`;
+          console.error(
+            "[db-guard]",
+            msg,
+            "masked_password=",
+            mask(result.connection.connection.password)
+          );
+          throw new Error(msg);
+        }
+      } catch (e) {
+        // rethrow so Strapi fails fast and logs the reason
+        throw e;
+      }
+
+      return result;
     } catch (e) {
       return {
         connection: {
