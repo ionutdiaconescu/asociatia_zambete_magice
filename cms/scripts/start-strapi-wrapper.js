@@ -68,16 +68,19 @@ async function runDiagnostics() {
   const dbUrl = process.env.DATABASE_URL || "";
   const parsed = parseDatabaseUrl(dbUrl);
   if (parsed) {
-    if (!process.env.PGUSER)
-      process.env.PGUSER = parsed.user || process.env.PGUSER;
-    if (!process.env.PGPASSWORD)
-      process.env.PGPASSWORD = parsed.password || process.env.PGPASSWORD;
-    if (!process.env.DATABASE_USERNAME)
-      process.env.DATABASE_USERNAME =
-        parsed.user || process.env.DATABASE_USERNAME;
-    if (!process.env.DATABASE_PASSWORD)
-      process.env.DATABASE_PASSWORD =
-        parsed.password || process.env.DATABASE_PASSWORD;
+    // Force-override process envs from DATABASE_URL so nothing previously set
+    // (even by platform-level envs) can accidentally point to the wrong user.
+    // This makes the running process deterministic and matches the printed config.
+    process.env.PGUSER = parsed.user || "";
+    process.env.PGPASSWORD = parsed.password || "";
+    process.env.DATABASE_USERNAME = parsed.user || "";
+    process.env.DATABASE_PASSWORD = parsed.password || "";
+
+    // Also mirror into DATABASE_URL if it's missing query ssl params to be safe
+    // (we don't rewrite if user intentionally included params).
+    if (process.env.DATABASE_URL && !/\?/g.test(process.env.DATABASE_URL)) {
+      // keep existing DATABASE_URL untouched if it already contains ?
+    }
   }
 
   await runDiagnostics();
@@ -120,11 +123,23 @@ async function runDiagnostics() {
     "[wrapper] Starting Strapi with env: PGUSER=",
     process.env.PGUSER ? "set" : "unset"
   );
+  // Create a short sentinel id so each wrapper invocation can be correlated in logs.
+  const sentinelId = `${Date.now().toString(36)}-${Math.floor(
+    Math.random() * 0xffffff
+  ).toString(36)}`;
+  process.env.WRAPPER_SENTINEL_ID = sentinelId;
+  console.log(
+    `[wrapper-sentinel] id=${sentinelId} spawning=${cmd} ${args.join(" ")}`
+  );
 
   const child = spawn(cmd, args, {
     stdio: "inherit",
     env: process.env,
     shell: false,
+  });
+
+  child.on("spawn", () => {
+    console.log(`[wrapper-sentinel] id=${sentinelId} spawned pid=${child.pid}`);
   });
 
   child.on("exit", (code, signal) => {
