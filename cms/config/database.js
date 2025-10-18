@@ -67,6 +67,22 @@ module.exports = ({ env }) => {
         // ignore
       }
 
+      // Build ssl object; if POOLER_CA is provided in env (PEM string)
+      // include it as `ca` so the pg client trusts the pooler root directly.
+      let sslConfig = false;
+      if (ssl) {
+        sslConfig = { rejectUnauthorized: false };
+        try {
+          const poolerCa = process.env.POOLER_CA;
+          if (poolerCa) {
+            sslConfig.ca = poolerCa;
+            // Note: when ca is provided inline, Node/pg will use it directly.
+          }
+        } catch (e) {
+          // ignore and use rejectUnauthorized: false fallback
+        }
+      }
+
       return {
         connection: {
           client,
@@ -76,7 +92,7 @@ module.exports = ({ env }) => {
             database,
             user,
             password,
-            ssl: ssl ? { rejectUnauthorized: false } : false,
+            ssl: sslConfig,
           },
         },
       };

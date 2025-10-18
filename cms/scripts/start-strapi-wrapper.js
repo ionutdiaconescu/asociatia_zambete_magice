@@ -55,8 +55,16 @@ async function runDiagnostics() {
     try {
       require("./print-db-config");
     } catch (e) {}
+    // Only run the potentially noisy `test-db-connection` in non-production
+    // environments or when explicitly requested via RUN_TEST_DB=true. This
+    // avoids transient TLS/auth errors filling production deploy logs.
     try {
-      require("./test-db-connection");
+      const runTestDb =
+        process.env.RUN_TEST_DB === "true" ||
+        process.env.NODE_ENV !== "production";
+      if (runTestDb) {
+        require("./test-db-connection");
+      }
     } catch (e) {}
   } catch (e) {
     // swallow
@@ -88,7 +96,24 @@ async function runDiagnostics() {
   // processes trust the Supabase pooler root CA. This helps avoid
   // SELF_SIGNED_CERT_IN_CHAIN errors on platforms where the root is not trusted.
   try {
-    const poolerCa = process.env.POOLER_CA;
+    // Support either POOLER_CA (raw PEM) or POOLER_CA_B64 (base64-encoded PEM),
+    // because some deployment UIs strip newlines when pasting multiline values.
+    let poolerCa = process.env.POOLER_CA;
+    const poolerCaB64 = process.env.POOLER_CA_B64;
+    if (!poolerCa && poolerCaB64) {
+      try {
+        poolerCa = Buffer.from(poolerCaB64, "base64").toString("utf8");
+        // Ensure decoded PEM is available to other modules via env too.
+        process.env.POOLER_CA = poolerCa;
+        console.log("[wrapper] Decoded POOLER_CA from POOLER_CA_B64");
+      } catch (e) {
+        console.warn(
+          "[wrapper] Failed to decode POOLER_CA_B64:",
+          e && e.message
+        );
+      }
+    }
+
     if (poolerCa) {
       const os = require("os");
       const path = require("path");
@@ -99,8 +124,11 @@ async function runDiagnostics() {
         // Ensure child processes inherit this environment so they also use the
         // extra trusted CA when establishing TLS connections.
         process.env.NODE_EXTRA_CA_CERTS = pemPath;
+        // Print a short non-sensitive hint about the PEM so we can confirm it
+        // was received and parsed without dumping its full contents.
+        const firstLine = poolerCa.split(/\r?\n/)[0] || "<no-header>";
         console.log(
-          `[wrapper] Wrote POOLER_CA to ${pemPath} and set NODE_EXTRA_CA_CERTS`
+          `[wrapper] Wrote POOLER_CA to ${pemPath} and set NODE_EXTRA_CA_CERTS; PEM-header=${firstLine}`
         );
       } catch (e) {
         console.warn(

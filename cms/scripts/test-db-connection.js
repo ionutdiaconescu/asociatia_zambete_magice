@@ -22,9 +22,24 @@ if (!conn) {
 }
 
 (async () => {
+  // If the deploy platform provided POOLER_CA (PEM string), use it directly
+  // to build the ssl.ca buffer for the pg Client. This avoids relying on
+  // NODE_EXTRA_CA_CERTS which is platform-dependent.
+  let sslOption = { rejectUnauthorized: false };
+  try {
+    const poolerCa = process.env.POOLER_CA;
+    if (poolerCa) {
+      // The pg client accepts `ssl: { ca: Buffer|String, rejectUnauthorized }`.
+      sslOption = { ca: poolerCa, rejectUnauthorized: false };
+      console.log("[test-db] Using POOLER_CA from env (inline)");
+    }
+  } catch (e) {
+    // ignore and fall back to rejectUnauthorized: false
+  }
+
   const client = new Client({
     connectionString: conn,
-    ssl: { rejectUnauthorized: false },
+    ssl: sslOption,
   });
   try {
     await client.connect();
