@@ -50,32 +50,45 @@ try {
 
   // Mask password if present; also mask any password inside a connectionString
   try {
-    const conn = result && result.connection && result.connection.connection;
-    if (conn) {
-      if (typeof conn === "string") {
-        // If someone returned a raw connection string
-        conn = { connectionString: conn };
-      }
+    // Work on a mutable reference to the inner connection (string or object)
+    let connRef = result && result.connection && result.connection.connection;
+    // If the module returned the connection as a string, convert to object for masking
+    if (typeof connRef === "string") {
+      connRef = { connectionString: connRef };
+      // write back so JSON.stringify prints the masked result later
+      result.connection.connection = connRef;
+    }
 
-      // Mask explicit password field
-      if (conn.password) conn.password = "***";
-      if (conn.connection && conn.connection.password)
-        conn.connection.password = "***";
+    if (connRef && typeof connRef === "object") {
+      // Mask explicit password field(s)
+      if (connRef.password) connRef.password = "***";
+      if (connRef.connection && connRef.connection.password)
+        connRef.connection.password = "***";
 
-      // Mask connectionString embedded password
+      // Determine the connectionString to mask (either nested or top-level)
       const connStr =
-        (conn.connection && conn.connection.connectionString) ||
-        conn.connectionString;
+        (connRef.connection && connRef.connection.connectionString) ||
+        connRef.connectionString;
       if (connStr && typeof connStr === "string") {
-        // Replace :password@ with :***@ (keeps username visible)
-        const masked = connStr.replace(/:\/\/([^:\/]+):([^@]+)@/, "// $1:***@");
-        if (conn.connection && conn.connection.connectionString)
-          conn.connection.connectionString = masked;
-        else if (conn.connectionString) conn.connectionString = masked;
+        // Prefer using the URL parser to mask the password safely
+        try {
+          const u = new URL(connStr);
+          if (u.password) u.password = "***";
+          const masked = u.toString();
+          if (connRef.connection && connRef.connection.connectionString)
+            connRef.connection.connectionString = masked;
+          else connRef.connectionString = masked;
+        } catch (e) {
+          // Fallback: regex that replaces ':password@' with ':***@' but keeps protocol
+          const masked = connStr.replace(/:([^:@]+)@/, ":***@");
+          if (connRef.connection && connRef.connection.connectionString)
+            connRef.connection.connectionString = masked;
+          else connRef.connectionString = masked;
+        }
       }
     }
   } catch (e) {
-    // ignore
+    // ignore masking errors
   }
 
   console.log("[print-db-config] evaluated database config:");
