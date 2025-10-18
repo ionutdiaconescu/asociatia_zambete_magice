@@ -90,17 +90,42 @@ async function runDiagnostics() {
     process.exit(0);
   }
 
-  // Start Strapi in the same process via npx to ensure env vars persist.
-  // Use spawn so we forward stdout/stderr.
-  const cmd = process.platform === "win32" ? "npx.cmd" : "npx";
-  const args = ["strapi", "start"];
+  // Start Strapi in the same process. Prefer the local binary so we avoid
+  // npx downloading packages automatically; fallback to `npx --no-install`.
+  const path = require("path");
+
+  const localBin = path.resolve(
+    __dirname,
+    "..",
+    "node_modules",
+    ".bin",
+    process.platform === "win32" ? "strapi.cmd" : "strapi"
+  );
+  let cmd;
+  let args;
+
+  if (fs.existsSync(localBin)) {
+    cmd = localBin;
+    args = ["start"];
+    console.log("[wrapper] Using local strapi binary:", localBin);
+  } else {
+    cmd = process.platform === "win32" ? "npx.cmd" : "npx";
+    args = ["--no-install", "strapi", "start"];
+    console.log(
+      "[wrapper] Local strapi binary not found, falling back to npx --no-install"
+    );
+  }
 
   console.log(
     "[wrapper] Starting Strapi with env: PGUSER=",
     process.env.PGUSER ? "set" : "unset"
   );
 
-  const child = spawn(cmd, args, { stdio: "inherit", env: process.env });
+  const child = spawn(cmd, args, {
+    stdio: "inherit",
+    env: process.env,
+    shell: false,
+  });
 
   child.on("exit", (code, signal) => {
     if (signal) {
