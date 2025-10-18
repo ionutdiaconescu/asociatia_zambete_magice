@@ -39,23 +39,65 @@ try {
     if (v === undefined) return d;
     return String(v).toLowerCase() === "true";
   };
+  env.int = function (k, d) {
+    const v = process.env[k];
+    if (v === undefined) return d;
+    const n = parseInt(String(v), 10);
+    return Number.isNaN(n) ? d : n;
+  };
 
   const result = dbConfigFactory({ env });
 
-  // Mask password if present
+  // Mask password if present; also mask any password inside a connectionString
   try {
     const conn = result && result.connection && result.connection.connection;
-    if (conn && typeof conn === "object") {
+    if (conn) {
+      if (typeof conn === "string") {
+        // If someone returned a raw connection string
+        conn = { connectionString: conn };
+      }
+
+      // Mask explicit password field
       if (conn.password) conn.password = "***";
       if (conn.connection && conn.connection.password)
         conn.connection.password = "***";
+
+      // Mask connectionString embedded password
+      const connStr =
+        (conn.connection && conn.connection.connectionString) ||
+        conn.connectionString;
+      if (connStr && typeof connStr === "string") {
+        // Replace :password@ with :***@ (keeps username visible)
+        const masked = connStr.replace(/:\/\/([^:\/]+):([^@]+)@/, "// $1:***@");
+        if (conn.connection && conn.connection.connectionString)
+          conn.connection.connectionString = masked;
+        else if (conn.connectionString) conn.connectionString = masked;
+      }
     }
   } catch (e) {
     // ignore
   }
 
   console.log("[print-db-config] evaluated database config:");
+  // Print the result safely
   console.log(JSON.stringify(result, null, 2));
+
+  // Also print runtime env vars that commonly override pg credentials
+  try {
+    const sensitive = (k) => (process.env[k] ? "***" : "(unset)");
+    console.log(
+      "[print-db-config] runtime overrides: PGUSER=",
+      process.env.PGUSER || "(unset)",
+      " PGPASSWORD=",
+      process.env.PGPASSWORD ? "***" : "(unset)",
+      " DATABASE_USERNAME=",
+      process.env.DATABASE_USERNAME || "(unset)",
+      " DATABASE_PASSWORD=",
+      process.env.DATABASE_PASSWORD ? "***" : "(unset)"
+    );
+  } catch (e) {
+    // ignore
+  }
 } catch (e) {
   console.error(
     "[print-db-config] error evaluating database config:",
