@@ -132,26 +132,44 @@ async function runDiagnostics() {
     `[wrapper-sentinel] id=${sentinelId} spawning=${cmd} ${args.join(" ")}`
   );
 
-  // Capture stderr so that if Strapi crashes quickly we still surface its
-  // error output in the wrapper logs (Render sometimes trims child output).
+  // Capture stdout/stderr so that if Strapi crashes quickly we still surface
+  // its output in the wrapper logs (Render sometimes trims child output).
+  const useShell = process.platform === "win32";
   const child = spawn(cmd, args, {
-    stdio: ["inherit", "inherit", "pipe"],
+    stdio: ["inherit", "pipe", "pipe"],
     env: process.env,
-    shell: false,
+    // On Windows .cmd files must be run through the shell (cmd.exe).
+    shell: useShell,
   });
 
   console.log(`[wrapper-sentinel] id=${sentinelId} spawned pid=${child.pid}`);
 
-  // Accumulate stderr up to a reasonable cap so we can print a tail on exit.
-  const STDERR_CAP = 256 * 1024; // 256 KB
+  // Accumulate stdout/stderr up to a reasonable cap so we can print a tail on exit.
+  const CAP = 256 * 1024; // 256 KB per stream
+  let stdoutBuf = Buffer.alloc(0);
   let stderrBuf = Buffer.alloc(0);
+
+  if (child.stdout) {
+    child.stdout.on("data", (chunk) => {
+      try {
+        process.stdout.write(chunk);
+        stdoutBuf = Buffer.concat([stdoutBuf, Buffer.from(chunk)]);
+        if (stdoutBuf.length > CAP) {
+          stdoutBuf = stdoutBuf.slice(stdoutBuf.length - CAP);
+        }
+      } catch (e) {
+        // ignore
+      }
+    });
+  }
+
   if (child.stderr) {
     child.stderr.on("data", (chunk) => {
       try {
+        process.stderr.write(chunk);
         stderrBuf = Buffer.concat([stderrBuf, Buffer.from(chunk)]);
-        if (stderrBuf.length > STDERR_CAP) {
-          // keep tail
-          stderrBuf = stderrBuf.slice(stderrBuf.length - STDERR_CAP);
+        if (stderrBuf.length > CAP) {
+          stderrBuf = stderrBuf.slice(stderrBuf.length - CAP);
         }
       } catch (e) {
         // ignore
@@ -160,15 +178,25 @@ async function runDiagnostics() {
   }
 
   child.on("exit", (code, signal) => {
-    if (stderrBuf && stderrBuf.length) {
-      // Print a trimmed stderr tail so logs show the last errors.
-      const tail = stderrBuf.toString("utf8");
-      console.log("[wrapper-child-stderr] START");
-      // Trim to last 64KB for readability
-      const TAIL_LEN = 64 * 1024;
-      const out = tail.length > TAIL_LEN ? tail.slice(-TAIL_LEN) : tail;
-      console.log(out);
-      console.log("[wrapper-child-stderr] END");
+    try {
+      if (stdoutBuf && stdoutBuf.length) {
+        const TAIL_LEN = 64 * 1024;
+        const out = stdoutBuf.toString("utf8");
+        const trimmed = out.length > TAIL_LEN ? out.slice(-TAIL_LEN) : out;
+        console.log("[wrapper-child-stdout] START");
+        console.log(trimmed);
+        console.log("[wrapper-child-stdout] END");
+      }
+      if (stderrBuf && stderrBuf.length) {
+        const TAIL_LEN = 64 * 1024;
+        const out = stderrBuf.toString("utf8");
+        const trimmed = out.length > TAIL_LEN ? out.slice(-TAIL_LEN) : out;
+        console.log("[wrapper-child-stderr] START");
+        console.log(trimmed);
+        console.log("[wrapper-child-stderr] END");
+      }
+    } catch (e) {
+      // ignore
     }
 
     if (signal) {
@@ -184,10 +212,14 @@ async function runDiagnostics() {
       "[wrapper] Failed to start Strapi:",
       err && err.stack ? err.stack : err
     );
-    if (stderrBuf && stderrBuf.length) {
-      console.log("[wrapper-child-stderr] START");
-      console.log(stderrBuf.toString("utf8"));
-      console.log("[wrapper-child-stderr] END");
+    try {
+      if (stderrBuf && stderrBuf.length) {
+        console.log("[wrapper-child-stderr] START");
+        console.log(stderrBuf.toString("utf8"));
+        console.log("[wrapper-child-stderr] END");
+      }
+    } catch (e) {
+      // ignore
     }
     process.exit(1);
   });
