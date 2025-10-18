@@ -132,17 +132,45 @@ async function runDiagnostics() {
     `[wrapper-sentinel] id=${sentinelId} spawning=${cmd} ${args.join(" ")}`
   );
 
+  // Capture stderr so that if Strapi crashes quickly we still surface its
+  // error output in the wrapper logs (Render sometimes trims child output).
   const child = spawn(cmd, args, {
-    stdio: "inherit",
+    stdio: ["inherit", "inherit", "pipe"],
     env: process.env,
     shell: false,
   });
 
-  child.on("spawn", () => {
-    console.log(`[wrapper-sentinel] id=${sentinelId} spawned pid=${child.pid}`);
-  });
+  console.log(`[wrapper-sentinel] id=${sentinelId} spawned pid=${child.pid}`);
+
+  // Accumulate stderr up to a reasonable cap so we can print a tail on exit.
+  const STDERR_CAP = 256 * 1024; // 256 KB
+  let stderrBuf = Buffer.alloc(0);
+  if (child.stderr) {
+    child.stderr.on("data", (chunk) => {
+      try {
+        stderrBuf = Buffer.concat([stderrBuf, Buffer.from(chunk)]);
+        if (stderrBuf.length > STDERR_CAP) {
+          // keep tail
+          stderrBuf = stderrBuf.slice(stderrBuf.length - STDERR_CAP);
+        }
+      } catch (e) {
+        // ignore
+      }
+    });
+  }
 
   child.on("exit", (code, signal) => {
+    if (stderrBuf && stderrBuf.length) {
+      // Print a trimmed stderr tail so logs show the last errors.
+      const tail = stderrBuf.toString("utf8");
+      console.log("[wrapper-child-stderr] START");
+      // Trim to last 64KB for readability
+      const TAIL_LEN = 64 * 1024;
+      const out = tail.length > TAIL_LEN ? tail.slice(-TAIL_LEN) : tail;
+      console.log(out);
+      console.log("[wrapper-child-stderr] END");
+    }
+
     if (signal) {
       console.log(`[wrapper] Strapi killed by signal ${signal}`);
       process.exit(1);
@@ -156,6 +184,11 @@ async function runDiagnostics() {
       "[wrapper] Failed to start Strapi:",
       err && err.stack ? err.stack : err
     );
+    if (stderrBuf && stderrBuf.length) {
+      console.log("[wrapper-child-stderr] START");
+      console.log(stderrBuf.toString("utf8"));
+      console.log("[wrapper-child-stderr] END");
+    }
     process.exit(1);
   });
 })();
