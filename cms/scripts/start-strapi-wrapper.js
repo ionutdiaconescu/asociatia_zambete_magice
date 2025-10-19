@@ -185,6 +185,42 @@ function runTestDbAndRequireSuccess() {
   }
 
   // 8) Start Strapi (prefer local binary)
+  // If requested, start Strapi in-process instead of spawning a child.
+  // This ensures the same process.env and any mutated state are visible to Strapi.
+  if (process.env.STRAPI_RUN_IN_PROCESS === "true") {
+    console.log(
+      "[wrapper] STRAPI_RUN_IN_PROCESS=true -> starting Strapi in-process"
+    );
+    (async () => {
+      try {
+        // Try the common exported shapes for @strapi/strapi
+        const strapiPkg = require("@strapi/strapi");
+        if (strapiPkg && typeof strapiPkg.start === "function") {
+          await strapiPkg.start();
+        } else if (typeof strapiPkg === "function") {
+          // Some builds export a factory function
+          const app = strapiPkg();
+          if (app && typeof app.start === "function") {
+            await app.start();
+          } else {
+            throw new Error(
+              "Unsupported Strapi API shape for in-process start"
+            );
+          }
+        } else {
+          throw new Error("Unsupported @strapi/strapi module shape");
+        }
+      } catch (e) {
+        console.error(
+          "[wrapper] In-process Strapi start failed:",
+          e && e.stack ? e.stack : e
+        );
+        process.exit(1);
+      }
+    })();
+    return;
+  }
+
   const localBin = path.resolve(
     __dirname,
     "..",
@@ -275,3 +311,5 @@ function runTestDbAndRequireSuccess() {
     process.exit(1);
   });
 })();
+
+// Note: changes committed by developer to support STRAPI_RUN_IN_PROCESS
