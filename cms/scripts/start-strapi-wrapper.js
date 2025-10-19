@@ -1,23 +1,31 @@
 #!/usr/bin/env node
-// start-strapi-wrapper.js
-// Purpose: ensure process.env has correct PG credentials by parsing DATABASE_URL
-// and then start Strapi in the same process so env changes persist.
+"use strict";
+// start-strapi-wrapper.js (refined)
+// Purpose: deterministic startup for Strapi on deploy platforms.
+// - Force PG envs from DATABASE_URL so platform overrides don't leak in
+// - Support POOLER_CA or POOLER_CA_B64 to write a PEM and set NODE_EXTRA_CA_CERTS
+// - Optionally require DB connectivity (`REQUIRE_DB_OK=true`) which will run
+//   `scripts/test-db-connection.js` as a child process and fail the start if it fails.
 
-const { spawn } = require("child_process");
+const { spawnSync, spawn } = require("child_process");
 const fs = require("fs");
+const path = require("path");
 
-function mask(s) {
-  if (!s) return "";
+function maskUrl(u) {
+  if (!u) return "";
   try {
-    const u = new URL(s);
-    if (u.password) {
-      return s.replace(u.password, "***");
+    const parsed = new URL(u);
+    if (parsed.password) {
+      parsed.password = "***";
     }
-  } catch (e) {}
-  return s.replace(/(:)([^:@]+)@/, ":***@");
+    return parsed.toString();
+  } catch (e) {
+    return u.replace(/(:)([^:@]+)@/, ":***@");
+  }
 }
 
 function parseDatabaseUrl(url) {
+  if (!url) return null;
   try {
     const u = new URL(url);
     return {
@@ -32,129 +40,151 @@ function parseDatabaseUrl(url) {
   }
 }
 
-async function runDiagnostics() {
+function writePoolerCaIfPresent() {
   try {
-    console.log(`[wrapper] NODE_VERSION= ${process.version}`);
-    console.log(
-      `[wrapper] RAW_DATABASE_URL= ${mask(process.env.DATABASE_URL)}`
-    );
-    const parsed = parseDatabaseUrl(process.env.DATABASE_URL || "");
-    if (parsed) {
-      console.log("[wrapper] parsed DB url user=", parsed.user);
+    let poolerCa = process.env.POOLER_CA;
+    const poolerCaB64 = process.env.POOLER_CA_B64;
+    if (!poolerCa && poolerCaB64) {
+      try {
+        poolerCa = Buffer.from(poolerCaB64, "base64").toString("utf8");
+        process.env.POOLER_CA = poolerCa;
+        console.log("[wrapper] Decoded POOLER_CA from POOLER_CA_B64");
+      } catch (err) {
+        console.warn(
+          "[wrapper] POOLER_CA_B64 decode failed:",
+          err && err.message
+        );
+      }
     }
 
-    // Attempt to run existing diagnostic scripts (non-blocking failures allowed)
-    try {
-      require("./ensure-pg-env");
-    } catch (e) {
-      // ignore
-    }
+    if (!poolerCa) return null;
+
+    const os = require("os");
+    const pemPath = path.join(os.tmpdir(), "pooler-root.pem");
+    fs.writeFileSync(pemPath, poolerCa, { encoding: "utf8" });
+    process.env.NODE_EXTRA_CA_CERTS = pemPath;
+    const firstLine = poolerCa.split(/\r?\n/)[0] || "<no-header>";
+    console.log(
+      `[wrapper] Wrote POOLER_CA to ${pemPath}; PEM-header=${firstLine}`
+    );
+    return pemPath;
+  } catch (e) {
+    console.warn("[wrapper] Failed to write POOLER_CA:", e && e.message);
+    return null;
+  }
+}
+
+function runLocalDiagnostics(parsed) {
+  try {
+    console.log(`[wrapper] NODE_VERSION=${process.version}`);
+    console.log(
+      `[wrapper] RAW_DATABASE_URL=${maskUrl(process.env.DATABASE_URL)}`
+    );
+    if (parsed) console.log(`[wrapper] parsed DB url user=${parsed.user}`);
+    // Best-effort: run lightweight checks (they won't fail the start)
     try {
       require("./check-env");
     } catch (e) {}
     try {
       require("./print-db-config");
     } catch (e) {}
-    // Only run the potentially noisy `test-db-connection` in non-production
-    // environments or when explicitly requested via RUN_TEST_DB=true. This
-    // avoids transient TLS/auth errors filling production deploy logs.
-    try {
-      const runTestDb =
-        process.env.RUN_TEST_DB === "true" ||
-        process.env.NODE_ENV !== "production";
-      if (runTestDb) {
-        require("./test-db-connection");
-      }
-    } catch (e) {}
   } catch (e) {
-    // swallow
+    // swallow diagnostics errors
   }
 }
 
-(async function main() {
-  // Parse DATABASE_URL and set PG envs if missing
-  const dbUrl = process.env.DATABASE_URL || "";
+function runTestDbAndRequireSuccess() {
+  // Run test-db-connection.js as a child process synchronously so we can decide
+  // to abort startup if DB test fails. Use spawnSync for deterministic exit code.
+  const testScript = path.join(__dirname, "test-db-connection.js");
+  if (!fs.existsSync(testScript)) {
+    console.warn(
+      "[wrapper] REQUIRE_DB_OK is set but test script not found:",
+      testScript
+    );
+    return false;
+  }
+  console.log(
+    "[wrapper] REQUIRE_DB_OK=true -> running test-db-connection.js (synchronous)"
+  );
+  const nodeCmd = process.platform === "win32" ? "node.exe" : "node";
+  const res = spawnSync(nodeCmd, [testScript], {
+    stdio: "inherit",
+    env: process.env,
+    timeout: 120000,
+  });
+  if (res.error) {
+    console.error(
+      "[wrapper] test-db-connection failed to execute:",
+      res.error && res.error.message
+    );
+    return false;
+  }
+  return res.status === 0;
+}
+
+(function main() {
+  // 1) Ensure DATABASE_URL exists
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    console.error(
+      "[wrapper] ERROR: DATABASE_URL is not set. Set it and redeploy."
+    );
+    process.exit(2);
+  }
+
+  // 2) Parse and force PG envs from DATABASE_URL (deterministic behavior)
   const parsed = parseDatabaseUrl(dbUrl);
-  if (parsed) {
-    // Force-override process envs from DATABASE_URL so nothing previously set
-    // (even by platform-level envs) can accidentally point to the wrong user.
-    // This makes the running process deterministic and matches the printed config.
-    process.env.PGUSER = parsed.user || "";
-    process.env.PGPASSWORD = parsed.password || "";
-    process.env.DATABASE_USERNAME = parsed.user || "";
-    process.env.DATABASE_PASSWORD = parsed.password || "";
+  if (!parsed) {
+    console.error(
+      "[wrapper] ERROR: Failed to parse DATABASE_URL. Check its format."
+    );
+    process.exit(2);
+  }
+  process.env.PGUSER = parsed.user || "";
+  process.env.PGPASSWORD = parsed.password || "";
+  process.env.DATABASE_USERNAME = parsed.user || "";
+  process.env.DATABASE_PASSWORD = parsed.password || "";
 
-    // Also mirror into DATABASE_URL if it's missing query ssl params to be safe
-    // (we don't rewrite if user intentionally included params).
-    if (process.env.DATABASE_URL && !/\?/g.test(process.env.DATABASE_URL)) {
-      // keep existing DATABASE_URL untouched if it already contains ?
-    }
+  // 3) Defensive check: disallow raw 'postgres' user in production unless explicitly allowed
+  if (
+    process.env.NODE_ENV === "production" &&
+    parsed.user === "postgres" &&
+    process.env.ALLOW_RAW_POSTGRES !== "true"
+  ) {
+    console.error(
+      '[wrapper] ERROR: DATABASE_URL resolves to user "postgres" in production. Rotate the password and use the dedicated pooler user. To bypass this check set ALLOW_RAW_POSTGRES=true (not recommended).'
+    );
+    process.exit(2);
   }
 
-  // If the deploy platform provides the pooler CA via POOLER_CA (PEM string),
-  // write it to a temp file and set NODE_EXTRA_CA_CERTS so Node and spawned
-  // processes trust the Supabase pooler root CA. This helps avoid
-  // SELF_SIGNED_CERT_IN_CHAIN errors on platforms where the root is not trusted.
-  try {
-    // Support either POOLER_CA (raw PEM) or POOLER_CA_B64 (base64-encoded PEM),
-    // because some deployment UIs strip newlines when pasting multiline values.
-    let poolerCa = process.env.POOLER_CA;
-    const poolerCaB64 = process.env.POOLER_CA_B64;
-    if (!poolerCa && poolerCaB64) {
-      try {
-        poolerCa = Buffer.from(poolerCaB64, "base64").toString("utf8");
-        // Ensure decoded PEM is available to other modules via env too.
-        process.env.POOLER_CA = poolerCa;
-        console.log("[wrapper] Decoded POOLER_CA from POOLER_CA_B64");
-      } catch (e) {
-        console.warn(
-          "[wrapper] Failed to decode POOLER_CA_B64:",
-          e && e.message
-        );
-      }
-    }
+  // 4) Write POOLER_CA if provided and set NODE_EXTRA_CA_CERTS
+  writePoolerCaIfPresent();
 
-    if (poolerCa) {
-      const os = require("os");
-      const path = require("path");
-      const tmpDir = os.tmpdir();
-      const pemPath = path.join(tmpDir, "pooler-root.pem");
-      try {
-        fs.writeFileSync(pemPath, poolerCa, { encoding: "utf8" });
-        // Ensure child processes inherit this environment so they also use the
-        // extra trusted CA when establishing TLS connections.
-        process.env.NODE_EXTRA_CA_CERTS = pemPath;
-        // Print a short non-sensitive hint about the PEM so we can confirm it
-        // was received and parsed without dumping its full contents.
-        const firstLine = poolerCa.split(/\r?\n/)[0] || "<no-header>";
-        console.log(
-          `[wrapper] Wrote POOLER_CA to ${pemPath} and set NODE_EXTRA_CA_CERTS; PEM-header=${firstLine}`
-        );
-      } catch (e) {
-        console.warn(
-          "[wrapper] Failed to write POOLER_CA to disk:",
-          e && e.message
-        );
-      }
+  // 5) Run lightweight diagnostics (non-fatal)
+  runLocalDiagnostics(parsed);
+
+  // 6) If REQUIRE_DB_OK=true, run DB test synchronously and fail if it fails
+  if (process.env.REQUIRE_DB_OK === "true") {
+    const ok = runTestDbAndRequireSuccess();
+    if (!ok) {
+      console.error(
+        "[wrapper] Aborting start because DB connectivity test failed and REQUIRE_DB_OK=true"
+      );
+      process.exit(3);
     }
-  } catch (e) {
-    // ignore any issues here
+    console.log("[wrapper] DB connectivity test passed.");
   }
 
-  await runDiagnostics();
-
-  // If caller set SKIP_STRAPI_START=true we don't spawn Strapi (useful for testing)
+  // 7) Honor SKIP_STRAPI_START for testing convenience
   if (process.env.SKIP_STRAPI_START === "true") {
     console.log(
-      "[wrapper] SKIP_STRAPI_START enabled, exiting after diagnostics"
+      "[wrapper] SKIP_STRAPI_START=true -> exiting after diagnostics"
     );
     process.exit(0);
   }
 
-  // Start Strapi in the same process. Prefer the local binary so we avoid
-  // npx downloading packages automatically; fallback to `npx --no-install`.
-  const path = require("path");
-
+  // 8) Start Strapi (prefer local binary)
   const localBin = path.resolve(
     __dirname,
     "..",
@@ -162,9 +192,7 @@ async function runDiagnostics() {
     ".bin",
     process.platform === "win32" ? "strapi.cmd" : "strapi"
   );
-  let cmd;
-  let args;
-
+  let cmd, args;
   if (fs.existsSync(localBin)) {
     cmd = localBin;
     args = ["start"];
@@ -173,90 +201,57 @@ async function runDiagnostics() {
     cmd = process.platform === "win32" ? "npx.cmd" : "npx";
     args = ["--no-install", "strapi", "start"];
     console.log(
-      "[wrapper] Local strapi binary not found, falling back to npx --no-install"
+      "[wrapper] Local strapi not found, falling back to npx --no-install"
     );
   }
 
-  console.log(
-    "[wrapper] Starting Strapi with env: PGUSER=",
-    process.env.PGUSER ? "set" : "unset"
-  );
-  // Create a short sentinel id so each wrapper invocation can be correlated in logs.
-  const sentinelId = `${Date.now().toString(36)}-${Math.floor(
-    Math.random() * 0xffffff
-  ).toString(36)}`;
+  const sentinelId = `${Date.now().toString(36)}-${Math.floor(Math.random() * 0xffffff).toString(36)}`;
   process.env.WRAPPER_SENTINEL_ID = sentinelId;
   console.log(
     `[wrapper-sentinel] id=${sentinelId} spawning=${cmd} ${args.join(" ")}`
   );
 
-  // Capture stdout/stderr so that if Strapi crashes quickly we still surface
-  // its output in the wrapper logs (Render sometimes trims child output).
   const useShell = process.platform === "win32";
   const child = spawn(cmd, args, {
     stdio: ["inherit", "pipe", "pipe"],
     env: process.env,
-    // On Windows .cmd files must be run through the shell (cmd.exe).
     shell: useShell,
   });
 
-  console.log(`[wrapper-sentinel] id=${sentinelId} spawned pid=${child.pid}`);
+  console.log(`[wrapper] spawned pid=${child.pid}`);
 
-  // Accumulate stdout/stderr up to a reasonable cap so we can print a tail on exit.
-  const CAP = 256 * 1024; // 256 KB per stream
-  let stdoutBuf = Buffer.alloc(0);
-  let stderrBuf = Buffer.alloc(0);
-
-  if (child.stdout) {
-    child.stdout.on("data", (chunk) => {
-      try {
-        process.stdout.write(chunk);
-        stdoutBuf = Buffer.concat([stdoutBuf, Buffer.from(chunk)]);
-        if (stdoutBuf.length > CAP) {
-          stdoutBuf = stdoutBuf.slice(stdoutBuf.length - CAP);
-        }
-      } catch (e) {
-        // ignore
-      }
+  // Stream child output and keep small tail buffers to show on exit
+  const CAP = 256 * 1024;
+  let stdoutBuf = Buffer.alloc(0),
+    stderrBuf = Buffer.alloc(0);
+  if (child.stdout)
+    child.stdout.on("data", (c) => {
+      process.stdout.write(c);
+      stdoutBuf = Buffer.concat([stdoutBuf, Buffer.from(c)]);
+      if (stdoutBuf.length > CAP)
+        stdoutBuf = stdoutBuf.slice(stdoutBuf.length - CAP);
     });
-  }
-
-  if (child.stderr) {
-    child.stderr.on("data", (chunk) => {
-      try {
-        process.stderr.write(chunk);
-        stderrBuf = Buffer.concat([stderrBuf, Buffer.from(chunk)]);
-        if (stderrBuf.length > CAP) {
-          stderrBuf = stderrBuf.slice(stderrBuf.length - CAP);
-        }
-      } catch (e) {
-        // ignore
-      }
+  if (child.stderr)
+    child.stderr.on("data", (c) => {
+      process.stderr.write(c);
+      stderrBuf = Buffer.concat([stderrBuf, Buffer.from(c)]);
+      if (stderrBuf.length > CAP)
+        stderrBuf = stderrBuf.slice(stderrBuf.length - CAP);
     });
-  }
 
   child.on("exit", (code, signal) => {
     try {
-      if (stdoutBuf && stdoutBuf.length) {
-        const TAIL_LEN = 64 * 1024;
-        const out = stdoutBuf.toString("utf8");
-        const trimmed = out.length > TAIL_LEN ? out.slice(-TAIL_LEN) : out;
+      if (stdoutBuf.length) {
         console.log("[wrapper-child-stdout] START");
-        console.log(trimmed);
+        console.log(stdoutBuf.toString("utf8").slice(-64 * 1024));
         console.log("[wrapper-child-stdout] END");
       }
-      if (stderrBuf && stderrBuf.length) {
-        const TAIL_LEN = 64 * 1024;
-        const out = stderrBuf.toString("utf8");
-        const trimmed = out.length > TAIL_LEN ? out.slice(-TAIL_LEN) : out;
+      if (stderrBuf.length) {
         console.log("[wrapper-child-stderr] START");
-        console.log(trimmed);
+        console.log(stderrBuf.toString("utf8").slice(-64 * 1024));
         console.log("[wrapper-child-stderr] END");
       }
-    } catch (e) {
-      // ignore
-    }
-
+    } catch (e) {}
     if (signal) {
       console.log(`[wrapper] Strapi killed by signal ${signal}`);
       process.exit(1);
@@ -267,18 +262,16 @@ async function runDiagnostics() {
 
   child.on("error", (err) => {
     console.error(
-      "[wrapper] Failed to start Strapi:",
+      "[wrapper] Failed to spawn Strapi:",
       err && err.stack ? err.stack : err
     );
     try {
-      if (stderrBuf && stderrBuf.length) {
+      if (stderrBuf.length) {
         console.log("[wrapper-child-stderr] START");
         console.log(stderrBuf.toString("utf8"));
         console.log("[wrapper-child-stderr] END");
       }
-    } catch (e) {
-      // ignore
-    }
+    } catch (e) {}
     process.exit(1);
   });
 })();
