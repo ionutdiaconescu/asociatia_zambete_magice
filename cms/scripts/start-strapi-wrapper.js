@@ -193,22 +193,14 @@ function runTestDbAndRequireSuccess() {
     );
     (async () => {
       try {
-        // Try the common exported shapes for @strapi/strapi
-        const strapiPkg = require("@strapi/strapi");
-        if (strapiPkg && typeof strapiPkg.start === "function") {
-          await strapiPkg.start();
-        } else if (typeof strapiPkg === "function") {
-          // Some builds export a factory function
-          const app = strapiPkg();
-          if (app && typeof app.start === "function") {
-            await app.start();
-          } else {
-            throw new Error(
-              "Unsupported Strapi API shape for in-process start"
-            );
-          }
+        // Use core API to create and start Strapi in-process
+        const core = require("@strapi/core");
+        if (core && typeof core.createStrapi === "function") {
+          const strapi = core.createStrapi();
+          await strapi.start();
+          console.log("[wrapper] Strapi in-process started");
         } else {
-          throw new Error("Unsupported @strapi/strapi module shape");
+          throw new Error("@strapi/core.createStrapi() not available");
         }
       } catch (e) {
         console.error(
