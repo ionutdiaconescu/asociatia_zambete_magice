@@ -1,4 +1,3 @@
-// Wrapper to ensure Strapi always finds a database config.
 // Prefer env-specific config (config/env/<NODE_ENV>/database.js),
 // fall back to a best-effort default built from env vars.
 // Defensive root DB config for Strapi.
@@ -58,6 +57,8 @@ module.exports = ({ env }) => {
       try {
         if (!process.env.PGUSER && user) process.env.PGUSER = user;
         if (!process.env.PGPASSWORD && password)
+          // NODE_ENV is used to select which config to load (e.g., production, development). Platforms like Render or npm may set it automatically. If not set, defaults to 'development'.
+          // This ensures Strapi loads the correct database config for the environment.
           process.env.PGPASSWORD = password;
         if (!process.env.DATABASE_USERNAME && user)
           process.env.DATABASE_USERNAME = user;
