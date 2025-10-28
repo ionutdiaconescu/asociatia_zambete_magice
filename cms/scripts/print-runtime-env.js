@@ -5,9 +5,7 @@ console.log(
   "[runtime-env] DB_USER envs: DATABASE_USERNAME=",
   process.env.DATABASE_USERNAME || "(unset)",
   " DATABASE_USER=",
-  process.env.DATABASE_USER || "(unset)",
-  " PGUSER=",
-  process.env.PGUSER || "(unset)"
+  process.env.DATABASE_USER || "(unset)"
 );
 console.log("[runtime-env] PORT=", process.env.PORT || "(unset)");
 console.log(
@@ -20,7 +18,6 @@ console.log("[runtime-env] any other DB envs:");
   "DB_USERNAME",
   "DATABASE_USERNAME",
   "DATABASE_PASSWORD",
-  "PGPASSWORD",
   "PGHOST",
   "PGPORT",
   "PGDATABASE",

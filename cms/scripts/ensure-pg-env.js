@@ -1,5 +1,4 @@
-// Ensure PG-related env vars are set from DATABASE_URL so the pg driver
-// and Strapi always see consistent credentials in the same Node process.
+// Setează doar DATABASE_USERNAME și DATABASE_PASSWORD din DATABASE_URL
 try {
   const url = process.env.DATABASE_URL;
   if (!url) {
@@ -11,21 +10,18 @@ try {
   const parsedUser = parsed.username || "";
   const parsedPassword = parsed.password || "";
 
-  // Only set if not already present to avoid overwriting explicit Render vars
-  if (!process.env.PGUSER) process.env.PGUSER = parsedUser;
-  if (!process.env.PGPASSWORD) process.env.PGPASSWORD = parsedPassword;
   if (!process.env.DATABASE_USERNAME)
     process.env.DATABASE_USERNAME = parsedUser;
   if (!process.env.DATABASE_PASSWORD)
     process.env.DATABASE_PASSWORD = parsedPassword;
 
-  // Masked log for visibility in Render logs
+  // Log pentru vizibilitate
   try {
     console.log(
-      "[ensure-pg] set PGUSER=",
-      process.env.PGUSER || "(unset)",
-      " PGPASSWORD=",
-      process.env.PGPASSWORD ? "***" : "(unset)"
+      "[ensure-pg] set DATABASE_USERNAME=",
+      process.env.DATABASE_USERNAME || "(unset)",
+      " DATABASE_PASSWORD=",
+      process.env.DATABASE_PASSWORD ? "***" : "(unset)"
     );
   } catch (e) {
     // ignore

@@ -95,15 +95,10 @@ try {
   // Print the result safely
   console.log(JSON.stringify(result, null, 2));
 
-  // Also print runtime env vars that commonly override pg credentials
+  // Afișează doar DATABASE_USERNAME și DATABASE_PASSWORD
   try {
-    const sensitive = (k) => (process.env[k] ? "***" : "(unset)");
     console.log(
-      "[print-db-config] runtime overrides: PGUSER=",
-      process.env.PGUSER || "(unset)",
-      " PGPASSWORD=",
-      process.env.PGPASSWORD ? "***" : "(unset)",
-      " DATABASE_USERNAME=",
+      "[print-db-config] runtime overrides: DATABASE_USERNAME=",
       process.env.DATABASE_USERNAME || "(unset)",
       " DATABASE_PASSWORD=",
       process.env.DATABASE_PASSWORD ? "***" : "(unset)"
