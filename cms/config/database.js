@@ -15,18 +15,19 @@ module.exports = ({ env }) => {
 
   // Dacă există DATABASE_URL, folosește-l direct
   if (connectionString) {
-    const config = {
-      client,
+    return {
       connection: {
-        connectionString,
-        ssl: sslEnabled
-          ? poolerCa
-            ? { rejectUnauthorized: false, ca: poolerCa }
-            : { rejectUnauthorized: false }
-          : false,
+        client,
+        connection: {
+          connectionString,
+          ssl: sslEnabled
+            ? poolerCa
+              ? { rejectUnauthorized: false, ca: poolerCa }
+              : { rejectUnauthorized: false }
+            : false,
+        },
       },
     };
-    return { connection: config };
   }
 
   // Dacă nu există DATABASE_URL, folosește variabilele individuale
