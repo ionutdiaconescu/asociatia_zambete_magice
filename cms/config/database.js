@@ -107,5 +107,5 @@ module.exports = ({ env }) => {
     }
   } catch (e) {}
 
-  return config;
+  return configObj;
 };
