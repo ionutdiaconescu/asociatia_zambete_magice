@@ -7,6 +7,17 @@ console.log(
   new Date().toISOString()
 );
 console.log("[env-vars]", process.env.DATABASE_URL, process.env.POOLER_CA_B64);
+const fs = require("fs");
+const logPath = "/tmp/strapi-db-config.log";
+try {
+  fs.appendFileSync(
+    logPath,
+    `\n[${new Date().toISOString()}] Loaded config/database.js\n` +
+      `DATABASE_URL=${process.env.DATABASE_URL}\n` +
+      `POOLER_CA_B64=${process.env.POOLER_CA_B64}\n` +
+      `DATABASE_CLIENT=${process.env.DATABASE_CLIENT}\n`
+  );
+} catch (e) {}
 module.exports = ({ env }) => {
   // Config simplu, direct din variabilele de mediu
   const client = process.env.DATABASE_CLIENT || "postgres";
