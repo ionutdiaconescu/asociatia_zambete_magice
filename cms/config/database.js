@@ -18,18 +18,21 @@ try {
       `DATABASE_CLIENT=${process.env.DATABASE_CLIENT}\n`
   );
 } catch (e) {}
-module.exports = ({ env }) => {
+module.exports = () => {
+  // Fallback direct pe process.env, fără funcția env
   const config = {
     connection: {
-      client: "postgres",
+      client: process.env.DATABASE_CLIENT || "postgres",
       connection: {
-        host: env("DATABASE_HOST", "localhost"),
-        port: env.int("DATABASE_PORT", 5432),
-        database: env("DATABASE_NAME", "strapi"),
-        user: env("DATABASE_USERNAME", "strapi"),
-        password: env("DATABASE_PASSWORD", ""),
-        ssl: env("POOLER_CA_B64")
-          ? { rejectUnauthorized: false, ca: env("POOLER_CA_B64") }
+        host: process.env.DATABASE_HOST || "localhost",
+        port: process.env.DATABASE_PORT
+          ? parseInt(process.env.DATABASE_PORT, 10)
+          : 5432,
+        database: process.env.DATABASE_NAME || "strapi",
+        user: process.env.DATABASE_USERNAME || "strapi",
+        password: process.env.DATABASE_PASSWORD || "",
+        ssl: process.env.POOLER_CA_B64
+          ? { rejectUnauthorized: false, ca: process.env.POOLER_CA_B64 }
           : { rejectUnauthorized: false },
       },
     },
