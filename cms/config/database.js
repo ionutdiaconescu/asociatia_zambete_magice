@@ -13,9 +13,10 @@ module.exports = ({ env }) => {
   const sslEnabled = process.env.DATABASE_SSL !== "false";
   const poolerCa = process.env.POOLER_CA;
 
+  let config;
   // Dacă există DATABASE_URL, folosește-l direct
   if (connectionString) {
-    return {
+    config = {
       connection: {
         client,
         connection: {
@@ -28,26 +29,33 @@ module.exports = ({ env }) => {
         },
       },
     };
+  } else {
+    // Dacă nu există DATABASE_URL, folosește variabilele individuale
+    config = {
+      connection: {
+        client,
+        connection: {
+          host: process.env.DATABASE_HOST || "127.0.0.1",
+          port: process.env.DATABASE_PORT
+            ? parseInt(process.env.DATABASE_PORT, 10)
+            : 5432,
+          database: process.env.DATABASE_NAME || "postgres",
+          user: process.env.DATABASE_USERNAME || "postgres",
+          password: process.env.DATABASE_PASSWORD || "",
+          ssl: sslEnabled
+            ? poolerCa
+              ? { rejectUnauthorized: false, ca: poolerCa }
+              : { rejectUnauthorized: false }
+            : false,
+        },
+      },
+    };
   }
 
-  // Dacă nu există DATABASE_URL, folosește variabilele individuale
-  return {
-    connection: {
-      client,
-      connection: {
-        host: process.env.DATABASE_HOST || "127.0.0.1",
-        port: process.env.DATABASE_PORT
-          ? parseInt(process.env.DATABASE_PORT, 10)
-          : 5432,
-        database: process.env.DATABASE_NAME || "postgres",
-        user: process.env.DATABASE_USERNAME || "postgres",
-        password: process.env.DATABASE_PASSWORD || "",
-        ssl: sslEnabled
-          ? poolerCa
-            ? { rejectUnauthorized: false, ca: poolerCa }
-            : { rejectUnauthorized: false }
-          : false,
-      },
-    },
-  };
+  // Log pentru debugging: vezi structura configului returnat
+  try {
+    console.log("[debug-db-config]", JSON.stringify(config, null, 2));
+  } catch (e) {}
+
+  return config;
 };
