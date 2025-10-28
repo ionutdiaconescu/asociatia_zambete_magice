@@ -2,6 +2,10 @@
 // fall back to a best-effort default built from env vars.
 // Defensive root DB config pentru Strapi.
 require("dotenv").config();
+console.log(
+  "[strapi-db-config] Loaded config/database.js at",
+  new Date().toISOString()
+);
 console.log("[env-vars]", process.env.DATABASE_URL, process.env.POOLER_CA_B64);
 module.exports = ({ env }) => {
   // Config simplu, direct din variabilele de mediu
