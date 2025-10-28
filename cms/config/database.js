@@ -26,30 +26,32 @@ module.exports = ({ env }) => {
   const poolerCa = process.env.POOLER_CA_B64;
 
   // Export direct fără wrapperul 'connection'
-  let configObj;
+  let config;
   if (connectionString) {
     const url = require("url");
     const parsed = url.parse(connectionString);
     const [user, password] = (parsed.auth || "").split(":");
-    configObj = {
-      client,
+    config = {
       connection: {
-        host: parsed.hostname,
-        port: parsed.port ? parseInt(parsed.port, 10) : 5432,
-        database: parsed.pathname
-          ? parsed.pathname.replace(/^\//, "")
-          : "postgres",
-        user: user || "postgres",
-        password: password || "",
-        ssl: sslEnabled
-          ? poolerCa
-            ? { rejectUnauthorized: false, ca: poolerCa }
-            : { rejectUnauthorized: false }
-          : false,
+        client,
+        connection: {
+          host: parsed.hostname,
+          port: parsed.port ? parseInt(parsed.port, 10) : 5432,
+          database: parsed.pathname
+            ? parsed.pathname.replace(/^\//, "")
+            : "postgres",
+          user: user || "postgres",
+          password: password || "",
+          ssl: sslEnabled
+            ? poolerCa
+              ? { rejectUnauthorized: false, ca: poolerCa }
+              : { rejectUnauthorized: false }
+            : false,
+        },
       },
     };
   } else {
-    configObj = {
+    config = {
       client,
       connection: {
         host: process.env.DATABASE_HOST || "127.0.0.1",
@@ -70,21 +72,24 @@ module.exports = ({ env }) => {
 
   // Log pentru debugging: vezi structura configului returnat
   try {
-    console.log("[debug-db-config]", JSON.stringify(configObj, null, 2));
+    console.log("[debug-db-config]", JSON.stringify(config, null, 2));
     // Mask sensitive fields for file dump
     function maskConfig(cfg) {
       const clone = JSON.parse(JSON.stringify(cfg));
-      if (clone.connection) {
-        if (clone.connection.password) {
-          clone.connection.password = "****";
+      if (clone.connection && clone.connection.connection) {
+        if (clone.connection.connection.password) {
+          clone.connection.connection.password = "****";
         }
-        if (clone.connection.ssl && clone.connection.ssl.ca) {
-          clone.connection.ssl.ca = "[MASKED]";
+        if (
+          clone.connection.connection.ssl &&
+          clone.connection.connection.ssl.ca
+        ) {
+          clone.connection.connection.ssl.ca = "[MASKED]";
         }
       }
       return clone;
     }
-    const masked = maskConfig(configObj);
+    const masked = maskConfig(config);
     fs.writeFileSync(
       "/tmp/strapi-db-config.json",
       JSON.stringify(masked, null, 2)
@@ -107,5 +112,5 @@ module.exports = ({ env }) => {
     }
   } catch (e) {}
 
-  return configObj;
+  return config;
 };
