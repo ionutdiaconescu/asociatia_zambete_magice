@@ -11,7 +11,7 @@ module.exports = ({ env }) => {
   const client = process.env.DATABASE_CLIENT || "postgres";
   const connectionString = process.env.DATABASE_URL;
   const sslEnabled = process.env.DATABASE_SSL !== "false";
-  const poolerCa = process.env.POOLER_CA;
+  const poolerCa = process.env.POOLER_CA_B64;
 
   let config;
   // Dacă există DATABASE_URL, folosește-l direct
