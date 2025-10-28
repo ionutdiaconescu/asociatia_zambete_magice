@@ -19,35 +19,31 @@ try {
   );
 } catch (e) {}
 module.exports = ({ env }) => {
-  // Config simplu, direct din variabilele de mediu
   const client = process.env.DATABASE_CLIENT || "postgres";
   const connectionString = process.env.DATABASE_URL;
   const sslEnabled = process.env.DATABASE_SSL !== "false";
   const poolerCa = process.env.POOLER_CA_B64;
 
-  // Export direct fără wrapperul 'connection'
   let config;
   if (connectionString) {
     const url = require("url");
     const parsed = url.parse(connectionString);
     const [user, password] = (parsed.auth || "").split(":");
     config = {
+      client,
       connection: {
-        client,
-        connection: {
-          host: parsed.hostname,
-          port: parsed.port ? parseInt(parsed.port, 10) : 5432,
-          database: parsed.pathname
-            ? parsed.pathname.replace(/^\//, "")
-            : "postgres",
-          user: user || "postgres",
-          password: password || "",
-          ssl: sslEnabled
-            ? poolerCa
-              ? { rejectUnauthorized: false, ca: poolerCa }
-              : { rejectUnauthorized: false }
-            : false,
-        },
+        host: parsed.hostname,
+        port: parsed.port ? parseInt(parsed.port, 10) : 5432,
+        database: parsed.pathname
+          ? parsed.pathname.replace(/^\//, "")
+          : "postgres",
+        user: user || "postgres",
+        password: password || "",
+        ssl: sslEnabled
+          ? poolerCa
+            ? { rejectUnauthorized: false, ca: poolerCa }
+            : { rejectUnauthorized: false }
+          : false,
       },
     };
   } else {
@@ -76,15 +72,12 @@ module.exports = ({ env }) => {
     // Mask sensitive fields for file dump
     function maskConfig(cfg) {
       const clone = JSON.parse(JSON.stringify(cfg));
-      if (clone.connection && clone.connection.connection) {
-        if (clone.connection.connection.password) {
-          clone.connection.connection.password = "****";
+      if (clone.connection) {
+        if (clone.connection.password) {
+          clone.connection.password = "****";
         }
-        if (
-          clone.connection.connection.ssl &&
-          clone.connection.connection.ssl.ca
-        ) {
-          clone.connection.connection.ssl.ca = "[MASKED]";
+        if (clone.connection.ssl && clone.connection.ssl.ca) {
+          clone.connection.ssl.ca = "[MASKED]";
         }
       }
       return clone;
