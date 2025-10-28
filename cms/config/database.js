@@ -26,38 +26,31 @@ module.exports = ({ env }) => {
   const poolerCa = process.env.POOLER_CA_B64;
 
   let config;
-  // Dacă există DATABASE_URL, folosește-l direct conform Strapi v4/v5
+  // Dacă există DATABASE_URL, parsează și construiește obiectul corect
   if (connectionString) {
-    // Dacă ai nevoie de SSL custom, folosește obiectul cu string + ssl
-    if (sslEnabled && poolerCa) {
-      config = {
+    // Folosește URL pentru a extrage host, port, db, user, password
+    const url = require("url");
+    const parsed = url.parse(connectionString);
+    const [user, password] = (parsed.auth || "").split(":");
+    config = {
+      connection: {
+        client,
         connection: {
-          client,
-          connection: {
-            connectionString,
-            ssl: { rejectUnauthorized: false, ca: poolerCa },
-          },
+          host: parsed.hostname,
+          port: parsed.port ? parseInt(parsed.port, 10) : 5432,
+          database: parsed.pathname
+            ? parsed.pathname.replace(/^\//, "")
+            : "postgres",
+          user: user || "postgres",
+          password: password || "",
+          ssl: sslEnabled
+            ? poolerCa
+              ? { rejectUnauthorized: false, ca: poolerCa }
+              : { rejectUnauthorized: false }
+            : false,
         },
-      };
-    } else if (sslEnabled) {
-      config = {
-        connection: {
-          client,
-          connection: {
-            connectionString,
-            ssl: { rejectUnauthorized: false },
-          },
-        },
-      };
-    } else {
-      // Cel mai simplu: doar stringul
-      config = {
-        connection: {
-          client,
-          connection: connectionString,
-        },
-      };
-    }
+      },
+    };
   } else {
     // Dacă nu există DATABASE_URL, folosește variabilele individuale
     config = {
