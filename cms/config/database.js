@@ -19,50 +19,21 @@ try {
   );
 } catch (e) {}
 module.exports = ({ env }) => {
-  const client = process.env.DATABASE_CLIENT || "postgres";
-  const connectionString = process.env.DATABASE_URL;
-  const sslEnabled = process.env.DATABASE_SSL !== "false";
-  const poolerCa = process.env.POOLER_CA_B64;
-
-  let connection;
-  if (connectionString) {
-    const url = require("url");
-    const parsed = url.parse(connectionString);
-    const [user, password] = (parsed.auth || "").split(":");
-    connection = {
-      client,
-      host: parsed.hostname,
-      port: parsed.port ? parseInt(parsed.port, 10) : 5432,
-      database: parsed.pathname
-        ? parsed.pathname.replace(/^\//, "")
-        : "postgres",
-      user: user || "postgres",
-      password: password || "",
-      ssl: sslEnabled
-        ? poolerCa
-          ? { rejectUnauthorized: false, ca: poolerCa }
-          : { rejectUnauthorized: false }
-        : false,
-    };
-  } else {
-    connection = {
-      client,
-      host: process.env.DATABASE_HOST || "127.0.0.1",
-      port: process.env.DATABASE_PORT
-        ? parseInt(process.env.DATABASE_PORT, 10)
-        : 5432,
-      database: process.env.DATABASE_NAME || "postgres",
-      user: process.env.DATABASE_USERNAME || "postgres",
-      password: process.env.DATABASE_PASSWORD || "",
-      ssl: sslEnabled
-        ? poolerCa
-          ? { rejectUnauthorized: false, ca: poolerCa }
-          : { rejectUnauthorized: false }
-        : false,
-    };
-  }
-
-  const config = { connection };
+  const config = {
+    connection: {
+      client: "postgres",
+      connection: {
+        host: env("DATABASE_HOST", "localhost"),
+        port: env.int("DATABASE_PORT", 5432),
+        database: env("DATABASE_NAME", "strapi"),
+        user: env("DATABASE_USERNAME", "strapi"),
+        password: env("DATABASE_PASSWORD", ""),
+        ssl: env("POOLER_CA_B64")
+          ? { rejectUnauthorized: false, ca: env("POOLER_CA_B64") }
+          : { rejectUnauthorized: false },
+      },
+    },
+  };
 
   // Log pentru debugging: vezi structura configului returnat
   try {
@@ -70,17 +41,21 @@ module.exports = ({ env }) => {
     // Mask sensitive fields for file dump
     function maskConfig(cfg) {
       const clone = JSON.parse(JSON.stringify(cfg));
-      if (clone.connection) {
-        if (clone.connection.password) {
-          clone.connection.password = "****";
+      if (clone.connection && clone.connection.connection) {
+        if (clone.connection.connection.password) {
+          clone.connection.connection.password = "****";
         }
-        if (clone.connection.ssl && clone.connection.ssl.ca) {
-          clone.connection.ssl.ca = "[MASKED]";
+        if (
+          clone.connection.connection.ssl &&
+          clone.connection.connection.ssl.ca
+        ) {
+          clone.connection.connection.ssl.ca = "[MASKED]";
         }
       }
       return clone;
     }
     const masked = maskConfig(config);
+    const fs = require("fs");
     fs.writeFileSync(
       "/tmp/strapi-db-config.json",
       JSON.stringify(masked, null, 2)
