@@ -24,47 +24,45 @@ module.exports = ({ env }) => {
   const sslEnabled = process.env.DATABASE_SSL !== "false";
   const poolerCa = process.env.POOLER_CA_B64;
 
-  let config;
+  let connection;
   if (connectionString) {
     const url = require("url");
     const parsed = url.parse(connectionString);
     const [user, password] = (parsed.auth || "").split(":");
-    config = {
+    connection = {
       client,
-      connection: {
-        host: parsed.hostname,
-        port: parsed.port ? parseInt(parsed.port, 10) : 5432,
-        database: parsed.pathname
-          ? parsed.pathname.replace(/^\//, "")
-          : "postgres",
-        user: user || "postgres",
-        password: password || "",
-        ssl: sslEnabled
-          ? poolerCa
-            ? { rejectUnauthorized: false, ca: poolerCa }
-            : { rejectUnauthorized: false }
-          : false,
-      },
+      host: parsed.hostname,
+      port: parsed.port ? parseInt(parsed.port, 10) : 5432,
+      database: parsed.pathname
+        ? parsed.pathname.replace(/^\//, "")
+        : "postgres",
+      user: user || "postgres",
+      password: password || "",
+      ssl: sslEnabled
+        ? poolerCa
+          ? { rejectUnauthorized: false, ca: poolerCa }
+          : { rejectUnauthorized: false }
+        : false,
     };
   } else {
-    config = {
+    connection = {
       client,
-      connection: {
-        host: process.env.DATABASE_HOST || "127.0.0.1",
-        port: process.env.DATABASE_PORT
-          ? parseInt(process.env.DATABASE_PORT, 10)
-          : 5432,
-        database: process.env.DATABASE_NAME || "postgres",
-        user: process.env.DATABASE_USERNAME || "postgres",
-        password: process.env.DATABASE_PASSWORD || "",
-        ssl: sslEnabled
-          ? poolerCa
-            ? { rejectUnauthorized: false, ca: poolerCa }
-            : { rejectUnauthorized: false }
-          : false,
-      },
+      host: process.env.DATABASE_HOST || "127.0.0.1",
+      port: process.env.DATABASE_PORT
+        ? parseInt(process.env.DATABASE_PORT, 10)
+        : 5432,
+      database: process.env.DATABASE_NAME || "postgres",
+      user: process.env.DATABASE_USERNAME || "postgres",
+      password: process.env.DATABASE_PASSWORD || "",
+      ssl: sslEnabled
+        ? poolerCa
+          ? { rejectUnauthorized: false, ca: poolerCa }
+          : { rejectUnauthorized: false }
+        : false,
     };
   }
+
+  const config = { connection };
 
   // Log pentru debugging: vezi structura configului returnat
   try {
