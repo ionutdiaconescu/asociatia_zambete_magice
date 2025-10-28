@@ -5,18 +5,20 @@
 require("dotenv").config();
 
 const config = {
-  client: "postgres",
   connection: {
-    host: process.env.DATABASE_HOST || "localhost",
-    port: process.env.DATABASE_PORT
-      ? parseInt(process.env.DATABASE_PORT, 10)
-      : 5432,
-    database: process.env.DATABASE_NAME || "strapi",
-    user: process.env.DATABASE_USERNAME || "strapi",
-    password: process.env.DATABASE_PASSWORD || "",
-    ssl: process.env.POOLER_CA_B64
-      ? { rejectUnauthorized: false, ca: process.env.POOLER_CA_B64 }
-      : { rejectUnauthorized: false },
+    client: "postgres",
+    connection: {
+      host: process.env.DATABASE_HOST || "localhost",
+      port: process.env.DATABASE_PORT
+        ? parseInt(process.env.DATABASE_PORT, 10)
+        : 5432,
+      database: process.env.DATABASE_NAME || "strapi",
+      user: process.env.DATABASE_USERNAME || "strapi",
+      password: process.env.DATABASE_PASSWORD || "",
+      ssl: process.env.POOLER_CA_B64
+        ? { rejectUnauthorized: false, ca: process.env.POOLER_CA_B64 }
+        : { rejectUnauthorized: false },
+    },
   },
 };
 
@@ -44,10 +46,11 @@ try {
   const fs = require("fs");
   // Mask sensitive fields
   const masked = JSON.parse(JSON.stringify(config));
-  if (masked.connection) {
-    if (masked.connection.password) masked.connection.password = "****";
-    if (masked.connection.ssl && masked.connection.ssl.ca)
-      masked.connection.ssl.ca = "[MASKED]";
+  if (masked.connection && masked.connection.connection) {
+    if (masked.connection.connection.password)
+      masked.connection.connection.password = "****";
+    if (masked.connection.connection.ssl && masked.connection.connection.ssl.ca)
+      masked.connection.connection.ssl.ca = "[MASKED]";
   }
   fs.writeFileSync(
     "/tmp/strapi-db-config.json",
