@@ -9,7 +9,7 @@ function mask(s) {
 }
 
 console.log("[check-env] NODE_VERSION=", process.version);
-console.log("[check-env] DATABASE_CLIENT=", process.env.DATABASE_CLIENT);
+// ...existing code...
 console.log("[check-env] DATABASE_URL=", mask(process.env.DATABASE_URL));
 console.log("[check-env] DATABASE_SSL=", process.env.DATABASE_SSL);
 console.log("[check-env] DEBUG_DB_CONFIG=", process.env.DEBUG_DB_CONFIG);

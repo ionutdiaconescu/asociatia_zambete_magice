@@ -15,13 +15,13 @@ try {
     `\n[${new Date().toISOString()}] Loaded config/database.js\n` +
       `DATABASE_URL=${process.env.DATABASE_URL}\n` +
       `POOLER_CA_B64=${process.env.POOLER_CA_B64}\n` +
-      `DATABASE_CLIENT=${process.env.DATABASE_CLIENT}\n`
+  // ...existing code...
   );
 } catch (e) {}
 module.exports = () => {
   // Fallback direct pe process.env, fără funcția env
   const config = {
-    client: process.env.DATABASE_CLIENT || "postgres",
+  client: "postgres",
     connection: {
       host: process.env.DATABASE_HOST || "localhost",
       port: process.env.DATABASE_PORT
