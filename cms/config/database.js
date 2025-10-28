@@ -12,16 +12,13 @@ const logPath = "/tmp/strapi-db-config.log";
 try {
   fs.appendFileSync(
     logPath,
-    `\n[${new Date().toISOString()}] Loaded config/database.js\n` +
-      `DATABASE_URL=${process.env.DATABASE_URL}\n` +
-      `POOLER_CA_B64=${process.env.POOLER_CA_B64}\n` +
-  // ...existing code...
+    `\n[${new Date().toISOString()}] Loaded config/database.js\n``DATABASE_URL=${process.env.DATABASE_URL}\n``POOLER_CA_B64=${process.env.POOLER_CA_B64}\n`
   );
 } catch (e) {}
 module.exports = () => {
   // Fallback direct pe process.env, fără funcția env
   const config = {
-  client: "postgres",
+    client: "postgres",
     connection: {
       host: process.env.DATABASE_HOST || "localhost",
       port: process.env.DATABASE_PORT
