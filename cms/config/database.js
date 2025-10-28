@@ -1,11 +1,8 @@
 // Prefer env-specific config (config/env/<NODE_ENV>/database.js),
 // fall back to a best-effort default built from env vars.
-// Defensive root DB config for Strapi.
-// Prefer env-specific config (config/env/<NODE_ENV>/database.js).
-// If that is missing or doesn't return a connection, always build
-// a best-effort connection object from process.env so Strapi never
-// receives an undefined `db.config.connection`.
-
+// Defensive root DB config pentru Strapi.
+require("dotenv").config();
+console.log("[env-vars]", process.env.DATABASE_URL, process.env.POOLER_CA_B64);
 module.exports = ({ env }) => {
   // Config simplu, direct din variabilele de mediu
   const client = process.env.DATABASE_CLIENT || "postgres";
