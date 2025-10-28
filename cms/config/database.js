@@ -21,20 +21,18 @@ try {
 module.exports = () => {
   // Fallback direct pe process.env, fără funcția env
   const config = {
+    client: process.env.DATABASE_CLIENT || "postgres",
     connection: {
-      client: process.env.DATABASE_CLIENT || "postgres",
-      connection: {
-        host: process.env.DATABASE_HOST || "localhost",
-        port: process.env.DATABASE_PORT
-          ? parseInt(process.env.DATABASE_PORT, 10)
-          : 5432,
-        database: process.env.DATABASE_NAME || "strapi",
-        user: process.env.DATABASE_USERNAME || "strapi",
-        password: process.env.DATABASE_PASSWORD || "",
-        ssl: process.env.POOLER_CA_B64
-          ? { rejectUnauthorized: false, ca: process.env.POOLER_CA_B64 }
-          : { rejectUnauthorized: false },
-      },
+      host: process.env.DATABASE_HOST || "localhost",
+      port: process.env.DATABASE_PORT
+        ? parseInt(process.env.DATABASE_PORT, 10)
+        : 5432,
+      database: process.env.DATABASE_NAME || "strapi",
+      user: process.env.DATABASE_USERNAME || "strapi",
+      password: process.env.DATABASE_PASSWORD || "",
+      ssl: process.env.POOLER_CA_B64
+        ? { rejectUnauthorized: false, ca: process.env.POOLER_CA_B64 }
+        : { rejectUnauthorized: false },
     },
   };
 
@@ -44,15 +42,12 @@ module.exports = () => {
     // Mask sensitive fields for file dump
     function maskConfig(cfg) {
       const clone = JSON.parse(JSON.stringify(cfg));
-      if (clone.connection && clone.connection.connection) {
-        if (clone.connection.connection.password) {
-          clone.connection.connection.password = "****";
+      if (clone.connection) {
+        if (clone.connection.password) {
+          clone.connection.password = "****";
         }
-        if (
-          clone.connection.connection.ssl &&
-          clone.connection.connection.ssl.ca
-        ) {
-          clone.connection.connection.ssl.ca = "[MASKED]";
+        if (clone.connection.ssl && clone.connection.ssl.ca) {
+          clone.connection.ssl.ca = "[MASKED]";
         }
       }
       return clone;
