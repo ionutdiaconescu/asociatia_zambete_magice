@@ -97,6 +97,22 @@ module.exports = ({ env }) => {
       "/tmp/strapi-db-config.json",
       JSON.stringify(masked, null, 2)
     );
+    // Log contents of /tmp/strapi-db-config.json for Render visibility
+    try {
+      const fileContents = fs.readFileSync(
+        "/tmp/strapi-db-config.json",
+        "utf8"
+      );
+      console.log(
+        "[debug-db-config-file] /tmp/strapi-db-config.json:",
+        fileContents
+      );
+    } catch (e) {
+      console.log(
+        "[debug-db-config-file] Could not read /tmp/strapi-db-config.json:",
+        e.message
+      );
+    }
   } catch (e) {}
 
   return config;
