@@ -65,8 +65,38 @@ module.exports = ({ env }) => {
   }
 
   // Log pentru debugging: vezi structura configului returnat
+
+  // Log pentru debugging: vezi structura configului returnat
   try {
     console.log("[debug-db-config]", JSON.stringify(config, null, 2));
+    // Mask sensitive fields for file dump
+    function maskConfig(cfg) {
+      const clone = JSON.parse(JSON.stringify(cfg));
+      if (clone.connection && clone.connection.connection) {
+        if (clone.connection.connection.connectionString) {
+          clone.connection.connection.connectionString =
+            clone.connection.connection.connectionString.replace(
+              /:[^:@]+@/,
+              ":****@"
+            );
+        }
+        if (clone.connection.connection.password) {
+          clone.connection.connection.password = "****";
+        }
+        if (
+          clone.connection.connection.ssl &&
+          clone.connection.connection.ssl.ca
+        ) {
+          clone.connection.connection.ssl.ca = "[MASKED]";
+        }
+      }
+      return clone;
+    }
+    const masked = maskConfig(config);
+    fs.writeFileSync(
+      "/tmp/strapi-db-config.json",
+      JSON.stringify(masked, null, 2)
+    );
   } catch (e) {}
 
   return config;
