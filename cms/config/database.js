@@ -1,6 +1,8 @@
-module.exports = {
+module.exports = () => ({
   connection: {
     client: "postgres",
-    connection: process.env.DATABASE_URL,
+    connection: {
+      connectionString: process.env.DATABASE_URL,
+    },
   },
-};
+});
