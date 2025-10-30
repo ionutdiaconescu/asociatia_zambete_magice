@@ -1,9 +1,14 @@
 // Create an admin user directly (bypassing the /admin register wizard)
 // Usage:
-//  RESET_ADMIN_EMAIL, RESET_ADMIN_PASSWORD, RESET_ADMIN_FIRSTNAME, RESET_ADMIN_LASTNAME (optional)
-// Ensure DATABASE_* + APP_KEYS + ENCRYPTION_KEY + JWT/ADMIN_JWT secrets are set.
-//   node scripts/create-admin-user.js
-// or: npm run admin:create
+// 1. Setează variabilele de mediu:
+//    RESET_ADMIN_EMAIL (ex: admin@site.com)
+//    RESET_ADMIN_PASSWORD (ex: parola123)
+//    RESET_ADMIN_FIRSTNAME (opțional)
+//    RESET_ADMIN_LASTNAME (opțional)
+// 2. Asigură-te că toate variabilele din .env și Render Environment tab sunt corecte (DATABASE_*, APP_KEYS, ENCRYPTION_KEY, JWT/ADMIN_JWT etc).
+// 3. Rulează: node scripts/create-admin-user.js
+//    sau: npm run admin:create
+// 4. După rulare, poți accesa /admin cu emailul și parola setate.
 
 const { createStrapi } = require("@strapi/strapi");
 
