@@ -8,16 +8,14 @@ const config = {
   connection: {
     client: "postgres",
     connection: {
-      host: process.env.DATABASE_HOST || "localhost",
+      host: process.env.DATABASE_HOST || "aws-1-eu-north-1.pooler.supabase.com",
       port: process.env.DATABASE_PORT
         ? parseInt(process.env.DATABASE_PORT, 10)
         : 5432,
-      database: process.env.DATABASE_NAME || "strapi",
-      user: process.env.DATABASE_USERNAME || "strapi",
+      database: process.env.DATABASE_NAME || "postgres",
+      user: process.env.DATABASE_USERNAME || "postgres.ajmvymmpwmtivuzgxwdh",
       password: process.env.DATABASE_PASSWORD || "",
-      ssl: process.env.POOLER_CA_B64
-        ? { rejectUnauthorized: false, ca: process.env.POOLER_CA_B64 }
-        : { rejectUnauthorized: false },
+      // SSL removed for Supabase pooler
     },
   },
 };
@@ -34,7 +32,6 @@ console.log("[env-vars]", {
   DATABASE_NAME: process.env.DATABASE_NAME,
   DATABASE_USERNAME: process.env.DATABASE_USERNAME,
   DATABASE_PASSWORD: process.env.DATABASE_PASSWORD,
-  POOLER_CA_B64: process.env.POOLER_CA_B64,
 });
 console.log(
   "[strapi-db-config] Exported config:",
@@ -49,8 +46,6 @@ try {
   if (masked.connection && masked.connection.connection) {
     if (masked.connection.connection.password)
       masked.connection.connection.password = "****";
-    if (masked.connection.connection.ssl && masked.connection.connection.ssl.ca)
-      masked.connection.connection.ssl.ca = "[MASKED]";
   }
   fs.writeFileSync(
     "/tmp/strapi-db-config.json",
