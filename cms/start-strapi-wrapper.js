@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // shim to support deployments that run `node start-strapi-wrapper.js`
 // The real, authoritative wrapper lives at ./scripts/start-strapi-wrapper.js
+require("dotenv").config();
 try {
   require("./scripts/start-strapi-wrapper.js");
 } catch (err) {
