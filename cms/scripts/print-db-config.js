@@ -46,7 +46,16 @@ try {
     return Number.isNaN(n) ? d : n;
   };
 
-  const result = dbConfigFactory({ env });
+  // Asigură-te că dbConfigFactory este funcție
+  let result;
+  if (typeof dbConfigFactory === "function") {
+    result = dbConfigFactory({ env });
+  } else {
+    console.error(
+      "[print-db-config] error: config/database.js nu exportă o funcție!"
+    );
+    result = dbConfigFactory;
+  }
 
   // Mask password if present; also mask any password inside a connectionString
   try {
