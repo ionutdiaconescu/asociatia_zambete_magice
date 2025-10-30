@@ -6,6 +6,16 @@ console.log(
   "[strapi-wrapper] Executing start-strapi-wrapper.js at",
   new Date().toISOString()
 );
-const strapi = require("@strapi/strapi");
 
+// Rulează print-db-config.js la fiecare start pentru debugging
+try {
+  require("./print-db-config.js");
+} catch (e) {
+  console.error(
+    "[strapi-wrapper] Eroare la execuția print-db-config.js:",
+    e && e.message
+  );
+}
+
+const strapi = require("@strapi/strapi");
 strapi.createStrapi({ distDir: resolve(__dirname, "./dist") }).start();
