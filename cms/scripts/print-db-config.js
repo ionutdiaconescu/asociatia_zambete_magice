@@ -95,6 +95,19 @@ try {
   // Print the result safely
   console.log(JSON.stringify(result, null, 2));
 
+  // Scrie configul evaluat într-un fișier pentru debugging pe Render
+  try {
+    const fs = require("fs");
+    const outPath = "/tmp/strapi-db-config.json";
+    fs.writeFileSync(outPath, JSON.stringify(result, null, 2));
+    console.log(`[print-db-config] config scris la ${outPath}`);
+  } catch (e) {
+    console.error(
+      "[print-db-config] nu pot scrie /tmp/strapi-db-config.json:",
+      e && e.message
+    );
+  }
+
   // Afișează doar DATABASE_USERNAME și DATABASE_PASSWORD
   try {
     console.log(
