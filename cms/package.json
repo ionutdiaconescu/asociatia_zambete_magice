@@ -25,9 +25,9 @@
     "postinstall": "npm rebuild better-sqlite3 || true"
   },
   "dependencies": {
-    "@strapi/plugin-cloud": "5.24.1",
-    "@strapi/plugin-users-permissions": "5.24.1",
-    "@strapi/strapi": "5.24.1",
+    "@strapi/plugin-cloud": "5.27.0",
+    "@strapi/plugin-users-permissions": "5.27.0",
+    "@strapi/strapi": "5.27.0",
     "better-sqlite3": "9.4.0",
     "dotenv": "^17.2.3",
     "pg": "^8.8.0",

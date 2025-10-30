@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 "use strict";
+// Încarcă variabilele din .env local (doar pentru dezvoltare/local)
+require("dotenv").config();
 // Minimal production-only wrapper for Strapi startup (in-process)
 const { resolve } = require("path");
 console.log(

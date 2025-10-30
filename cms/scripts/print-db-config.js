@@ -58,46 +58,21 @@ try {
   }
 
   // Mask password if present; also mask any password inside a connectionString
+  // Pentru log, clonează configul și maschează doar parola, fără a modifica obiectul original
+  let maskedResult;
   try {
-    // Work on a mutable reference to the inner connection (string or object)
-    let connRef = result && result.connection && result.connection.connection;
-    // If the module returned the connection as a string, convert to object for masking
-    if (typeof connRef === "string") {
-      connRef = { connectionString: connRef };
-      // write back so JSON.stringify prints the masked result later
-      result.connection.connection = connRef;
-    }
-
-    if (connRef && typeof connRef === "object") {
-      // Mask explicit password field(s)
-      if (connRef.password) connRef.password = "***";
-      if (connRef.connection && connRef.connection.password)
-        connRef.connection.password = "***";
-
-      // Determine the connectionString to mask (either nested or top-level)
-      const connStr =
-        (connRef.connection && connRef.connection.connectionString) ||
-        connRef.connectionString;
-      if (connStr && typeof connStr === "string") {
-        // Prefer using the URL parser to mask the password safely
-        try {
-          const u = new URL(connStr);
-          if (u.password) u.password = "***";
-          const masked = u.toString();
-          if (connRef.connection && connRef.connection.connectionString)
-            connRef.connection.connectionString = masked;
-          else connRef.connectionString = masked;
-        } catch (e) {
-          // Fallback: regex that replaces ':password@' with ':***@' but keeps protocol
-          const masked = connStr.replace(/:([^:@]+)@/, ":***@");
-          if (connRef.connection && connRef.connection.connectionString)
-            connRef.connection.connectionString = masked;
-          else connRef.connectionString = masked;
-        }
-      }
+    maskedResult = JSON.parse(JSON.stringify(result));
+    if (
+      maskedResult &&
+      maskedResult.connection &&
+      maskedResult.connection.connection &&
+      typeof maskedResult.connection.connection === "object"
+    ) {
+      if (maskedResult.connection.connection.password)
+        maskedResult.connection.connection.password = "***";
     }
   } catch (e) {
-    // ignore masking errors
+    maskedResult = result;
   }
 
   console.log("[print-db-config] evaluated database config:");
@@ -122,7 +97,7 @@ try {
     console.log(
       "[print-db-config] runtime overrides: DATABASE_USERNAME=",
       process.env.DATABASE_USERNAME || "(unset)",
-      " DATABASE_PASSWORD=",
+      "DATABASE_PASSWORD=",
       process.env.DATABASE_PASSWORD ? "***" : "(unset)"
     );
   } catch (e) {
