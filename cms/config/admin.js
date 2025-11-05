@@ -1,5 +1,5 @@
 // JS mirror of admin.ts for ts-node executed scripts
-const path = require('path');
+const path = require("path");
 
 module.exports = ({ env }) => ({
   auth: { secret: env("ADMIN_JWT_SECRET") },
@@ -13,7 +13,7 @@ module.exports = ({ env }) => ({
   // Forțează servirea admin din build local
   serveAdminPanel: true,
   // Setează calea absolută către build
-  buildPath: path.join(__dirname, '..', 'dist'),
+  buildPath: path.join(__dirname, "..", "dist"),
   // URL-ul admin panel-ului
   url: env("ADMIN_URL", "/admin"),
 });
