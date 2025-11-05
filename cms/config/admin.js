@@ -10,7 +10,8 @@ module.exports = ({ env }) => ({
     nps: env.bool("FLAG_NPS", true),
     promoteEE: env.bool("FLAG_PROMOTE_EE", true),
   },
-  // Încerc calea către node_modules admin build
-  serveAdminPanel: env.bool("SERVE_ADMIN", true),
+  // Forțează servirea din build-ul local generat
+  serveAdminPanel: true,
+  buildPath: path.resolve(__dirname, "..", "dist", "build"),
   url: env("ADMIN_URL", "/admin"),
 });
