@@ -8,8 +8,10 @@ module.exports = ({ env }) => ({
     nps: env.bool("FLAG_NPS", true),
     promoteEE: env.bool("FLAG_PROMOTE_EE", true),
   },
-  // Folosește valoarea din environment variable
-  serveAdminPanel: env.bool("SERVE_ADMIN", true),
-  // Setează URL-ul admin panel-ului
+  // Forțează servirea admin din build local
+  serveAdminPanel: true,
+  // Setează calea absolută pentru build
+  path: env("ADMIN_PATH", "/admin"),
+  // URL-ul admin panel-ului
   url: env("ADMIN_URL", "/admin"),
 });
