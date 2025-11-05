@@ -20,4 +20,4 @@ try {
 }
 
 const strapi = require("@strapi/strapi");
-strapi.createStrapi({ distDir: resolve(__dirname, "./dist") }).start();
+strapi.createStrapi().start();
