@@ -12,8 +12,8 @@ module.exports = ({ env }) => ({
   },
   // Forțează servirea admin din build local
   serveAdminPanel: true,
-  // Setează calea absolută către build
-  buildPath: path.join(__dirname, "..", "dist"),
+  // Setează calea absolută către build (fișierele sunt în dist/build)
+  buildPath: path.join(__dirname, "..", "dist", "build"),
   // URL-ul admin panel-ului
   url: env("ADMIN_URL", "/admin"),
 });
