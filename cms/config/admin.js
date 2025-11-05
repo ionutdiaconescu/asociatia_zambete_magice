@@ -10,8 +10,8 @@ module.exports = ({ env }) => ({
     nps: env.bool("FLAG_NPS", true),
     promoteEE: env.bool("FLAG_PROMOTE_EE", true),
   },
-  // Forțează servirea din build-ul local generat
+  // Folosește process.cwd() pentru calea absolută corectă pe Render
   serveAdminPanel: true,
-  buildPath: path.resolve(__dirname, "..", "dist", "build"),
+  buildPath: path.join(process.cwd(), "dist", "build"),
   url: env("ADMIN_URL", "/admin"),
 });
