@@ -5,8 +5,6 @@ module.exports = ({ env }) => [
   "strapi::logger",
   "strapi::errors",
   "strapi::security",
-  // Custom middleware to force API behavior for admin routes
-  "global::admin-api-force",
   {
     name: "strapi::cors",
     config: {

@@ -8,6 +8,19 @@ module.exports = ({ env }) => ({
     nps: env.bool("FLAG_NPS", true),
     promoteEE: env.bool("FLAG_PROMOTE_EE", true),
   },
-  // Configurația minimală pentru Strapi v5 - forțez API behavior
+  // Configurația experimentală pentru Strapi v5 admin API
   url: "/admin",
+  host: env("HOST", "0.0.0.0"),
+  port: env.int("PORT", 1337),
+  serveAdminPanel: true,
+  autoOpen: false,
+  rateLimit: {
+    enabled: false,
+  },
+  forgotPassword: {
+    emailTemplate: {
+      subject: "Reset password",
+      text: "Someone requested to reset your password",
+    },
+  },
 });
