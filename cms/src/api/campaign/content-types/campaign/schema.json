@@ -82,11 +82,6 @@
     "story": {
       "type": "richtext",
       "required": true
-    },
-    "updates": {
-      "type": "component",
-      "repeatable": true,
-      "component": "campaign.update"
     }
   }
 }
