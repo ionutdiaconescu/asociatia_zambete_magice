@@ -8,6 +8,11 @@ module.exports = ({ env }) => ({
     nps: env.bool("FLAG_NPS", true),
     promoteEE: env.bool("FLAG_PROMOTE_EE", true),
   },
-  // Configurație minimală - Strapi va folosi build-ul din node_modules
-  url: env("ADMIN_URL", "/admin"),
+  // Configurație minimală pentru admin panel - folosește doar path relativ
+  url: "/admin",
+  // Setează backend URL pentru API calls din admin
+  backendURL: env(
+    "PUBLIC_URL",
+    "https://asociatia-zambete-magice.onrender.com"
+  ),
 });

@@ -7,4 +7,9 @@ module.exports = ({ env }) => ({
   app: {
     keys: env.array("APP_KEYS"),
   },
+  // Fix pentru admin panel API calls
+  admin: {
+    url: env("ADMIN_URL", "/admin"),
+    serveAdminPanel: env.bool("SERVE_ADMIN", true),
+  },
 });
