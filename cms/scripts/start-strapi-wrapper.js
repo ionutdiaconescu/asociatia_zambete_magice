@@ -22,7 +22,7 @@ try {
   );
 }
 
-// Fix admin panel - copiază build-ul în locația unde Strapi îl caută
+// Fix admin panel - copiază build-ul în locația EXACTĂ unde Strapi îl caută
 try {
   const sourcePath = path.join(__dirname, "..", "dist", "build");
   const targetPath = path.join(
@@ -30,8 +30,13 @@ try {
     "..",
     "node_modules",
     "@strapi",
+    "core",
+    "node_modules",
+    "@strapi",
     "admin",
     "dist",
+    "server",
+    "server",
     "build"
   );
 
@@ -45,6 +50,8 @@ try {
       "în",
       targetPath
     );
+    // Creează directorul target dacă nu există
+    fs.mkdirSync(path.dirname(targetPath), { recursive: true });
     fs.cpSync(sourcePath, targetPath, { recursive: true, force: true });
     console.log("[admin-fix] ✅ Admin build copiat cu succes!");
   } else {
