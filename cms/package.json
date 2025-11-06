@@ -22,6 +22,8 @@
     "admin:reset": "node scripts/reset-admin-password.js",
     "admin:fix-roles": "node scripts/fix-admin-roles.js",
     "admin:repair-permissions": "node scripts/repair-admin-permissions.js",
+    "admin:fix-content-permissions": "node scripts/fix-content-permissions.js",
+    "admin:rebuild": "node scripts/rebuild-admin.js",
     "debug:routes": "node scripts/list-routes.js",
     "diagnose": "node scripts/diagnose.js",
     "postinstall": "npm rebuild better-sqlite3 || true"
