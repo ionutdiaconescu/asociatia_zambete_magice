@@ -1,0 +1,92 @@
+{
+  "kind": "collectionType",
+  "collectionName": "campaigns",
+  "info": {
+    "singularName": "campaign",
+    "pluralName": "campaigns",
+    "displayName": "Campaign",
+    "description": "Campaigns for fundraising and social causes"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "description": {
+      "type": "text",
+      "required": true
+    },
+    "goalAmount": {
+      "type": "decimal",
+      "required": true,
+      "min": 0
+    },
+    "currentAmount": {
+      "type": "decimal",
+      "default": 0,
+      "min": 0
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "startDate": {
+      "type": "date",
+      "required": true
+    },
+    "endDate": {
+      "type": "date",
+      "required": true
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["draft", "active", "completed", "cancelled"],
+      "default": "draft",
+      "required": true
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": ["medical", "education", "environment", "social", "emergency"],
+      "required": true
+    },
+    "featuredImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "gallery": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "beneficiary": {
+      "type": "string",
+      "required": true
+    },
+    "contactEmail": {
+      "type": "email",
+      "required": true
+    },
+    "contactPhone": {
+      "type": "string",
+      "required": false
+    },
+    "story": {
+      "type": "richtext",
+      "required": true
+    },
+    "updates": {
+      "type": "component",
+      "repeatable": true,
+      "component": "campaign.update"
+    }
+  }
+}

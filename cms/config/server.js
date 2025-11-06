@@ -7,9 +7,9 @@ module.exports = ({ env }) => ({
   app: {
     keys: env.array("APP_KEYS"),
   },
-  // Fix pentru admin panel API calls
+  // Configurație pentru testarea admin API în Strapi v5
   admin: {
     url: env("ADMIN_URL", "/admin"),
-    serveAdminPanel: env.bool("SERVE_ADMIN", true),
+    serveAdminPanel: env.bool("SERVE_ADMIN", false), // Temporar disable pentru test
   },
 });
