@@ -8,10 +8,10 @@ module.exports = ({ env }) => [
   {
     name: "strapi::cors",
     config: {
-      enabled: true,
       origin: [
         env("FRONTEND_URL", "http://localhost:5173"),
         "https://asociatia-zambete-magice.vercel.app",
+        "https://asociatia-zambete-magice.onrender.com", // Add self-origin for admin
         ...(env("CORS_EXTRA_ORIGINS") || "")
           .split(",")
           .map((s) => s.trim())
@@ -19,6 +19,7 @@ module.exports = ({ env }) => [
       ],
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"],
       headers: "*",
+      credentials: true, // Important pentru admin authentication
     },
   },
   "strapi::poweredBy",
