@@ -8,6 +8,9 @@ module.exports = ({ env }) => ({
     nps: env.bool("FLAG_NPS", true),
     promoteEE: env.bool("FLAG_PROMOTE_EE", true),
   },
-  // Configurația minimală care funcționează în Strapi v5
+  // Configurația pentru API și admin panel separation în Strapi v5
   url: "/admin",
+  serveAdminPanel: true,
+  autoOpen: false,
+  watchIgnoreFiles: ["./admin/dist/**"],
 });
