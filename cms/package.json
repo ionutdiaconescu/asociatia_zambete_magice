@@ -20,6 +20,8 @@
     "bootstrap:db": "node scripts/bootstrap-db.js",
     "admin:create": "node scripts/create-admin-user.js",
     "admin:reset": "node scripts/reset-admin-password.js",
+    "admin:fix-roles": "node scripts/fix-admin-roles.js",
+    "admin:repair-permissions": "node scripts/repair-admin-permissions.js",
     "debug:routes": "node scripts/list-routes.js",
     "diagnose": "node scripts/diagnose.js",
     "postinstall": "npm rebuild better-sqlite3 || true"
