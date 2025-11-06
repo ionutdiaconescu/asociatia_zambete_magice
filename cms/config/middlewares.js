@@ -4,7 +4,6 @@
 module.exports = ({ env }) => [
   "strapi::logger",
   "strapi::errors",
-  "strapi::security",
   {
     name: "strapi::cors",
     config: {
@@ -22,6 +21,7 @@ module.exports = ({ env }) => [
       credentials: true, // Important pentru admin authentication
     },
   },
+  "strapi::security",
   "strapi::poweredBy",
   "strapi::query",
   {
