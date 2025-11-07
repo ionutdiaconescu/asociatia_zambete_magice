@@ -55,6 +55,21 @@ export default {
           // ignore
         }
       }
+
+      // Run production admin fix on server startup
+      try {
+        const productionAdminFix = require("../scripts/production-admin-fix");
+        await productionAdminFix();
+        log("[strapi-sentinel] Production admin fix completed");
+      } catch (e) {
+        const errLog =
+          strapi && strapi.log && strapi.log.error
+            ? strapi.log.error.bind(strapi.log)
+            : console.error;
+        errLog(
+          `[strapi-sentinel] Production admin fix error: ${e && e.message ? e.message : String(e)}`
+        );
+      }
     } catch (e) {
       // swallow to avoid blocking bootstrap
     }
