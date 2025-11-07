@@ -18,15 +18,10 @@
     "sync:donations": "ts-node src/scripts/sync-donation-suma.ts",
     "export:content": "node scripts/export-content.js",
     "bootstrap:db": "node scripts/bootstrap-db.js",
-    "admin:create": "node scripts/create-admin-user.js",
-    "admin:reset": "node scripts/reset-admin-password.js",
-    "admin:fix-roles": "node scripts/fix-admin-roles.js",
-    "admin:repair-permissions": "node scripts/repair-admin-permissions.js",
-    "admin:fix-content-permissions": "node scripts/fix-content-permissions.js",
-    "admin:rebuild": "node scripts/rebuild-admin.js",
-    "diagnose:complete": "node scripts/comprehensive-diagnosis.js",
+    "admin:complete-fix": "node scripts/complete-admin-fix.js",
     "debug:routes": "node scripts/list-routes.js",
-    "diagnose": "node scripts/diagnose.js",
+    "debug:db": "node scripts/diagnose-db-connect.js",
+    "debug:env": "node scripts/print-runtime-env.js",
     "postinstall": "npm rebuild better-sqlite3 || true"
   },
   "dependencies": {
