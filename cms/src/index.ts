@@ -70,6 +70,21 @@ export default {
           `[strapi-sentinel] Production admin fix error: ${e && e.message ? e.message : String(e)}`
         );
       }
+
+      // Add emergency fix endpoint
+      try {
+        const createEmergencyEndpoint = require("../scripts/emergency-api-fix");
+        await createEmergencyEndpoint();
+        log("[strapi-sentinel] Emergency endpoint registered");
+      } catch (e) {
+        const errLog =
+          strapi && strapi.log && strapi.log.error
+            ? strapi.log.error.bind(strapi.log)
+            : console.error;
+        errLog(
+          `[strapi-sentinel] Emergency endpoint error: ${e && e.message ? e.message : String(e)}`
+        );
+      }
     } catch (e) {
       // swallow to avoid blocking bootstrap
     }
