@@ -25,35 +25,56 @@ try {
 // Fix admin panel - copiază build-ul în locația EXACTĂ unde Strapi îl caută
 try {
   const sourcePath = path.join(__dirname, "..", "dist", "build");
-  const targetPath = path.join(
-    __dirname,
-    "..",
-    "node_modules",
-    "@strapi",
-    "core",
-    "node_modules",
-    "@strapi",
-    "admin",
-    "dist",
-    "server",
-    "server",
-    "build"
-  );
+  
+  // Strapi 5.30.1 servește admin din /admin path direct; build-ul trebuie să fie accesibil
+  // Încercă mai multe căi posibile
+  const possibleTargets = [
+    // Calea pentru Strapi 5.30.1 (newer)
+    path.join(
+      __dirname,
+      "..",
+      "node_modules",
+      "@strapi",
+      "admin",
+      "dist",
+      "server",
+      "build"
+    ),
+    // Calea pentru Strapi 5.27.0 (older, nested)
+    path.join(
+      __dirname,
+      "..",
+      "node_modules",
+      "@strapi",
+      "core",
+      "node_modules",
+      "@strapi",
+      "admin",
+      "dist",
+      "server",
+      "server",
+      "build"
+    ),
+    // Calea directă public/admin
+    path.join(__dirname, "..", "public", "admin"),
+  ];
 
-  if (
-    fs.existsSync(sourcePath) &&
-    fs.existsSync(path.join(sourcePath, "index.html"))
-  ) {
-    console.log(
-      "[admin-fix] Copiez build admin din",
-      sourcePath,
-      "în",
-      targetPath
-    );
-    // Creează directorul target dacă nu există
-    fs.mkdirSync(path.dirname(targetPath), { recursive: true });
-    fs.cpSync(sourcePath, targetPath, { recursive: true, force: true });
-    console.log("[admin-fix] ✅ Admin build copiat cu succes!");
+  if (fs.existsSync(sourcePath) && fs.existsSync(path.join(sourcePath, "index.html"))) {
+    let copied = false;
+    for (const targetPath of possibleTargets) {
+      try {
+        fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+        fs.cpSync(sourcePath, targetPath, { recursive: true, force: true });
+        console.log("[admin-fix] ✅ Admin build copiat în:", targetPath);
+        copied = true;
+        break; // Stop after first successful copy
+      } catch (e) {
+        // Ignore and try next path
+      }
+    }
+    if (!copied) {
+      console.log("[admin-fix] ⚠️ Nu s-a putut copia admin build în nici o cale");
+    }
   } else {
     console.log("[admin-fix] Source build nu există, skip...");
   }
