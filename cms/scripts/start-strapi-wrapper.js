@@ -25,7 +25,7 @@ try {
 // Fix admin panel - copiază build-ul în locația EXACTĂ unde Strapi îl caută
 try {
   const sourcePath = path.join(__dirname, "..", "dist", "build");
-  
+
   // Strapi 5.30.1 servește admin din /admin path direct; build-ul trebuie să fie accesibil
   // Încercă mai multe căi posibile
   const possibleTargets = [
@@ -59,7 +59,10 @@ try {
     path.join(__dirname, "..", "public", "admin"),
   ];
 
-  if (fs.existsSync(sourcePath) && fs.existsSync(path.join(sourcePath, "index.html"))) {
+  if (
+    fs.existsSync(sourcePath) &&
+    fs.existsSync(path.join(sourcePath, "index.html"))
+  ) {
     let copied = false;
     for (const targetPath of possibleTargets) {
       try {
@@ -73,7 +76,9 @@ try {
       }
     }
     if (!copied) {
-      console.log("[admin-fix] ⚠️ Nu s-a putut copia admin build în nici o cale");
+      console.log(
+        "[admin-fix] ⚠️ Nu s-a putut copia admin build în nici o cale"
+      );
     }
   } else {
     console.log("[admin-fix] Source build nu există, skip...");
