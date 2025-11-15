@@ -19,9 +19,14 @@ async function checkPermissions() {
         duplicated++;
         console.log(`\nDUPLICATE ACTION: ${action} -> ${items.length} records`);
         items.forEach((it) => {
-          console.log(
-            `  id:${it.id} role:${it.role ? it.role : "unknown"} enabled:${it.enabled}`
-          );
+          const roleObj = it.role;
+          let roleInfo = "no-role";
+          if (roleObj && typeof roleObj === "object") {
+            roleInfo = `${roleObj.id || "?"}(${roleObj.name || "no-name"})`;
+          } else if (roleObj) {
+            roleInfo = String(roleObj);
+          }
+          console.log(`  id:${it.id} role:${roleInfo} enabled:${it.enabled}`);
         });
       }
     }
