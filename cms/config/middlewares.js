@@ -45,7 +45,7 @@ module.exports = ({ env }) => [
   "strapi::favicon",
   "strapi::public",
   {
-    name: "admin-static-fallback",
+    name: "global::admin-static-fallback",
     config: {},
   },
 ];
