@@ -45,4 +45,3 @@ module.exports = ({ env }) => [
   "strapi::favicon",
   "strapi::public",
 ];
-];
