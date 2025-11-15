@@ -24,7 +24,7 @@
     "debug:routes": "node scripts/list-routes.js",
     "debug:db": "node scripts/diagnose-db-connect.js",
     "debug:env": "node scripts/print-runtime-env.js",
-    "postinstall": "npm rebuild better-sqlite3 || true"
+    "postinstall": "npm rebuild better-sqlite3 || true; npm rebuild esbuild || true"
   },
   "dependencies": {
     "@strapi/plugin-cloud": "5.30.1",
