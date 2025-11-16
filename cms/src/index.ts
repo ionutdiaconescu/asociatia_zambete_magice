@@ -80,45 +80,18 @@ export default {
             return;
           }
 
-          // Get all valid routes from users-permissions plugin
-          let validActions = [];
-          try {
-            // Use the plugin's own method to get routes safely
-            const routes = await strapi
-              .plugin("users-permissions")
-              .service("usersPermissions")
-              .getRoutes();
+          // Simple approach: scan content types directly (avoid route detection issues)
+          const allContentTypes = Object.keys(strapi.contentTypes || {});
+          const appContentTypes = allContentTypes.filter((ct) =>
+            ct.startsWith("api::")
+          );
 
-            // Extract actions from routes
-            Object.values(routes).forEach((routeGroup: any) => {
-              if (routeGroup?.controllers) {
-                Object.values(routeGroup.controllers).forEach(
-                  (controller: any) => {
-                    Object.keys(controller || {}).forEach((action) => {
-                      validActions.push(action);
-                    });
-                  }
-                );
-              }
-            });
-          } catch (e) {
-            log(
-              `⚠️  Could not fetch routes dynamically, using content types directly`
-            );
+          log(`Found ${appContentTypes.length} application content types`);
 
-            // Fallback: scan content types manually
-            const allContentTypes = Object.keys(strapi.contentTypes || {});
-            const appContentTypes = allContentTypes.filter((ct) =>
-              ct.startsWith("api::")
-            );
-
-            log(`Found ${appContentTypes.length} application content types`);
-
-            validActions = appContentTypes.flatMap((ct) => [
-              `${ct}.find`,
-              `${ct}.findOne`,
-            ]);
-          }
+          const validActions = appContentTypes.flatMap((ct) => [
+            `${ct}.find`,
+            `${ct}.findOne`,
+          ]);
 
           // Grant permissions for each valid action
           let grantedCount = 0;
