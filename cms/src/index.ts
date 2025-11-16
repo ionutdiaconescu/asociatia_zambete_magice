@@ -79,12 +79,18 @@ export default {
             return;
           }
 
-          const actionsToGrant = [
-            "api::homepage.homepage.find",
-            "api::homepage.homepage.findOne",
-            "api::campanie-de-donatii.campanie-de-donatii.find",
-            "api::campanie-de-donatii.campanie-de-donatii.findOne",
-          ];
+          // Auto-grant find/findOne for ALL application content types automatically
+          const allContentTypes = Object.keys(strapi.contentTypes || {});
+          const appContentTypes = allContentTypes.filter((ct) =>
+            ct.startsWith("api::")
+          );
+
+          log(`Found ${appContentTypes.length} application content types`);
+
+          const actionsToGrant = appContentTypes.flatMap((ct) => [
+            `${ct}.find`,
+            `${ct}.findOne`,
+          ]);
 
           for (const action of actionsToGrant) {
             const existing = await strapi
