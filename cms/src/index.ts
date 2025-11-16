@@ -63,7 +63,8 @@ export default {
       // (Optional) Automatic public permission granting removed to prevent surprise side-effects.
       // Manage role permissions manually from the Admin UI.
 
-      // Auto-grant public permissions for homepage and campaigns
+      // Auto-grant public permissions after all plugins and routes are loaded
+      // Use longer delay to ensure routes are fully registered
       setTimeout(async () => {
         try {
           log("\n🔧 Auto-granting public permissions...");
@@ -79,48 +80,83 @@ export default {
             return;
           }
 
-          // Auto-grant find/findOne for ALL application content types automatically
-          const allContentTypes = Object.keys(strapi.contentTypes || {});
-          const appContentTypes = allContentTypes.filter((ct) =>
-            ct.startsWith("api::")
-          );
+          // Get all valid routes from users-permissions plugin
+          let validActions = [];
+          try {
+            // Use the plugin's own method to get routes safely
+            const routes = await strapi
+              .plugin("users-permissions")
+              .service("usersPermissions")
+              .getRoutes();
 
-          log(`Found ${appContentTypes.length} application content types`);
+            // Extract actions from routes
+            Object.values(routes).forEach((routeGroup: any) => {
+              if (routeGroup?.controllers) {
+                Object.values(routeGroup.controllers).forEach(
+                  (controller: any) => {
+                    Object.keys(controller || {}).forEach((action) => {
+                      validActions.push(action);
+                    });
+                  }
+                );
+              }
+            });
+          } catch (e) {
+            log(
+              `⚠️  Could not fetch routes dynamically, using content types directly`
+            );
 
-          const actionsToGrant = appContentTypes.flatMap((ct) => [
-            `${ct}.find`,
-            `${ct}.findOne`,
-          ]);
+            // Fallback: scan content types manually
+            const allContentTypes = Object.keys(strapi.contentTypes || {});
+            const appContentTypes = allContentTypes.filter((ct) =>
+              ct.startsWith("api::")
+            );
 
-          for (const action of actionsToGrant) {
-            const existing = await strapi
-              .query("plugin::users-permissions.permission")
-              .findOne({
-                where: {
-                  action: action,
-                  role: publicRole.id,
-                },
-              });
+            log(`Found ${appContentTypes.length} application content types`);
 
-            if (!existing) {
-              await strapi
+            validActions = appContentTypes.flatMap((ct) => [
+              `${ct}.find`,
+              `${ct}.findOne`,
+            ]);
+          }
+
+          // Grant permissions for each valid action
+          let grantedCount = 0;
+          for (const action of validActions) {
+            try {
+              const existing = await strapi
                 .query("plugin::users-permissions.permission")
-                .create({
-                  data: {
+                .findOne({
+                  where: {
                     action: action,
                     role: publicRole.id,
-                    enabled: true,
                   },
                 });
-              log(`✅ Granted: ${action}`);
-            } else if (!existing.enabled) {
-              await strapi
-                .query("plugin::users-permissions.permission")
-                .update({
-                  where: { id: existing.id },
-                  data: { enabled: true },
-                });
-              log(`✅ Enabled: ${action}`);
+
+              if (!existing) {
+                await strapi
+                  .query("plugin::users-permissions.permission")
+                  .create({
+                    data: {
+                      action: action,
+                      role: publicRole.id,
+                      enabled: true,
+                    },
+                  });
+                grantedCount++;
+                log(`✅ Granted: ${action}`);
+              } else if (!existing.enabled) {
+                await strapi
+                  .query("plugin::users-permissions.permission")
+                  .update({
+                    where: { id: existing.id },
+                    data: { enabled: true },
+                  });
+                grantedCount++;
+                log(`✅ Enabled: ${action}`);
+              }
+            } catch (err) {
+              // Skip invalid actions silently
             }
           }
 
@@ -140,11 +176,13 @@ export default {
             log(`⚠️  Homepage publish attempt: ${e.message}`);
           }
 
-          log("🎉 Permission setup complete\n");
+          log(
+            `🎉 Permission setup complete (${grantedCount} actions granted)\n`
+          );
         } catch (e) {
           log(`❌ Permission setup error: ${e.message}`);
         }
-      }, 5000);
+      }, 10000);
     } catch (e) {
       // swallow to avoid blocking bootstrap
     }
