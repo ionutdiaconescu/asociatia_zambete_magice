@@ -132,6 +132,46 @@ export default {
           `[strapi-sentinel] Permission dedup error: ${e && e.message ? e.message : String(e)}`
         );
       }
+
+      // Grant Public role API permissions for frontend
+      try {
+        log("[strapi-sentinel] Granting Public role permissions...");
+        const publicRole = await strapi.db
+          .query("plugin::users-permissions.role")
+          .findOne({ where: { type: "public" } });
+
+        if (publicRole) {
+          const permissionsToGrant = [
+            "api::homepage.homepage.find",
+            "api::homepage.homepage.findOne",
+            "api::campanie-de-donatii.campanie-de-donatii.find",
+            "api::campanie-de-donatii.campanie-de-donatii.findOne",
+          ];
+
+          for (const action of permissionsToGrant) {
+            const existing = await strapi.db
+              .query("plugin::users-permissions.permission")
+              .findOne({ where: { action, role: publicRole.id } });
+
+            if (!existing) {
+              await strapi.db
+                .query("plugin::users-permissions.permission")
+                .create({
+                  data: { action, actionParameters: {}, role: publicRole.id },
+                });
+              log(`[strapi-sentinel] Granted: ${action}`);
+            }
+          }
+        }
+      } catch (e) {
+        const errLog =
+          strapi && strapi.log && strapi.log.error
+            ? strapi.log.error.bind(strapi.log)
+            : console.error;
+        errLog(
+          `[strapi-sentinel] Public permissions error: ${e && e.message ? e.message : String(e)}`
+        );
+      }
     } catch (e) {
       // swallow to avoid blocking bootstrap
     }
