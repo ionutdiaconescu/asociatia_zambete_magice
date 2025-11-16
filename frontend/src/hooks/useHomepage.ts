@@ -99,7 +99,9 @@ export function useHomepage() {
       try {
         setLoading(true);
         const apiUrl =
-          import.meta.env.VITE_API_CMS_URL || "http://localhost:1337/api";
+          (import.meta.env.VITE_API_CMS_URL as string | undefined) ||
+          "http://localhost:1337/api";
+        const origin = apiUrl.replace(/\/api$/, "");
         const response = await fetch(`${apiUrl}/homepage?populate=*`);
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -120,7 +122,7 @@ export function useHomepage() {
           ),
           teamDescription: extractTextFromRichText(result.data.teamDescription),
           heroBackgroundImage: result.data.heroBackgroundMedia?.url
-            ? `http://localhost:1337${result.data.heroBackgroundMedia.url}`
+            ? `${origin}${result.data.heroBackgroundMedia.url}`
             : null,
           donationIban: result.data.donationIban || null,
           donationBankName: result.data.donationBankName || null,
@@ -132,7 +134,7 @@ export function useHomepage() {
           seoTitle: result.data.seoTitle || null,
           seoDescription: result.data.seoDescription || null,
           seoSocialImage: result.data.seoSocialImage?.url
-            ? `http://localhost:1337${result.data.seoSocialImage.url}`
+            ? `${origin}${result.data.seoSocialImage.url}`
             : null,
         };
         console.log(
