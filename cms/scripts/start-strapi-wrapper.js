@@ -40,7 +40,7 @@ try {
       "server",
       "build"
     ),
-    // Calea pentru Strapi 5.27.0 (older, nested)
+    // Calea pentru Strapi older nested location (without duplicated 'server')
     path.join(
       __dirname,
       "..",
@@ -51,7 +51,6 @@ try {
       "@strapi",
       "admin",
       "dist",
-      "server",
       "server",
       "build"
     ),
