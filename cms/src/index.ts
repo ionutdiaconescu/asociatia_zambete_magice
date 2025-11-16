@@ -63,52 +63,80 @@ export default {
       // (Optional) Automatic public permission granting removed to prevent surprise side-effects.
       // Manage role permissions manually from the Admin UI.
 
-      // Temporary diagnostic - check state on startup
+      // Auto-grant public permissions for homepage and campaigns
       setTimeout(async () => {
         try {
-          log("\n🔍 === DIAGNOSTIC START ===");
+          log("\n🔧 Auto-granting public permissions...");
 
-          // Check content types
-          const cts = Object.keys(strapi.contentTypes || {}).filter((ct) =>
-            ct.startsWith("api::")
-          );
-          log(`Content Types: ${cts.join(", ") || "NONE"}`);
+          const publicRole = await strapi
+            .query("plugin::users-permissions.role")
+            .findOne({
+              where: { type: "public" },
+            });
 
-          // Check homepage
+          if (!publicRole) {
+            log("⚠️  Public role not found");
+            return;
+          }
+
+          const actionsToGrant = [
+            "api::homepage.homepage.find",
+            "api::homepage.homepage.findOne",
+            "api::campanie-de-donatii.campanie-de-donatii.find",
+            "api::campanie-de-donatii.campanie-de-donatii.findOne",
+          ];
+
+          for (const action of actionsToGrant) {
+            const existing = await strapi
+              .query("plugin::users-permissions.permission")
+              .findOne({
+                where: {
+                  action: action,
+                  role: publicRole.id,
+                },
+              });
+
+            if (!existing) {
+              await strapi
+                .query("plugin::users-permissions.permission")
+                .create({
+                  data: {
+                    action: action,
+                    role: publicRole.id,
+                    enabled: true,
+                  },
+                });
+              log(`✅ Granted: ${action}`);
+            } else if (!existing.enabled) {
+              await strapi
+                .query("plugin::users-permissions.permission")
+                .update({
+                  where: { id: existing.id },
+                  data: { enabled: true },
+                });
+              log(`✅ Enabled: ${action}`);
+            }
+          }
+
+          // Publish homepage if not published
           try {
             const hp = await strapi
               .documents("api::homepage.homepage")
               .findFirst();
-            log(
-              `Homepage: ${hp ? `ID ${hp.id}, published=${!!hp.publishedAt}` : "NOT FOUND"}`
-            );
-          } catch (e) {
-            log(`Homepage error: ${e.message}`);
-          }
-
-          // Check permissions
-          try {
-            const role = await strapi
-              .query("plugin::users-permissions.role")
-              .findOne({
-                where: { type: "public" },
-                populate: ["permissions"],
+            if (hp && !hp.publishedAt) {
+              await strapi.documents("api::homepage.homepage").update({
+                documentId: hp.documentId,
+                data: { publishedAt: new Date() },
               });
-            const perms =
-              role?.permissions?.filter(
-                (p) =>
-                  p.action.includes("homepage") || p.action.includes("campanie")
-              ) || [];
-            log(
-              `Public permissions: ${perms.length} (${perms.map((p) => p.action).join(", ")})`
-            );
+              log("✅ Homepage auto-published");
+            }
           } catch (e) {
-            log(`Permission check error: ${e.message}`);
+            log(`⚠️  Homepage publish attempt: ${e.message}`);
           }
 
-          log("=== DIAGNOSTIC END ===\n");
+          log("🎉 Permission setup complete\n");
         } catch (e) {
-          // silent
+          log(`❌ Permission setup error: ${e.message}`);
         }
       }, 5000);
     } catch (e) {
