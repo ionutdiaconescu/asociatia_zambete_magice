@@ -62,6 +62,55 @@ export default {
 
       // (Optional) Automatic public permission granting removed to prevent surprise side-effects.
       // Manage role permissions manually from the Admin UI.
+
+      // Temporary diagnostic - check state on startup
+      setTimeout(async () => {
+        try {
+          log("\n🔍 === DIAGNOSTIC START ===");
+
+          // Check content types
+          const cts = Object.keys(strapi.contentTypes || {}).filter((ct) =>
+            ct.startsWith("api::")
+          );
+          log(`Content Types: ${cts.join(", ") || "NONE"}`);
+
+          // Check homepage
+          try {
+            const hp = await strapi
+              .documents("api::homepage.homepage")
+              .findFirst();
+            log(
+              `Homepage: ${hp ? `ID ${hp.id}, published=${!!hp.publishedAt}` : "NOT FOUND"}`
+            );
+          } catch (e) {
+            log(`Homepage error: ${e.message}`);
+          }
+
+          // Check permissions
+          try {
+            const role = await strapi
+              .query("plugin::users-permissions.role")
+              .findOne({
+                where: { type: "public" },
+                populate: ["permissions"],
+              });
+            const perms =
+              role?.permissions?.filter(
+                (p) =>
+                  p.action.includes("homepage") || p.action.includes("campanie")
+              ) || [];
+            log(
+              `Public permissions: ${perms.length} (${perms.map((p) => p.action).join(", ")})`
+            );
+          } catch (e) {
+            log(`Permission check error: ${e.message}`);
+          }
+
+          log("=== DIAGNOSTIC END ===\n");
+        } catch (e) {
+          // silent
+        }
+      }, 5000);
     } catch (e) {
       // swallow to avoid blocking bootstrap
     }
