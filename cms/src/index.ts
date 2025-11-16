@@ -56,122 +56,12 @@ export default {
         }
       }
 
-      // Run production admin fix on server startup
-      try {
-        const productionAdminFix = require("../scripts/production-admin-fix");
-        await productionAdminFix();
-        log("[strapi-sentinel] Production admin fix completed");
-      } catch (e) {
-        const errLog =
-          strapi && strapi.log && strapi.log.error
-            ? strapi.log.error.bind(strapi.log)
-            : console.error;
-        errLog(
-          `[strapi-sentinel] Production admin fix error: ${e && e.message ? e.message : String(e)}`
-        );
-      }
+      // Removed legacy emergency & production admin fix and permission dedup logic.
+      // These were causing duplicate action registration ("Duplicated item key").
+      // Keep bootstrap lean to avoid interfering with Content Manager.
 
-      // Add emergency fix endpoint
-      try {
-        const createEmergencyEndpoint = require("../scripts/emergency-api-fix");
-        await createEmergencyEndpoint();
-        log("[strapi-sentinel] Emergency endpoint registered");
-      } catch (e) {
-        const errLog =
-          strapi && strapi.log && strapi.log.error
-            ? strapi.log.error.bind(strapi.log)
-            : console.error;
-        errLog(
-          `[strapi-sentinel] Emergency endpoint error: ${e && e.message ? e.message : String(e)}`
-        );
-      }
-
-      // Deduplicate admin permissions after all plugins have bootstrapped
-      try {
-        log("[strapi-sentinel] Running permission deduplication...");
-        const perms = await strapi.entityService.findMany("admin::permission", {
-          limit: -1,
-        });
-
-        const groups = new Map();
-        for (const p of perms) {
-          const action = p.action;
-          if (!groups.has(action)) groups.set(action, []);
-          groups.get(action).push(p.id);
-        }
-
-        let deletedCount = 0;
-        for (const [action, ids] of groups) {
-          if (ids.length <= 1) continue;
-          const numericIds = ids
-            .map((i: any) => Number(i))
-            .filter((n: number) => !Number.isNaN(n));
-          numericIds.sort((a: number, b: number) => a - b);
-          const toDelete = numericIds.slice(1);
-          for (const id of toDelete) {
-            try {
-              await strapi.entityService.delete("admin::permission", id);
-              deletedCount++;
-            } catch (err) {
-              // Ignore delete errors
-            }
-          }
-        }
-
-        if (deletedCount > 0) {
-          log(
-            `[strapi-sentinel] Deleted ${deletedCount} duplicate permission records`
-          );
-        }
-      } catch (e) {
-        const errLog =
-          strapi && strapi.log && strapi.log.error
-            ? strapi.log.error.bind(strapi.log)
-            : console.error;
-        errLog(
-          `[strapi-sentinel] Permission dedup error: ${e && e.message ? e.message : String(e)}`
-        );
-      }
-
-      // Grant Public role API permissions for frontend
-      try {
-        log("[strapi-sentinel] Granting Public role permissions...");
-        const publicRole = await strapi.db
-          .query("plugin::users-permissions.role")
-          .findOne({ where: { type: "public" } });
-
-        if (publicRole) {
-          const permissionsToGrant = [
-            "api::homepage.homepage.find",
-            "api::homepage.homepage.findOne",
-            "api::campanie-de-donatii.campanie-de-donatii.find",
-            "api::campanie-de-donatii.campanie-de-donatii.findOne",
-          ];
-
-          for (const action of permissionsToGrant) {
-            const existing = await strapi.db
-              .query("plugin::users-permissions.permission")
-              .findOne({ where: { action, role: publicRole.id } });
-
-            if (!existing) {
-              await strapi.db
-                .query("plugin::users-permissions.permission")
-                .create({
-                  data: { action, actionParameters: {}, role: publicRole.id },
-                });
-              log(`[strapi-sentinel] Granted: ${action}`);
-            }
-          }
-        }
-      } catch (e) {
-        const errLog =
-          strapi && strapi.log && strapi.log.error
-            ? strapi.log.error.bind(strapi.log)
-            : console.error;
-        errLog(
-          `[strapi-sentinel] Public permissions error: ${e && e.message ? e.message : String(e)}`
-        );
-      }
+      // (Optional) Automatic public permission granting removed to prevent surprise side-effects.
+      // Manage role permissions manually from the Admin UI.
     } catch (e) {
       // swallow to avoid blocking bootstrap
     }
