@@ -26,31 +26,51 @@ try {
 try {
   const sourcePath = path.join(__dirname, "..", "dist", "build");
 
-  // Fixează path-ul admin build pentru Render (șterge "server" duplicat din cale)
-  const correctTargetPath = path.join(
-    __dirname,
-    "..",
-    "node_modules",
-    "@strapi",
-    "admin",
-    "dist",
-    "server",
-    "build"
-  );
+  // Copiază admin build în AMBELE locații (cu și fără server duplicat)
+  const targetPaths = [
+    path.join(
+      __dirname,
+      "..",
+      "node_modules",
+      "@strapi",
+      "admin",
+      "dist",
+      "server",
+      "build"
+    ),
+    path.join(
+      __dirname,
+      "..",
+      "node_modules",
+      "@strapi",
+      "admin",
+      "dist",
+      "server",
+      "server",
+      "build"
+    ),
+  ];
 
   if (
     fs.existsSync(sourcePath) &&
     fs.existsSync(path.join(sourcePath, "index.html"))
   ) {
-    try {
-      fs.mkdirSync(path.dirname(correctTargetPath), { recursive: true });
-      fs.cpSync(sourcePath, correctTargetPath, {
-        recursive: true,
-        force: true,
-      });
-      console.log("[admin-fix] ✅ Admin build copiat în:", correctTargetPath);
-    } catch (e) {
-      console.log("[admin-fix] ⚠️ Eroare copiere admin build:", e.message);
+    for (const targetPath of targetPaths) {
+      try {
+        fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+        fs.cpSync(sourcePath, targetPath, {
+          recursive: true,
+          force: true,
+        });
+        console.log("[admin-fix] ✅ Admin build copiat în:", targetPath);
+      } catch (e) {
+        console.log(
+          "[admin-fix] ⚠️ Eroare copiere la",
+          targetPath,
+          ":",
+          e.message
+        );
+      }
     }
   } else {
     console.log("[admin-fix] Source build nu există, skip...");
