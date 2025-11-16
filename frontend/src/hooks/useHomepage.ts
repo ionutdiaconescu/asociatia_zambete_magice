@@ -107,35 +107,107 @@ export function useHomepage() {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         const result = await response.json();
-        console.log(
-          "[Homepage] Raw data from Strapi:",
-          JSON.stringify(result.data, null, 2)
-        );
+        const raw = result?.data as {
+          id?: number | string;
+          attributes?: Record<string, unknown>;
+          documentId?: string;
+        } | null;
+        if (!raw) throw new Error("Homepage: răspuns gol (data lipsă)");
+        // Strapi v5: { data: { id, attributes: {...} } }
+        const attrs: Record<string, unknown> = raw.attributes
+          ? (raw.attributes as Record<string, unknown>)
+          : (raw as unknown as Record<string, unknown>);
+        type Attrs = {
+          heroTitle?: string;
+          heroSubtitle?: string;
+          heroDescription?: RichTextBlock;
+          heroBackgroundMedia?: unknown;
+          heroCtaText?: string | null;
+          heroCtaLink?: string | null;
+          statsYearsActive?: number;
+          statsTotalBeneficiaries?: number;
+          statsCompletedProjects?: number;
+          statsActiveVolunteers?: number;
+          howWeWorkTitle?: string | null;
+          howWeWorkDescription?: RichTextBlock;
+          impactGalleryTitle?: string | null;
+          impactGalleryDescription?: RichTextBlock;
+          teamTitle?: string | null;
+          teamDescription?: RichTextBlock;
+          transparencyTitle?: string | null;
+          donationIban?: string | null;
+          donationBankName?: string | null;
+          donationBeneficiaryName?: string | null;
+          donationInstructions?: RichTextBlock;
+          donationReferenceHint?: string | null;
+          seoTitle?: string | null;
+          seoDescription?: string | null;
+          seoSocialImage?: unknown;
+        };
+        const a = attrs as Attrs;
+
+        // Helper pentru media: acceptă string, object {url}, {data:{attributes:{url}}} sau array
+        const mediaUrl = (m: unknown): string | null => {
+          if (!m) return null;
+          if (typeof m === "string") {
+            return m.startsWith("http") ? m : `${origin}${m}`;
+          }
+          if (Array.isArray(m)) {
+            const first = (m as unknown[])[0];
+            return mediaUrl(first);
+          }
+          if (typeof m === "object") {
+            const mo = m as {
+              url?: string;
+              data?: { attributes?: { url?: string } };
+            };
+            if (mo.url)
+              return mo.url.startsWith("http") ? mo.url : `${origin}${mo.url}`;
+            const url = mo.data?.attributes?.url;
+            return url
+              ? url.startsWith("http")
+                ? url
+                : `${origin}${url}`
+              : null;
+          }
+          return null;
+        };
+
+        console.log("[Homepage] Raw attributes:", JSON.stringify(a, null, 2));
         const processedData: HomepageData = {
-          ...result.data,
-          heroDescription: extractTextFromRichText(result.data.heroDescription),
-          howWeWorkDescription: extractTextFromRichText(
-            result.data.howWeWorkDescription
-          ),
+          id:
+            typeof raw.id === "string"
+              ? Number(raw.id) || 0
+              : Number(raw.id || 0),
+          documentId: raw.documentId ?? String(raw.id ?? "homepage"),
+          heroTitle: a.heroTitle ?? "",
+          heroSubtitle: a.heroSubtitle ?? "",
+          heroDescription: extractTextFromRichText(a.heroDescription),
+          heroCtaText: a.heroCtaText ?? null,
+          heroCtaLink: a.heroCtaLink ?? null,
+          heroBackgroundImage: mediaUrl(a.heroBackgroundMedia),
+          statsYearsActive: Number(a.statsYearsActive ?? 0),
+          statsTotalBeneficiaries: Number(a.statsTotalBeneficiaries ?? 0),
+          statsCompletedProjects: Number(a.statsCompletedProjects ?? 0),
+          statsActiveVolunteers: Number(a.statsActiveVolunteers ?? 0),
+          howWeWorkTitle: a.howWeWorkTitle ?? null,
+          howWeWorkDescription: extractTextFromRichText(a.howWeWorkDescription),
+          impactGalleryTitle: a.impactGalleryTitle ?? null,
           impactGalleryDescription: extractTextFromRichText(
-            result.data.impactGalleryDescription
+            a.impactGalleryDescription
           ),
-          teamDescription: extractTextFromRichText(result.data.teamDescription),
-          heroBackgroundImage: result.data.heroBackgroundMedia?.url
-            ? `${origin}${result.data.heroBackgroundMedia.url}`
-            : null,
-          donationIban: result.data.donationIban || null,
-          donationBankName: result.data.donationBankName || null,
-          donationBeneficiaryName: result.data.donationBeneficiaryName || null,
-          donationInstructions: extractTextFromRichText(
-            result.data.donationInstructions
-          ),
-          donationReferenceHint: result.data.donationReferenceHint || null,
-          seoTitle: result.data.seoTitle || null,
-          seoDescription: result.data.seoDescription || null,
-          seoSocialImage: result.data.seoSocialImage?.url
-            ? `${origin}${result.data.seoSocialImage.url}`
-            : null,
+          teamTitle: a.teamTitle ?? null,
+          teamDescription: extractTextFromRichText(a.teamDescription),
+          transparencyTitle: a.transparencyTitle ?? null,
+          // Donații / SEO
+          donationIban: a.donationIban ?? null,
+          donationBankName: a.donationBankName ?? null,
+          donationBeneficiaryName: a.donationBeneficiaryName ?? null,
+          donationInstructions: extractTextFromRichText(a.donationInstructions),
+          donationReferenceHint: a.donationReferenceHint ?? null,
+          seoTitle: a.seoTitle ?? null,
+          seoDescription: a.seoDescription ?? null,
+          seoSocialImage: mediaUrl(a.seoSocialImage),
         };
         console.log(
           "[Homepage] Processed data:",
