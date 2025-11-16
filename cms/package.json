@@ -11,6 +11,7 @@
     "develop": "strapi develop",
     "start": "node ./scripts/start-strapi-wrapper.js",
     "strapi": "strapi",
+    "fix-apis": "node scripts/generate-api-indexes.js",
     "upgrade": "npx @strapi/upgrade latest",
     "upgrade:dry": "npx @strapi/upgrade latest --dry",
     "migrate:isFeatured": "ts-node src/scripts/migrate-isFeatured.ts",
