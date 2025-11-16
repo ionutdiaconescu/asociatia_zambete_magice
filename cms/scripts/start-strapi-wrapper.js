@@ -26,37 +26,66 @@ try {
 try {
   const sourcePath = path.join(__dirname, "..", "dist", "build");
 
-  // Strapi 5.30.1 servește admin din /admin path direct; build-ul trebuie să fie accesibil
-  // Încercă mai multe căi posibile
-  const possibleTargets = [
-    // Calea pentru Strapi 5.30.1 (newer)
-    path.join(
-      __dirname,
-      "..",
-      "node_modules",
-      "@strapi",
-      "admin",
-      "dist",
-      "server",
-      "build"
-    ),
-    // Calea pentru Strapi older nested location (without duplicated 'server')
-    path.join(
-      __dirname,
-      "..",
-      "node_modules",
-      "@strapi",
-      "core",
-      "node_modules",
-      "@strapi",
-      "admin",
-      "dist",
-      "server",
-      "build"
-    ),
-    // Calea directă public/admin
-    path.join(__dirname, "..", "public", "admin"),
-  ];
+  // Instead of hard-coding multiple brittle paths (some with duplicated 'server'),
+  // scan node_modules for any occurrence of @strapi/admin that contains a built admin
+  // and use the first match. Keep local dist/build and public/admin as fallbacks.
+  function findAdminTargets() {
+    const results = new Set();
+
+    // Always prefer the local built admin in project dist
+    results.add(path.join(__dirname, "..", "dist", "build"));
+
+    // Walk node_modules (bounded depth) to find @strapi/admin directories
+    const nmRoot = path.join(__dirname, "..", "node_modules");
+    function walk(dir, depth = 0) {
+      if (depth > 6) return;
+      let entries;
+      try {
+        entries = fs.readdirSync(dir, { withFileTypes: true });
+      } catch (e) {
+        return;
+      }
+      for (const ent of entries) {
+        if (!ent.isDirectory()) continue;
+        const name = ent.name;
+        const p = path.join(dir, name);
+        // Direct @strapi scope, check admin inside
+        if (name === "@strapi") {
+          const adminCandidate = path.join(
+            p,
+            "admin",
+            "dist",
+            "server",
+            "build"
+          );
+          if (fs.existsSync(adminCandidate)) results.add(adminCandidate);
+          // also older nested shape inside core
+          const coreAdminCandidate = path.join(
+            p,
+            "core",
+            "node_modules",
+            "@strapi",
+            "admin",
+            "dist",
+            "server",
+            "build"
+          );
+          if (fs.existsSync(coreAdminCandidate))
+            results.add(coreAdminCandidate);
+        }
+        // Recurse into this directory to find deeper scopes
+        walk(p, depth + 1);
+      }
+    }
+    walk(nmRoot, 0);
+
+    // Finally fall back to public/admin
+    results.add(path.join(__dirname, "..", "public", "admin"));
+
+    return Array.from(results);
+  }
+
+  const possibleTargets = findAdminTargets();
 
   if (
     fs.existsSync(sourcePath) &&
