@@ -38,7 +38,9 @@
     "react-dom": "^18.0.0",
     "react-router-dom": "^6.0.0",
     "stripe": "^18.5.0",
-    "styled-components": "^6.0.0"
+    "styled-components": "^6.0.0",
+    "@supabase/supabase-js": "^2.36.0",
+    "@strapi/provider-upload-supabase": "file:src/providers/strapi-provider-upload-supabase"
   },
   "devDependencies": {
     "@types/node": "^20",

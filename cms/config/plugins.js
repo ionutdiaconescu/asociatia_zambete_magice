@@ -1,17 +1,50 @@
 "use strict";
+const path = require("path");
 
-module.exports = ({ env }) => ({
-  upload: {
-    config: {
-      provider: "local",
-      providerOptions: {
-        sizeLimit: 100000000, // 100MB
+module.exports = ({ env }) => {
+  const useSupabase =
+    !!env("SUPABASE_API_URL") &&
+    !!env("SUPABASE_API_KEY") &&
+    !!env("SUPABASE_BUCKET");
+
+  if (useSupabase) {
+    return {
+      upload: {
+        config: {
+          // Use local packaged provider installed via file: dependency
+          provider: "@strapi/provider-upload-supabase",
+          providerOptions: {
+            apiUrl: env("SUPABASE_API_URL"),
+            apiKey: env("SUPABASE_API_KEY"),
+            bucket: env("SUPABASE_BUCKET"),
+            directory: env("SUPABASE_DIRECTORY", ""),
+            public: true,
+            sizeLimit: Number(env("UPLOAD_SIZE_LIMIT", 100000000)),
+          },
+          actionOptions: {
+            upload: {},
+            uploadStream: {},
+            delete: {},
+          },
+        },
       },
-      actionOptions: {
-        upload: {},
-        uploadStream: {},
-        delete: {},
+    };
+  }
+
+  // fallback to local provider for dev environments
+  return {
+    upload: {
+      config: {
+        provider: "local",
+        providerOptions: {
+          sizeLimit: Number(env("UPLOAD_SIZE_LIMIT", 100000000)), // 100MB
+        },
+        actionOptions: {
+          upload: {},
+          uploadStream: {},
+          delete: {},
+        },
       },
     },
-  },
-});
+  };
+};
