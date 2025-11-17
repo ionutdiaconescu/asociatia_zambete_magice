@@ -79,5 +79,53 @@ try {
   console.log("[admin-fix] Warning:", error.message);
 }
 
+// Copy API JS (controllers/services/routes) from src -> dist so production loads routes
+try {
+  const srcApiRoot = path.join(__dirname, "..", "src", "api");
+  const distApiRoot = path.join(__dirname, "..", "dist", "src", "api");
+
+  if (fs.existsSync(srcApiRoot)) {
+    const apis = fs.readdirSync(srcApiRoot).filter((d) => {
+      try {
+        return fs.statSync(path.join(srcApiRoot, d)).isDirectory();
+      } catch (_) {
+        return false;
+      }
+    });
+
+    for (const apiName of apis) {
+      const subDirs = ["controllers", "services", "routes"];
+      for (const sub of subDirs) {
+        const fromDir = path.join(srcApiRoot, apiName, sub);
+        if (!fs.existsSync(fromDir)) continue;
+
+        const toDir = path.join(distApiRoot, apiName, sub);
+        fs.mkdirSync(toDir, { recursive: true });
+
+        const entries = fs
+          .readdirSync(fromDir)
+          .filter((f) => f.endsWith(".js"));
+        for (const file of entries) {
+          const from = path.join(fromDir, file);
+          const to = path.join(toDir, file);
+          try {
+            fs.copyFileSync(from, to);
+            console.log(`[api-sync] Copiat ${apiName}/${sub}/${file}`);
+          } catch (e) {
+            console.log(
+              `[api-sync] ⚠️ Eroare copiere ${apiName}/${sub}/${file}:`,
+              e.message
+            );
+          }
+        }
+      }
+    }
+  } else {
+    console.log("[api-sync] src/api nu există, skip...");
+  }
+} catch (e) {
+  console.log("[api-sync] Warning:", e.message);
+}
+
 const strapi = require("@strapi/strapi");
 strapi.createStrapi().start();
