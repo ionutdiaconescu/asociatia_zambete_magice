@@ -14,7 +14,6 @@
     "body": { "type": "richtext" },
     "goal": { "type": "integer", "default": 0 },
     "raised": { "type": "integer", "default": 0 },
-    "status": { "type": "string" },
     "coverImage": { "type": "media", "multiple": false },
     "startDate": { "type": "date" },
     "endDate": { "type": "date" },
