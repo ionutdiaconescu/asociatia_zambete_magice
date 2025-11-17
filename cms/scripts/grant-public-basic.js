@@ -47,24 +47,26 @@ const { createStrapi } = require("@strapi/strapi");
       }
     }
 
-    // Ensure Homepage single exists and is published
+    // Ensure Homepage single exists and is published (robust for single-type return shapes)
     const uidHomepage = "api::homepage.homepage";
-    let hp = await app.entityService.findMany(uidHomepage, { limit: 1 });
-    if (!hp || hp.length === 0) {
-      hp = [
-        await app.entityService.create(uidHomepage, {
-          data: {
-            heroTitle: "Transformăm nevoi în zâmbete magice",
-            heroSubtitle: "Fiecare copil merită o șansă",
-            heroDescription:
-              "Asociația Zâmbete Magice lucrează pentru copiii care au nevoie de sprijin în Timișoara și împrejurimi.",
-            publishedAt: new Date(),
-          },
-        }),
-      ];
+    let existing = await app.entityService.findMany(uidHomepage, { limit: 1 });
+    // Strapi v5 may return an object for single-types; normalize to object
+    const normalizeToObj = (val) => (Array.isArray(val) ? val[0] : val);
+    let hp = normalizeToObj(existing);
+
+    if (!hp) {
+      hp = await app.entityService.create(uidHomepage, {
+        data: {
+          heroTitle: "Transformăm nevoi în zâmbete magice",
+          heroSubtitle: "Fiecare copil merită o șansă",
+          heroDescription:
+            "Asociația Zâmbete Magice lucrează pentru copiii care au nevoie de sprijin în Timișoara și împrejurimi.",
+          publishedAt: new Date(),
+        },
+      });
       console.log("Created homepage entry");
-    } else if (!hp[0].publishedAt) {
-      await app.entityService.update(uidHomepage, hp[0].id, {
+    } else if (!hp.publishedAt) {
+      await app.entityService.update(uidHomepage, hp.id, {
         data: { publishedAt: new Date() },
       });
       console.log("Published existing homepage");
