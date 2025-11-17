@@ -1,11 +1,7 @@
-"use strict";
+'use strict';
+const { factories } = require('@strapi/strapi');
 
-module.exports = {
-  routes: [
-    {
-      method: "GET",
-      path: "/homepage",
-      handler: "homepage.find",
+module.exports = factories.createCoreRouter('api::homepage.homepage');
       config: { policies: [], middlewares: [] },
     },
     {
