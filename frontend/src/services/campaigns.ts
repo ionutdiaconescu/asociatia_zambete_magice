@@ -28,27 +28,21 @@ const mockCampaigns: CampaignSummary[] = [
   },
 ];
 
-// Base API: prefer explicit env, otherwise relative '/api' (may point to frontend dev server and 404)
-const API_BASE = import.meta.env.VITE_API_CMS_URL || "/api"; // expected: http://localhost:1337/api
+// Canonical API base; MUST be set via VITE_API_CMS_URL (include /api). Fall back to window guess only for localhost dev.
+let API_BASE = import.meta.env.VITE_API_CMS_URL || "";
 const DEBUG_CAMPAIGNS = Boolean(import.meta.env.VITE_DEBUG_CAMPAIGNS);
-// If API_BASE is relative, try to guess Strapi dev origin (1337) as a fallback at runtime in browser
-function computeCandidateBases(): string[] {
-  const bases: string[] = [API_BASE];
-  if (API_BASE.startsWith("/")) {
-    if (typeof window !== "undefined") {
-      const guess = `${window.location.protocol}//${window.location.hostname}:1337/api`;
-      if (!bases.includes(guess)) bases.push(guess);
-    }
-  }
-  return bases;
+if (!API_BASE && typeof window !== "undefined") {
+  API_BASE = `${window.location.protocol}//${window.location.hostname}:1337/api`;
 }
-const API_ORIGIN = (
-  API_BASE.startsWith("/")
-    ? typeof window !== "undefined"
-      ? `${window.location.protocol}//${window.location.hostname}:1337` // best guess for media
-      : ""
-    : API_BASE
-).replace(/\/?api$/, "");
+// Ensure it ends with /api (Strapi standard)
+// Regex fix: ensure ends NOT already with /api or api
+if (API_BASE && !/\/?api$/.test(API_BASE)) {
+  API_BASE = API_BASE.replace(/\/$/, "") + "/api";
+}
+function computeCandidateBases(): string[] {
+  return API_BASE ? [API_BASE] : [];
+}
+const API_ORIGIN = API_BASE.replace(/\/?api$/, "");
 
 async function safeFetch(input: RequestInfo | URL, init?: RequestInit) {
   const controller = new AbortController();
@@ -159,51 +153,35 @@ function mapStrapiCampaign(
 }
 
 export async function fetchCampaigns(): Promise<CampaignSummary[]> {
-  const bases = computeCandidateBases();
-  const paths = [
-    "campaigns", // actual current Strapi plural
-    "campanie-de-donatiis", // historical guess with added 's'
-    "campanie-de-donatii", // historical singular form
-  ];
-  const qs = "?populate=coverImage&sort=createdAt:desc";
-  let lastError: unknown = null;
-  const attempts: { url: string; error?: unknown }[] = [];
-  for (const base of bases) {
-    for (const p of paths) {
-      const url = `${base.replace(/\/$/, "")}/${p}${qs}`;
-      try {
-        if (DEBUG_CAMPAIGNS) console.debug("[campaigns] Attempting", url);
-        const res = await safeFetch(url);
-        if (res?.data && Array.isArray(res.data)) {
-          if (DEBUG_CAMPAIGNS) {
-            console.debug(
-              "[campaigns] Success",
-              url,
-              "count=",
-              res.data.length
-            );
-          }
-          // Prefer only the canonical path for future attempts if success came from a fallback
-          return enhanceMany(res.data.map(mapStrapiCampaign));
-        } else {
-          attempts.push({ url, error: new Error("Unexpected payload shape") });
-        }
-      } catch (err) {
-        lastError = err;
-        attempts.push({ url, error: err });
-        // continue trying other combinations
-      }
+  const base = computeCandidateBases()[0];
+  if (!base) {
+    console.error(
+      "[campaigns] API base not set. Define VITE_API_CMS_URL in .env.local"
+    );
+    return mockCampaigns;
+  }
+  const url = `${base.replace(
+    /\/$/,
+    ""
+  )}/campaigns?populate=coverImage&sort=createdAt:desc`;
+  try {
+    if (DEBUG_CAMPAIGNS) console.debug("[campaigns] Fetch", url);
+    const res = await safeFetch(url);
+    if (res?.data && Array.isArray(res.data)) {
+      if (DEBUG_CAMPAIGNS)
+        console.debug("[campaigns] Success count=", res.data.length);
+      return enhanceMany(res.data.map(mapStrapiCampaign));
+    }
+    console.warn("[campaigns] Unexpected payload shape", res);
+  } catch (e) {
+    if ((e as Error).message.includes("404")) {
+      console.error(
+        "[campaigns] 404 Not Found on /campaigns. Verifica daca Content-Type exista si este publicat."
+      );
+    } else {
+      console.error("[campaigns] Fetch error", e);
     }
   }
-  if (DEBUG_CAMPAIGNS) {
-    console.warn("[campaigns] All attempts failed. Details:", attempts);
-  } else {
-    console.warn(
-      "Falling back to mock campaigns (all attempts failed)",
-      lastError
-    );
-  }
-  await delay(150);
   return mockCampaigns;
 }
 
@@ -215,14 +193,6 @@ export async function fetchCampaignDetail(
   try {
     const bases = computeCandidateBases();
     const slugPaths = [
-      (b: string) =>
-        `${b}/campanie-de-donatiis?filters[slug][$eq]=${encodeURIComponent(
-          identifier
-        )}&populate=coverImage`,
-      (b: string) =>
-        `${b}/campanie-de-donatii?filters[slug][$eq]=${encodeURIComponent(
-          identifier
-        )}&populate=coverImage`,
       (b: string) =>
         `${b}/campaigns?filters[slug][$eq]=${encodeURIComponent(
           identifier
@@ -255,10 +225,6 @@ export async function fetchCampaignDetail(
     }
     // Try by id with path variants
     const idPaths = [
-      (b: string) =>
-        `${b}/campanie-de-donatiis/${identifier}?populate=coverImage`,
-      (b: string) =>
-        `${b}/campanie-de-donatii/${identifier}?populate=coverImage`,
       (b: string) => `${b}/campaigns/${identifier}?populate=coverImage`,
     ];
     for (const base of bases) {
