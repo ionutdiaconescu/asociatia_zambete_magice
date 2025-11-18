@@ -14,12 +14,13 @@ export function useCampaign(slug: string) {
       setLoading(true);
       setError(null);
       const apiBase =
-        import.meta.env.VITE_API_CMS_URL || "http://localhost:1337/api";
+        (import.meta.env.VITE_API_CMS_URL as string | undefined) ||
+        "http://localhost:1337/api";
       const origin = apiBase.replace(/\/?api$/, "");
       const url = `${apiBase.replace(
         /\/$/,
         ""
-      )}/campanie-de-donatiis?filters[slug][$eq]=${encodeURIComponent(
+      )}/campaigns?filters[slug][$eq]=${encodeURIComponent(
         slug
       )}&populate=coverImage`;
       try {

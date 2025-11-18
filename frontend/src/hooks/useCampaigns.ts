@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import type { CampaignSummary, AsyncState } from "../types/campaign";
 
-// Canonical Strapi collection route: /api/campanie-de-donatiis
-// We bypass the older service fallback logic and hit the definitive endpoint.
+// Canonical Strapi collection route: /api/campaigns
+// Fetches published campaigns and maps to CampaignSummary
 
 export function useCampaigns(): AsyncState<CampaignSummary[]> {
   const [data, setData] = useState<CampaignSummary[] | null>(null);
@@ -16,12 +16,13 @@ export function useCampaigns(): AsyncState<CampaignSummary[]> {
       setLoading(true);
       setError(null);
       const apiBase =
-        import.meta.env.VITE_API_CMS_URL || "http://localhost:1337/api";
+        (import.meta.env.VITE_API_CMS_URL as string | undefined) ||
+        "http://localhost:1337/api";
       const origin = apiBase.replace(/\/?api$/, "");
       const url = `${apiBase.replace(
         /\/$/,
         ""
-      )}/campanie-de-donatiis?populate=coverImage&sort=createdAt:desc`;
+      )}/campaigns?populate=coverImage&sort=createdAt:desc`;
       try {
         const res = await fetch(url);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
