@@ -30,6 +30,7 @@ const mockCampaigns: CampaignSummary[] = [
 
 // Base API: prefer explicit env, otherwise relative '/api' (may point to frontend dev server and 404)
 const API_BASE = import.meta.env.VITE_API_CMS_URL || "/api"; // expected: http://localhost:1337/api
+const DEBUG_CAMPAIGNS = Boolean(import.meta.env.VITE_DEBUG_CAMPAIGNS);
 // If API_BASE is relative, try to guess Strapi dev origin (1337) as a fallback at runtime in browser
 function computeCandidateBases(): string[] {
   const bases: string[] = [API_BASE];
@@ -160,30 +161,48 @@ function mapStrapiCampaign(
 export async function fetchCampaigns(): Promise<CampaignSummary[]> {
   const bases = computeCandidateBases();
   const paths = [
-    "campanie-de-donatiis", // Strapi pluralization adds 's'
-    "campanie-de-donatii", // fallback if plural already ends with 'i'
-    "campaigns", // legacy / generic
+    "campaigns", // actual current Strapi plural
+    "campanie-de-donatiis", // historical guess with added 's'
+    "campanie-de-donatii", // historical singular form
   ];
   const qs = "?populate=coverImage&sort=createdAt:desc";
   let lastError: unknown = null;
+  const attempts: { url: string; error?: unknown }[] = [];
   for (const base of bases) {
     for (const p of paths) {
+      const url = `${base.replace(/\/$/, "")}/${p}${qs}`;
       try {
-        const url = `${base.replace(/\/$/, "")}/${p}${qs}`;
+        if (DEBUG_CAMPAIGNS) console.debug("[campaigns] Attempting", url);
         const res = await safeFetch(url);
         if (res?.data && Array.isArray(res.data)) {
+          if (DEBUG_CAMPAIGNS) {
+            console.debug(
+              "[campaigns] Success",
+              url,
+              "count=",
+              res.data.length
+            );
+          }
+          // Prefer only the canonical path for future attempts if success came from a fallback
           return enhanceMany(res.data.map(mapStrapiCampaign));
+        } else {
+          attempts.push({ url, error: new Error("Unexpected payload shape") });
         }
       } catch (err) {
         lastError = err;
+        attempts.push({ url, error: err });
         // continue trying other combinations
       }
     }
   }
-  console.warn(
-    "Falling back to mock campaigns (all attempts failed)",
-    lastError
-  );
+  if (DEBUG_CAMPAIGNS) {
+    console.warn("[campaigns] All attempts failed. Details:", attempts);
+  } else {
+    console.warn(
+      "Falling back to mock campaigns (all attempts failed)",
+      lastError
+    );
+  }
   await delay(150);
   return mockCampaigns;
 }
