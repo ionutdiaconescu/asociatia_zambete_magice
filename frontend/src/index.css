@@ -35,3 +35,67 @@
   white-space: nowrap;
   border: 0;
 }
+
+/* Futuristic badge aesthetics */
+@keyframes auroraRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulseGlow {
+  0%,
+  100% {
+    opacity: 0.45;
+    filter: blur(16px);
+  }
+  50% {
+    opacity: 0.75;
+    filter: blur(24px);
+  }
+}
+
+.badge-aurora-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 1.25rem; /* ~20px */
+  background: conic-gradient(
+    from 0deg,
+    #3b82f6,
+    #6366f1,
+    #8b5cf6,
+    #ec4899,
+    #3b82f6
+  );
+  animation: auroraRotate 10s linear infinite;
+  mask: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0.15) 55%,
+    rgba(0, 0, 0, 0.9) 70%
+  );
+  pointer-events: none;
+}
+
+.badge-glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: 1.15rem;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(99, 102, 241, 0.55),
+    rgba(139, 92, 246, 0.35),
+    rgba(255, 255, 255, 0)
+  );
+  animation: pulseGlow 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .badge-aurora-ring,
+  .badge-glow {
+    animation: none;
+  }
+}
