@@ -2,121 +2,52 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import Logo from "../assets/sigla-no bg.webp";
 
+// Variant fără niciun background: doar sigla + buton Donează + control minimizare.
 export function FloatingLogoBadge() {
-  // States: minimized -> very small icon; collapsed -> large logo only; expanded -> logo + donate button.
   const [minimized, setMinimized] = useState(false);
-  const [collapsed, setCollapsed] = useState(true);
 
-  const toggleExpand = () => {
-    if (minimized) {
-      // First restore to collapsed
-      setMinimized(false);
-      setCollapsed(true);
-    } else {
-      setCollapsed((c) => !c);
-    }
-  };
   const toggleMinimize = () => setMinimized((m) => !m);
 
-  const sizeClasses = minimized
-    ? "h-16 w-auto"
-    : collapsed
-    ? "h-56 w-auto md:h-60"
-    : "h-64 w-56 md:h-64";
+  const imageSize = minimized ? "h-16" : "h-56 md:h-60"; // păstrăm lizibilitatea în modul normal
+  const donateSize = minimized
+    ? "px-2 py-1 text-[10px]"
+    : "px-3 py-1.5 text-xs";
 
   return (
-    <div className="fixed bottom-4 left-4 z-40 select-none">
-      <div
-        className={`relative transition-all duration-300 ease-out ${sizeClasses}`}
+    <div className="fixed bottom-4 left-4 z-40 select-none flex items-center gap-2">
+      <img
+        src={Logo}
+        alt="Sigla Asociația Zâmbete Magice"
+        className={`${imageSize} w-auto object-contain transition-all duration-300`}
+        loading="lazy"
+        decoding="async"
+      />
+      <Link
+        to="/donate"
+        aria-label="Donează acum"
+        className={`inline-flex items-center gap-1 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow ${donateSize} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
       >
-        {/* Glass background */}
-        <div className="absolute inset-0 rounded-3xl bg-white/30 dark:bg-gray-900/40 backdrop-blur-md border border-white/50 dark:border-white/10 shadow-lg" />
-        <div
-          className={`relative flex h-full ${
-            minimized
-              ? "items-center justify-center p-2"
-              : collapsed
-              ? "items-center p-3 pr-16 gap-3"
-              : "items-center p-3 pr-16 gap-3"
-          }`}
+        <svg
+          className="w-3.5 h-3.5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         >
-          <button
-            type="button"
-            onClick={toggleExpand}
-            aria-label={
-              minimized
-                ? "Restabilește insigna"
-                : collapsed
-                ? "Extinde pentru donație"
-                : "Micșorează insigna la logo"
-            }
-            className="focus:outline-none"
-          >
-            <img
-              src={Logo}
-              alt="Sigla Asociația Zâmbete Magice"
-              className={`object-contain ${
-                minimized
-                  ? "h-16 w-auto"
-                  : collapsed
-                  ? "h-56 w-auto md:h-60"
-                  : "h-64 w-56 md:h-64"
-              }`}
-              loading="lazy"
-              decoding="async"
-            />
-          </button>
-          {!minimized && !collapsed && (
-            <div className="flex-1 flex items-center justify-center">
-              <Link
-                to="/donate"
-                className="inline-flex items-center gap-1 px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                aria-label="Donează acum"
-              >
-                <svg
-                  className="w-3.5 h-3.5"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M12 21C12 21 5 13.93 5 9.5C5 6.42 7.42 4 10.5 4C11.88 4 13.18 4.56 14 5.5C14.82 4.56 16.12 4 17.5 4C20.58 4 23 6.42 23 9.5C23 13.93 16 21 16 21H12Z" />
-                </svg>
-                Donează
-              </Link>
-            </div>
-          )}
-          {/* Controls */}
-          <div className="absolute flex flex-col gap-2 bottom-3 right-3">
-            <button
-              type="button"
-              onClick={toggleExpand}
-              aria-label={
-                minimized
-                  ? "Extinde insigna"
-                  : collapsed
-                  ? "Deschide pentru donație"
-                  : "Restrânge la logo"
-              }
-              className="bg-gray-800/80 hover:bg-gray-900 text-white rounded-full w-10 h-10 text-sm font-medium flex items-center justify-center shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-            >
-              {minimized ? "+" : collapsed ? "+" : "−"}
-            </button>
-            <button
-              type="button"
-              onClick={toggleMinimize}
-              aria-label={
-                minimized ? "Restabilește mărimea" : "Minimizează insigna"
-              }
-              className="bg-gray-700/80 hover:bg-gray-800 text-white rounded-full w-10 h-10 text-xs font-medium flex items-center justify-center shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-            >
-              {minimized ? "↺" : "↘"}
-            </button>
-          </div>
-        </div>
-      </div>
+          <path d="M12 21C12 21 5 13.93 5 9.5C5 6.42 7.42 4 10.5 4C11.88 4 13.18 4.56 14 5.5C14.82 4.56 16.12 4 17.5 4C20.58 4 23 6.42 23 9.5C23 13.93 16 21 16 21H12Z" />
+        </svg>
+        Donează
+      </Link>
+      <button
+        type="button"
+        onClick={toggleMinimize}
+        aria-label={minimized ? "Restabilește mărimea" : "Minimizează insigna"}
+        className="rounded-full bg-gray-800 hover:bg-gray-900 text-white w-10 h-10 text-sm font-medium flex items-center justify-center shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-600 transition-colors"
+      >
+        {minimized ? "↺" : "↘"}
+      </button>
     </div>
   );
 }
