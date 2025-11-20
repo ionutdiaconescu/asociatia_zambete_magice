@@ -48,7 +48,7 @@ export function FloatingLogoBadge() {
         onClick={toggleMinimize}
         aria-label={minimized ? "Restabilește mărimea" : "Micșorează insigna"}
         aria-pressed={minimized}
-        className="group relative inline-flex items-center justify-center w-9 h-9 rounded-full border border-gray-300/70 dark:border-gray-600/60 bg-white/70 dark:bg-gray-800/60 text-gray-700 dark:text-gray-200 shadow-sm hover:shadow focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 transition-colors"
+        className="group relative inline-flex items-center justify-center w-8 h-8 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 transition-transform hover:scale-110 active:scale-95"
       >
         <span className="sr-only">
           {minimized ? "Restabilește mărimea" : "Micșorează insigna"}
@@ -56,7 +56,7 @@ export function FloatingLogoBadge() {
         {minimized ? (
           // Sad face (minimized state)
           <svg
-            className="w-5 h-5"
+            className="w-6 h-6"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -71,7 +71,7 @@ export function FloatingLogoBadge() {
         ) : (
           // Smiley face (normal state)
           <svg
-            className="w-5 h-5"
+            className="w-6 h-6"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -84,7 +84,7 @@ export function FloatingLogoBadge() {
             <path d="M8.5 14.5c1 .9 2.5 1.5 3.5 1.5s2.5-.6 3.5-1.5" />
           </svg>
         )}
-        <span className="absolute inset-0 rounded-full ring-0 group-hover:ring-2 ring-blue-500/40 transition-all" />
+        {/* Accent ring eliminat pentru stil ultra-minimal */}
       </button>
     </div>
   );
