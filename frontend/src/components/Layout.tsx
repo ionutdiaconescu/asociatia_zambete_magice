@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
+import { FloatingLogoBadge } from "./FloatingLogoBadge";
 
 export default function Layout() {
   return (
@@ -25,6 +26,7 @@ export default function Layout() {
         />
         <Outlet />
       </main>
+      <FloatingLogoBadge />
       <footer className="bg-white dark:bg-gray-900 border-t dark:border-gray-800 mt-8 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
         © {new Date().getFullYear()} Asociația Zâmbete Magice. Toate drepturile
         rezervate.

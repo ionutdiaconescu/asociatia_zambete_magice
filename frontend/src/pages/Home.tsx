@@ -5,7 +5,6 @@ import { HowWeWorkSection } from "../components/homepage/HowWeWorkSection";
 import { TransparencySection } from "../components/homepage/TransparencySection";
 import { CampaignGrid } from "../components/campaigns/CampaignGrid";
 import { SEO } from "../components/SEO";
-import { LogoReadableBanner } from "../components/homepage/LogoReadableBanner";
 
 export default function Home() {
   const { homepage, loading, error } = useHomepage();
@@ -83,9 +82,6 @@ export default function Home() {
         ctaLink={homepage.heroCtaLink || "/campanii"}
         backgroundImage={homepage.heroBackgroundImage}
       />
-
-      {/* Readable Logo Banner */}
-      <LogoReadableBanner />
 
       {/* Statistics */}
       <StatisticsSection
