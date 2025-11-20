@@ -146,28 +146,58 @@ export function useHomepage() {
         };
         const a = attrs as Attrs;
 
-        // Helper pentru media: acceptă string, object {url}, {data:{attributes:{url}}} sau array
-        const mediaUrl = (m: unknown): string | null => {
+        // Helper media: preferă formatul cu lățimea cea mai apropiată de target (ex: 1600) dacă există.
+        const mediaUrl = (m: unknown, targetWidth = 1600): string | null => {
           if (!m) return null;
           if (typeof m === "string") {
             return m.startsWith("http") ? m : `${origin}${m}`;
           }
           if (Array.isArray(m)) {
-            const first = (m as unknown[])[0];
-            return mediaUrl(first);
+            return mediaUrl((m as unknown[])[0], targetWidth);
           }
           if (typeof m === "object") {
             const mo = m as {
               url?: string;
-              data?: { attributes?: { url?: string } };
+              data?: {
+                attributes?: {
+                  url?: string;
+                  formats?: Record<
+                    string,
+                    { url?: string; width?: number; height?: number }
+                  >;
+                };
+              };
             };
-            if (mo.url)
-              return mo.url.startsWith("http") ? mo.url : `${origin}${mo.url}`;
-            const url = mo.data?.attributes?.url;
-            return url
-              ? url.startsWith("http")
-                ? url
-                : `${origin}${url}`
+            // Dacă avem data.attributes.formats alege cel mai potrivit format.
+            const formats = mo.data?.attributes?.formats;
+            if (formats && typeof formats === "object") {
+              const candidates = Object.values(formats).filter(Boolean) as {
+                url?: string;
+                width?: number;
+              }[];
+              if (candidates.length) {
+                // Sortează după |width - targetWidth| ascendent.
+                candidates.sort((a, b) => {
+                  const aw = a.width ?? 0;
+                  const bw = b.width ?? 0;
+                  return (
+                    Math.abs(aw - targetWidth) - Math.abs(bw - targetWidth)
+                  );
+                });
+                const picked = candidates[0];
+                if (picked?.url) {
+                  return picked.url.startsWith("http")
+                    ? picked.url
+                    : `${origin}${picked.url}`;
+                }
+              }
+            }
+            // Fallback la url direct.
+            const rawUrl = mo.url || mo.data?.attributes?.url;
+            return rawUrl
+              ? rawUrl.startsWith("http")
+                ? rawUrl
+                : `${origin}${rawUrl}`
               : null;
           }
           return null;

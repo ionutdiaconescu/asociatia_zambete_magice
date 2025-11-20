@@ -3,55 +3,78 @@ import { Link } from "react-router-dom";
 import Logo from "../assets/sigla-no bg.webp";
 
 export function FloatingLogoBadge() {
+  // States: minimized -> very small icon; collapsed -> large logo only; expanded -> logo + donate button.
+  const [minimized, setMinimized] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
-  const toggle = () => setCollapsed((c) => !c);
+
+  const toggleExpand = () => {
+    if (minimized) {
+      // First restore to collapsed
+      setMinimized(false);
+      setCollapsed(true);
+    } else {
+      setCollapsed((c) => !c);
+    }
+  };
+  const toggleMinimize = () => setMinimized((m) => !m);
+
+  const sizeClasses = minimized
+    ? "w-20 h-20"
+    : collapsed
+    ? "w-56 h-56 md:w-64 md:h-64"
+    : "w-64 h-56 md:w-72 md:h-64";
+
   return (
     <div className="fixed bottom-4 left-4 z-40 select-none">
       <div
-        className={`group relative transition-all duration-500 ease-out ${
-          collapsed ? "w-56 h-56" : "w-[480px] max-w-[94vw]"
-        }`}
+        className={`relative transition-all duration-300 ease-out ${sizeClasses}`}
       >
-        <div className="badge-ring-wrapper" aria-hidden="true">
-          <div className="badge-rotating-border" aria-hidden="true" />
-        </div>
-        <div className="absolute inset-0 rounded-3xl bg-white/95 dark:bg-gray-900/90 backdrop-blur-xl border border-white/70 dark:border-white/10 shadow-[0_0_35px_-8px_rgba(99,102,241,0.45)]" />
+        {/* Glass background */}
+        <div className="absolute inset-0 rounded-3xl bg-white/30 dark:bg-gray-900/40 backdrop-blur-md border border-white/50 dark:border-white/10 shadow-lg" />
         <div
-          className={`relative flex ${
-            collapsed
-              ? "items-center justify-center p-4"
-              : "items-center gap-8 p-8 pr-20"
-          } h-full`}
+          className={`relative flex h-full ${
+            minimized
+              ? "items-center justify-center p-1"
+              : collapsed
+              ? "items-center justify-center p-3"
+              : "items-center p-4 pr-16 gap-4"
+          }`}
         >
           <button
             type="button"
-            onClick={toggle}
+            onClick={toggleExpand}
             aria-label={
-              collapsed
-                ? "Extinde insigna pentru donație"
-                : "Micșorează insigna"
+              minimized
+                ? "Restabilește insigna"
+                : collapsed
+                ? "Extinde pentru donație"
+                : "Micșorează insigna la logo"
             }
             className="focus:outline-none"
           >
             <img
               src={Logo}
-              alt="Sigla Asociația Zâmbete Magice (include denumirea)"
-              className={`${
-                collapsed ? "h-48 w-auto" : "h-52 w-auto"
-              } object-contain drop-shadow-[0_6px_18px_rgba(0,0,0,0.4)] transition-transform duration-700 group-hover:scale-[1.02]`}
+              alt="Sigla Asociația Zâmbete Magice"
+              className={`object-contain ${
+                minimized
+                  ? "h-14 w-auto"
+                  : collapsed
+                  ? "h-52 w-auto md:h-56"
+                  : "h-52 w-auto md:h-56"
+              }`}
               loading="lazy"
               decoding="async"
             />
           </button>
-          {!collapsed && (
-            <div className="flex-1 min-w-0 flex items-center gap-8">
+          {!minimized && !collapsed && (
+            <div className="flex-1 flex items-center justify-center">
               <Link
                 to="/donate"
-                className="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-fuchsia-600 hover:from-blue-500 hover:to-fuchsia-500 text-white text-base font-semibold shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                className="inline-flex items-center gap-1 px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 aria-label="Donează acum"
               >
                 <svg
-                  className="w-6 h-6"
+                  className="w-3.5 h-3.5"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -65,16 +88,33 @@ export function FloatingLogoBadge() {
               </Link>
             </div>
           )}
-          <button
-            type="button"
-            onClick={toggle}
-            aria-label={
-              collapsed ? "Deschide pentru donație" : "Restrânge insigna"
-            }
-            className="absolute bottom-3 right-3 bg-gray-900/80 dark:bg-gray-800/80 hover:bg-gray-800 dark:hover:bg-gray-700 text-white rounded-full w-12 h-12 text-lg font-medium flex items-center justify-center shadow-lg backdrop-blur focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-          >
-            {collapsed ? "+" : "−"}
-          </button>
+          {/* Controls */}
+          <div className="absolute flex flex-col gap-2 bottom-3 right-3">
+            <button
+              type="button"
+              onClick={toggleExpand}
+              aria-label={
+                minimized
+                  ? "Extinde insigna"
+                  : collapsed
+                  ? "Deschide pentru donație"
+                  : "Restrânge la logo"
+              }
+              className="bg-gray-800/80 hover:bg-gray-900 text-white rounded-full w-10 h-10 text-sm font-medium flex items-center justify-center shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            >
+              {minimized ? "+" : collapsed ? "+" : "−"}
+            </button>
+            <button
+              type="button"
+              onClick={toggleMinimize}
+              aria-label={
+                minimized ? "Restabilește mărimea" : "Minimizează insigna"
+              }
+              className="bg-gray-700/80 hover:bg-gray-800 text-white rounded-full w-10 h-10 text-xs font-medium flex items-center justify-center shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            >
+              {minimized ? "↺" : "↘"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

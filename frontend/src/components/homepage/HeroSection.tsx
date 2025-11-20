@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 interface HeroSectionProps {
   title: string;
@@ -24,31 +25,54 @@ export function HeroSection({
   backgroundImage,
   backgroundFit = "cover",
 }: HeroSectionProps) {
+  // Determinare automată a modului de afișare dacă nu se potrivește aspect ratio standard.
+  const [autoFit, setAutoFit] = useState<"cover" | "contain">(backgroundFit);
+  useEffect(() => {
+    if (!backgroundImage) return;
+    const img = new Image();
+    img.src = backgroundImage;
+    img.onload = () => {
+      const ratio = img.naturalWidth / img.naturalHeight; // >1 = landscape, <1 = portrait
+      // Dacă imaginea este foarte panoramică sau foarte înaltă, o încadrăm (contain)
+      if (ratio < 1.1 || ratio > 2.4) {
+        setAutoFit("contain");
+      } else {
+        setAutoFit(backgroundFit);
+      }
+    };
+  }, [backgroundImage, backgroundFit]);
+
   return (
-    <section className="relative text-white overflow-hidden min-h-[560px] flex items-center">
+    <section className="relative text-white overflow-hidden min-h-[600px] md:min-h-[680px] flex items-center">
       {/* Layer: gradient background */}
       <div className="absolute inset-0 -z-20 bg-gradient-to-br from-purple-700 via-blue-600 to-indigo-700" />
 
       {/* Layer: image - suport atât cover cât și contain */}
       {backgroundImage &&
-        (backgroundFit === "cover" ? (
+        (autoFit === "cover" ? (
           <div className="absolute inset-0 -z-10">
             <img
               src={backgroundImage}
-              alt="Imagine reprezentativă"
+              alt="Imagine reprezentativă hero"
               className="w-full h-full object-cover object-center brightness-[0.92]"
-              loading="lazy"
+              loading="eager"
               decoding="async"
+              fetchPriority="high"
             />
           </div>
         ) : (
           <div className="absolute inset-0 -z-10 flex items-center justify-center p-4 md:p-8">
             <img
               src={backgroundImage}
-              alt="Imagine reprezentativă"
+              alt="Imagine reprezentativă încadrată"
               className="max-h-full max-w-full w-auto h-auto object-contain drop-shadow-xl brightness-95"
-              loading="lazy"
+              loading="eager"
               decoding="async"
+              fetchPriority="high"
+              style={{
+                // Mică ajustare pentru imagini foarte înalte - limităm puțin înălțimea
+                maxHeight: "90%",
+              }}
             />
           </div>
         ))}
