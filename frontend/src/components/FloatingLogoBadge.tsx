@@ -48,45 +48,42 @@ export function FloatingLogoBadge() {
         onClick={toggleMinimize}
         aria-label={minimized ? "Restabilește mărimea" : "Micșorează insigna"}
         aria-pressed={minimized}
-        className="group relative inline-flex items-center justify-center w-9 h-9 rounded-full border border-gray-300/80 dark:border-gray-600/70 bg-white/80 dark:bg-gray-800/70 backdrop-blur-sm text-gray-700 dark:text-gray-200 shadow-sm hover:shadow focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 transition-all hover:bg-white dark:hover:bg-gray-800"
+        className="group relative inline-flex items-center justify-center w-9 h-9 rounded-full border border-gray-300/70 dark:border-gray-600/60 bg-white/70 dark:bg-gray-800/60 text-gray-700 dark:text-gray-200 shadow-sm hover:shadow focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 transition-colors"
       >
         <span className="sr-only">
           {minimized ? "Restabilește mărimea" : "Micșorează insigna"}
         </span>
         {minimized ? (
-          // Icon restore (maximize)
+          // Sad face (minimized state)
           <svg
-            className="w-4 h-4"
+            className="w-5 h-5"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            <path d="M4 4H10V6H6V10H4V4Z" />
-            <path d="M20 20H14V18H18V14H20V20Z" />
-            <path d="M14 4H20V10H18V6H14V4Z" />
-            <path d="M4 14H6V18H10V20H4V14Z" />
+            <circle cx="12" cy="12" r="9" />
+            <path d="M9 10h.01M15 10h.01" />
+            <path d="M9 16c1-.8 2.5-1.2 3-1.2s2 .4 3 1.2" />
           </svg>
         ) : (
-          // Icon minimize (compress)
+          // Smiley face (normal state)
           <svg
-            className="w-4 h-4"
+            className="w-5 h-5"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            <path d="M9 15H4V20H9V18H6V15H9Z" />
-            <path d="M15 9H20V4H15V6H18V9H15Z" />
-            <path d="M9 9V6H6V4H11V9H9Z" />
-            <path d="M15 15V18H18V20H13V15H15Z" />
+            <circle cx="12" cy="12" r="9" />
+            <path d="M9 10h.01M15 10h.01" />
+            <path d="M8.5 14.5c1 .9 2.5 1.5 3.5 1.5s2.5-.6 3.5-1.5" />
           </svg>
         )}
-        {/* Accent ring animată subtil la hover */}
         <span className="absolute inset-0 rounded-full ring-0 group-hover:ring-2 ring-blue-500/40 transition-all" />
       </button>
     </div>
