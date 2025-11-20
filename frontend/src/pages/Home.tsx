@@ -5,7 +5,7 @@ import { HowWeWorkSection } from "../components/homepage/HowWeWorkSection";
 import { TransparencySection } from "../components/homepage/TransparencySection";
 import { CampaignGrid } from "../components/campaigns/CampaignGrid";
 import { SEO } from "../components/SEO";
-import { BrandShowcase } from "../components/homepage/BrandShowcase";
+import { LogoReadableBanner } from "../components/homepage/LogoReadableBanner";
 
 export default function Home() {
   const { homepage, loading, error } = useHomepage();
@@ -84,8 +84,8 @@ export default function Home() {
         backgroundImage={homepage.heroBackgroundImage}
       />
 
-      {/* Large Brand Logo Showcase for readability */}
-      <BrandShowcase />
+      {/* Readable Logo Banner */}
+      <LogoReadableBanner />
 
       {/* Statistics */}
       <StatisticsSection
