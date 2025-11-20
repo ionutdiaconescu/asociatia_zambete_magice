@@ -36,8 +36,8 @@
   border: 0;
 }
 
-/* Futuristic badge aesthetics */
-@keyframes auroraRotate {
+/* Futuristic badge aesthetics (refined) */
+@keyframes borderSlowSpin {
   0% {
     transform: rotate(0deg);
   }
@@ -46,56 +46,44 @@
   }
 }
 
-@keyframes pulseGlow {
-  0%,
-  100% {
-    opacity: 0.45;
-    filter: blur(16px);
-  }
-  50% {
-    opacity: 0.75;
-    filter: blur(24px);
-  }
+.badge-ring-wrapper {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
-.badge-aurora-ring {
+.badge-rotating-border {
   position: absolute;
-  inset: -4px;
-  border-radius: 1.25rem; /* ~20px */
+  inset: -6px;
+  border-radius: 1.75rem;
   background: conic-gradient(
     from 0deg,
-    #3b82f6,
-    #6366f1,
-    #8b5cf6,
-    #ec4899,
-    #3b82f6
+    #3b82f6 0deg,
+    #6366f1 72deg,
+    #8b5cf6 144deg,
+    #ec4899 216deg,
+    #3b82f6 360deg
   );
-  animation: auroraRotate 10s linear infinite;
-  mask: radial-gradient(
-    circle at center,
-    rgba(0, 0, 0, 0.15) 55%,
-    rgba(0, 0, 0, 0.9) 70%
-  );
-  pointer-events: none;
+  mask: radial-gradient(circle at center, transparent 60%, black 61%);
+  animation: borderSlowSpin 28s linear infinite;
+  opacity: 0.65;
 }
 
-.badge-glow {
+.badge-rotating-border::after {
+  content: "";
   position: absolute;
-  inset: -2px;
-  border-radius: 1.15rem;
+  inset: 0;
+  border-radius: inherit;
   background: radial-gradient(
-    circle at 30% 30%,
-    rgba(99, 102, 241, 0.55),
-    rgba(139, 92, 246, 0.35),
-    rgba(255, 255, 255, 0)
+    circle at center,
+    rgba(255, 255, 255, 0.4),
+    rgba(255, 255, 255, 0) 70%
   );
-  animation: pulseGlow 6s ease-in-out infinite;
-  pointer-events: none;
+  mix-blend-mode: overlay;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .badge-aurora-ring,
-  .badge-glow {
+  .badge-rotating-border {
     animation: none;
   }
 }
