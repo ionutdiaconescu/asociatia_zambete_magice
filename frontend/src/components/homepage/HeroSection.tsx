@@ -18,48 +18,51 @@ export function HeroSection({
   backgroundImage,
 }: HeroSectionProps) {
   return (
-    <section
-      className="relative text-white py-24 overflow-hidden"
-      style={{
-        backgroundImage: backgroundImage
-          ? `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${backgroundImage})`
-          : "linear-gradient(135deg, #9333ea 0%, #3b82f6 50%, #4f46e5 100%)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
-      {/* Background overlay pentru lizibilitate */}
-      <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+    <section className="relative text-white pt-28 pb-24 overflow-hidden">
+      {/* Layer: gradient background */}
+      <div className="absolute inset-0 -z-20 bg-gradient-to-br from-purple-700 via-blue-600 to-indigo-700" />
 
-      {/* Decorative elements - doar dacă nu avem imagine */}
+      {/* Layer: image (object-contain, never crop) */}
+      {backgroundImage && (
+        <div className="absolute inset-0 -z-10 flex items-center justify-center p-4 md:p-8">
+          <img
+            src={backgroundImage}
+            alt="Imagine reprezentativă"
+            className="max-h-full max-w-full w-auto h-auto object-contain drop-shadow-xl brightness-95"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      )}
+
+      {/* Layer: dark overlay for readability */}
+      <div className="absolute inset-0 bg-black/45 backdrop-blur-[1px]" />
+
+      {/* Decorative blobs only if no image */}
       {!backgroundImage && (
         <>
-          <div className="absolute top-10 left-10 w-72 h-72 bg-white bg-opacity-10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-10 right-10 w-96 h-96 bg-pink-500 bg-opacity-20 rounded-full blur-3xl"></div>
+          <div className="absolute top-10 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl" />
         </>
       )}
 
       <div className="relative container mx-auto px-4 text-center">
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight drop-shadow-md">
           {title}
         </h1>
-
-        <h2 className="text-xl md:text-2xl lg:text-3xl mb-8 opacity-90 max-w-4xl mx-auto font-light">
+        <h2 className="text-xl md:text-2xl lg:text-3xl mb-8 opacity-90 max-w-4xl mx-auto font-light drop-shadow-sm">
           {subtitle}
         </h2>
-
         {description && (
           <div
-            className="text-lg md:text-xl mb-12 opacity-80 max-w-3xl mx-auto leading-relaxed"
+            className="text-lg md:text-xl mb-12 opacity-85 max-w-3xl mx-auto leading-relaxed"
             dangerouslySetInnerHTML={{ __html: description }}
           />
         )}
-
         {ctaText && ctaLink && (
           <Link
             to={ctaLink}
-            className="inline-flex items-center bg-white text-purple-700 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
+            className="inline-flex items-center bg-white text-purple-700 px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-2xl hover:bg-gray-100 transform hover:scale-[1.03] transition-all duration-300"
           >
             {ctaText}
             <svg
