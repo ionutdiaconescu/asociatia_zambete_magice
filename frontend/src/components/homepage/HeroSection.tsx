@@ -7,6 +7,12 @@ interface HeroSectionProps {
   ctaText?: string | null;
   ctaLink?: string | null;
   backgroundImage?: string | null;
+  /**
+   * Cum să fie redată imaginea de fundal.
+   * cover = umple complet spațiul (poate tăia la margini)
+   * contain = încadrată complet (poate lăsa benzi laterale)
+   */
+  backgroundFit?: "cover" | "contain";
 }
 
 export function HeroSection({
@@ -16,24 +22,36 @@ export function HeroSection({
   ctaText,
   ctaLink,
   backgroundImage,
+  backgroundFit = "cover",
 }: HeroSectionProps) {
   return (
-    <section className="relative text-white pt-28 pb-24 overflow-hidden">
+    <section className="relative text-white overflow-hidden min-h-[560px] flex items-center">
       {/* Layer: gradient background */}
       <div className="absolute inset-0 -z-20 bg-gradient-to-br from-purple-700 via-blue-600 to-indigo-700" />
 
-      {/* Layer: image (object-contain, never crop) */}
-      {backgroundImage && (
-        <div className="absolute inset-0 -z-10 flex items-center justify-center p-4 md:p-8">
-          <img
-            src={backgroundImage}
-            alt="Imagine reprezentativă"
-            className="max-h-full max-w-full w-auto h-auto object-contain drop-shadow-xl brightness-95"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-      )}
+      {/* Layer: image - suport atât cover cât și contain */}
+      {backgroundImage &&
+        (backgroundFit === "cover" ? (
+          <div className="absolute inset-0 -z-10">
+            <img
+              src={backgroundImage}
+              alt="Imagine reprezentativă"
+              className="w-full h-full object-cover object-center brightness-[0.92]"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        ) : (
+          <div className="absolute inset-0 -z-10 flex items-center justify-center p-4 md:p-8">
+            <img
+              src={backgroundImage}
+              alt="Imagine reprezentativă"
+              className="max-h-full max-w-full w-auto h-auto object-contain drop-shadow-xl brightness-95"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        ))}
 
       {/* Layer: dark overlay for readability */}
       <div className="absolute inset-0 bg-black/45 backdrop-blur-[1px]" />
@@ -46,7 +64,7 @@ export function HeroSection({
         </>
       )}
 
-      <div className="relative container mx-auto px-4 text-center">
+      <div className="relative container mx-auto px-4 py-24 md:py-28 text-center">
         <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight drop-shadow-md">
           {title}
         </h1>

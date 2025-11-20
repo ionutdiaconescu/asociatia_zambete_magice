@@ -5,6 +5,7 @@ import { HowWeWorkSection } from "../components/homepage/HowWeWorkSection";
 import { TransparencySection } from "../components/homepage/TransparencySection";
 import { CampaignGrid } from "../components/campaigns/CampaignGrid";
 import { SEO } from "../components/SEO";
+import { BrandShowcase } from "../components/homepage/BrandShowcase";
 
 export default function Home() {
   const { homepage, loading, error } = useHomepage();
@@ -82,6 +83,9 @@ export default function Home() {
         ctaLink={homepage.heroCtaLink || "/campanii"}
         backgroundImage={homepage.heroBackgroundImage}
       />
+
+      {/* Large Brand Logo Showcase for readability */}
+      <BrandShowcase />
 
       {/* Statistics */}
       <StatisticsSection
