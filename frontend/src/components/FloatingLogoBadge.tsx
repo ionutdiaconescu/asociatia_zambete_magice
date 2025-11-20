@@ -19,10 +19,10 @@ export function FloatingLogoBadge() {
   const toggleMinimize = () => setMinimized((m) => !m);
 
   const sizeClasses = minimized
-    ? "w-20 h-20"
+    ? "h-16 w-auto"
     : collapsed
-    ? "w-56 h-56 md:w-64 md:h-64"
-    : "w-64 h-56 md:w-72 md:h-64";
+    ? "h-56 w-auto md:h-60"
+    : "h-64 w-56 md:h-64";
 
   return (
     <div className="fixed bottom-4 left-4 z-40 select-none">
@@ -34,10 +34,10 @@ export function FloatingLogoBadge() {
         <div
           className={`relative flex h-full ${
             minimized
-              ? "items-center justify-center p-1"
+              ? "items-center justify-center p-2"
               : collapsed
-              ? "items-center justify-center p-3"
-              : "items-center p-4 pr-16 gap-4"
+              ? "items-center p-3 pr-16 gap-3"
+              : "items-center p-3 pr-16 gap-3"
           }`}
         >
           <button
@@ -57,10 +57,10 @@ export function FloatingLogoBadge() {
               alt="Sigla Asociația Zâmbete Magice"
               className={`object-contain ${
                 minimized
-                  ? "h-14 w-auto"
+                  ? "h-16 w-auto"
                   : collapsed
-                  ? "h-52 w-auto md:h-56"
-                  : "h-52 w-auto md:h-56"
+                  ? "h-56 w-auto md:h-60"
+                  : "h-64 w-56 md:h-64"
               }`}
               loading="lazy"
               decoding="async"

@@ -121,7 +121,9 @@ export function useHomepage() {
           heroTitle?: string;
           heroSubtitle?: string;
           heroDescription?: RichTextBlock;
-          heroBackgroundMedia?: unknown;
+          heroBackgroundMedia?: unknown; // definit în schema
+          heroBackgroundImage?: unknown; // fallback dacă denumire diferă
+          heroBackground?: unknown; // alte posibile încercări
           heroCtaText?: string | null;
           heroCtaLink?: string | null;
           statsYearsActive?: number;
@@ -204,6 +206,13 @@ export function useHomepage() {
         };
 
         console.log("[Homepage] Raw attributes:", JSON.stringify(a, null, 2));
+        // Determină media pentru background hero din variante multiple de câmp
+        const heroBgSource =
+          a.heroBackgroundMedia ??
+          a.heroBackgroundImage ??
+          a.heroBackground ??
+          null;
+
         const processedData: HomepageData = {
           id:
             typeof raw.id === "string"
@@ -215,7 +224,7 @@ export function useHomepage() {
           heroDescription: extractTextFromRichText(a.heroDescription),
           heroCtaText: a.heroCtaText ?? null,
           heroCtaLink: a.heroCtaLink ?? null,
-          heroBackgroundImage: mediaUrl(a.heroBackgroundMedia),
+          heroBackgroundImage: mediaUrl(heroBgSource),
           statsYearsActive: Number(a.statsYearsActive ?? 0),
           statsTotalBeneficiaries: Number(a.statsTotalBeneficiaries ?? 0),
           statsCompletedProjects: Number(a.statsCompletedProjects ?? 0),
