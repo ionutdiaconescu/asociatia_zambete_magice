@@ -467,99 +467,39 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
-export interface ApiCampanieDeDonatiiCampanieDeDonatii
-  extends Struct.CollectionTypeSchema {
-  collectionName: 'campanie_de_donatiis';
+export interface ApiCampaignCampaign extends Struct.CollectionTypeSchema {
+  collectionName: 'campaigns';
   info: {
-    displayName: 'campanie de donatii';
-    pluralName: 'campanie-de-donatiis';
-    singularName: 'campanie-de-donatii';
+    displayName: 'Campaign';
+    pluralName: 'campaigns';
+    singularName: 'campaign';
   };
   options: {
     draftAndPublish: true;
   };
   attributes: {
     body: Schema.Attribute.RichText;
-    coverImage: Schema.Attribute.Media<
-      'images' | 'files' | 'videos' | 'audios'
-    >;
+    coverImage: Schema.Attribute.Media;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    donatiis: Schema.Attribute.Relation<'oneToMany', 'api::donatii.donatii'>;
+    daysLeft: Schema.Attribute.Integer;
+    donorCount: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     endDate: Schema.Attribute.Date;
-    gallery: Schema.Attribute.Media<
-      'images' | 'files' | 'videos' | 'audios',
-      true
-    >;
-    goal: Schema.Attribute.Decimal;
+    goal: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     isFeatured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
-      'api::campanie-de-donatii.campanie-de-donatii'
+      'api::campaign.campaign'
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
-    raised: Schema.Attribute.Decimal & Schema.Attribute.DefaultTo<0>;
+    raised: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     shortDescription: Schema.Attribute.Text;
     slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
-    stare: Schema.Attribute.Enumeration<
-      ['draft', 'active', 'completed', 'paused']
-    > &
-      Schema.Attribute.Required;
     startDate: Schema.Attribute.Date;
     title: Schema.Attribute.String & Schema.Attribute.Required;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
-export interface ApiDonatiiDonatii extends Struct.CollectionTypeSchema {
-  collectionName: 'donatiis';
-  info: {
-    displayName: 'donatii';
-    pluralName: 'donatiis';
-    singularName: 'donatii';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    amountInMinorUnit: Schema.Attribute.Integer;
-    campanie_de_donatii: Schema.Attribute.Relation<
-      'manyToOne',
-      'api::campanie-de-donatii.campanie-de-donatii'
-    >;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    currency: Schema.Attribute.Enumeration<['RON', 'EUR', 'USD']> &
-      Schema.Attribute.DefaultTo<'RON'>;
-    donorCountry: Schema.Attribute.String;
-    emailDonator: Schema.Attribute.Email;
-    isAnonymous: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::donatii.donatii'
-    > &
-      Schema.Attribute.Private;
-    mesaj: Schema.Attribute.RichText;
-    metodaDePlata: Schema.Attribute.Enumeration<['card', 'transfer bancar']>;
-    netAmount: Schema.Attribute.Integer;
-    numeDonator: Schema.Attribute.String;
-    publishedAt: Schema.Attribute.DateTime;
-    receiptUrl: Schema.Attribute.String;
-    stare: Schema.Attribute.Enumeration<
-      ['pending', 'completed', 'failed', 'refunded']
-    > &
-      Schema.Attribute.Required;
-    stripePaymentIntentId: Schema.Attribute.String;
-    stripeSessionId: Schema.Attribute.String & Schema.Attribute.Unique;
-    suma: Schema.Attribute.Decimal & Schema.Attribute.Required;
-    transactionId: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -577,43 +517,24 @@ export interface ApiHomepageHomepage extends Struct.SingleTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    annualReports: Schema.Attribute.Media<
-      'images' | 'files' | 'videos' | 'audios',
-      true
-    >;
-    certifications: Schema.Attribute.Media<
-      'images' | 'files' | 'videos' | 'audios',
-      true
-    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     donationBankName: Schema.Attribute.String;
     donationBeneficiaryName: Schema.Attribute.String;
     donationIban: Schema.Attribute.String;
-    donationInstructions: Schema.Attribute.Blocks;
+    donationInstructions: Schema.Attribute.RichText;
     donationReferenceHint: Schema.Attribute.String;
-    heroBackgroundMedia: Schema.Attribute.Media<
-      'images' | 'files' | 'videos' | 'audios'
-    >;
+    heroBackgroundMedia: Schema.Attribute.Media;
     heroCtaLink: Schema.Attribute.String;
     heroCtaText: Schema.Attribute.String;
-    heroDescription: Schema.Attribute.Blocks;
+    heroDescription: Schema.Attribute.RichText;
     heroSubtitle: Schema.Attribute.String;
-    heroTitle: Schema.Attribute.String;
-    howWeWorkDescription: Schema.Attribute.Blocks;
-    howWeWorkSteps: Schema.Attribute.Component<'homepage.work-step', true>;
+    heroTitle: Schema.Attribute.String & Schema.Attribute.Required;
+    howWeWorkDescription: Schema.Attribute.RichText;
     howWeWorkTitle: Schema.Attribute.String;
-    impactGalleryDescription: Schema.Attribute.Blocks;
-    impactGalleryImages: Schema.Attribute.Media<
-      'images' | 'files' | 'videos' | 'audios',
-      true
-    >;
+    impactGalleryDescription: Schema.Attribute.RichText;
     impactGalleryTitle: Schema.Attribute.String;
-    impactTestimonials: Schema.Attribute.Component<
-      'homepage.testimonial',
-      true
-    >;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -622,9 +543,7 @@ export interface ApiHomepageHomepage extends Struct.SingleTypeSchema {
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
     seoDescription: Schema.Attribute.Text;
-    seoSocialImage: Schema.Attribute.Media<
-      'images' | 'files' | 'videos' | 'audios'
-    >;
+    seoSocialImage: Schema.Attribute.Media;
     seoTitle: Schema.Attribute.String;
     statsActiveVolunteers: Schema.Attribute.Integer &
       Schema.Attribute.DefaultTo<0>;
@@ -633,8 +552,7 @@ export interface ApiHomepageHomepage extends Struct.SingleTypeSchema {
     statsTotalBeneficiaries: Schema.Attribute.Integer &
       Schema.Attribute.DefaultTo<0>;
     statsYearsActive: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
-    teamDescription: Schema.Attribute.Blocks;
-    teamMembers: Schema.Attribute.Component<'homepage.team-member', true>;
+    teamDescription: Schema.Attribute.RichText;
     teamTitle: Schema.Attribute.String;
     transparencyTitle: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
@@ -646,7 +564,7 @@ export interface ApiHomepageHomepage extends Struct.SingleTypeSchema {
 export interface ApiPagePage extends Struct.CollectionTypeSchema {
   collectionName: 'pages';
   info: {
-    displayName: 'page';
+    displayName: 'Page';
     pluralName: 'pages';
     singularName: 'page';
   };
@@ -654,23 +572,15 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    body: Schema.Attribute.RichText & Schema.Attribute.Required;
-    coverImage: Schema.Attribute.Media<
-      'images' | 'files' | 'videos' | 'audios'
-    >;
+    body: Schema.Attribute.RichText;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    image: Schema.Attribute.Media<
-      'images' | 'files' | 'videos' | 'audios',
-      true
-    >;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::page.page'> &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
-    seoDescription: Schema.Attribute.String;
-    slug: Schema.Attribute.UID<'title'>;
+    slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
     title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -1216,8 +1126,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
-      'api::campanie-de-donatii.campanie-de-donatii': ApiCampanieDeDonatiiCampanieDeDonatii;
-      'api::donatii.donatii': ApiDonatiiDonatii;
+      'api::campaign.campaign': ApiCampaignCampaign;
       'api::homepage.homepage': ApiHomepageHomepage;
       'api::page.page': ApiPagePage;
       'api::test.test': ApiTestTest;
