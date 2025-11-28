@@ -29,7 +29,7 @@
     "testimonials": {
       "type": "component",
       "repeatable": true,
-      "component": "homepage.testimonial"
+      "component": "homepage.testimonials"
     },
     "teamMembers": {
       "type": "component",
