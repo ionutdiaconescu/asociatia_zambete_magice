@@ -6,22 +6,28 @@ import Logo from "../assets/sigla-no bg.webp";
 export function FloatingLogoBadge() {
   const [minimized, setMinimized] = useState(false);
 
-  const toggleMinimize = () => setMinimized((m) => !m);
-
-  const imageSize = minimized ? "h-16" : "h-56 md:h-60"; // păstrăm lizibilitatea în modul normal
+  const imageSize = minimized ? "h-16" : "h-56 md:h-60";
   const donateSize = minimized
     ? "px-2 py-1 text-[10px]"
     : "px-3 py-1.5 text-xs";
 
   return (
     <div className="fixed bottom-4 left-4 z-40 select-none flex items-center gap-2">
-      {/* Logo */}
+      {/* Logo - acționează ca toggle pentru minimizare/restaurare */}
       <img
         src={Logo}
         alt="Sigla Asociația Zâmbete Magice"
-        className={`${imageSize} w-auto object-contain transition-all duration-300`}
+        className={`${imageSize} w-auto object-contain transition-all duration-300 cursor-pointer`}
         loading="lazy"
         decoding="async"
+        tabIndex={0}
+        role="button"
+        aria-pressed={minimized}
+        aria-label={minimized ? "Restabilește mărimea" : "Micșorează insigna"}
+        onClick={() => setMinimized((m) => !m)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") setMinimized((m) => !m);
+        }}
       />
       {/* Donate button - mic și mereu vizibil */}
       <Link
@@ -42,50 +48,6 @@ export function FloatingLogoBadge() {
         </svg>
         Donează
       </Link>
-      {/* Control minimizare/restaurare - design rafinat */}
-      <button
-        type="button"
-        onClick={toggleMinimize}
-        aria-label={minimized ? "Restabilește mărimea" : "Micșorează insigna"}
-        aria-pressed={minimized}
-        className="group relative inline-flex items-center justify-center w-8 h-8 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 transition-transform hover:scale-110 active:scale-95"
-      >
-        <span className="sr-only">
-          {minimized ? "Restabilește mărimea" : "Micșorează insigna"}
-        </span>
-        {minimized ? (
-          // Sad face (minimized state)
-          <svg
-            className="w-6 h-6"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="12" r="9" />
-            <path d="M9 10h.01M15 10h.01" />
-            <path d="M9 16c1-.8 2.5-1.2 3-1.2s2 .4 3 1.2" />
-          </svg>
-        ) : (
-          // Smiley face (normal state)
-          <svg
-            className="w-6 h-6"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="12" r="9" />
-            <path d="M9 10h.01M15 10h.01" />
-            <path d="M8.5 14.5c1 .9 2.5 1.5 3.5 1.5s2.5-.6 3.5-1.5" />
-          </svg>
-        )}
-        {/* Accent ring eliminat pentru stil ultra-minimal */}
-      </button>
     </div>
   );
 }
