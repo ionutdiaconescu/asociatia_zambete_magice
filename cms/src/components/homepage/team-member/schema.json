@@ -1,0 +1,12 @@
+{
+  "collectionName": "components_homepage_team_members",
+  "info": {
+    "displayName": "Team Member",
+    "icon": "user"
+  },
+  "attributes": {
+    "name": { "type": "string" },
+    "role": { "type": "string" },
+    "photo": { "type": "media", "multiple": false }
+  }
+}

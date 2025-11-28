@@ -25,6 +25,22 @@
 
     "impactGalleryTitle": { "type": "string" },
     "impactGalleryDescription": { "type": "richtext" },
+    "impactGalleryImages": { "type": "media", "multiple": true },
+    "testimonials": {
+      "type": "component",
+      "repeatable": true,
+      "component": "homepage.testimonial"
+    },
+    "teamMembers": {
+      "type": "component",
+      "repeatable": true,
+      "component": "homepage.team-member"
+    },
+    "worksteps": {
+      "type": "component",
+      "repeatable": true,
+      "component": "homepage.workstep"
+    },
 
     "teamTitle": { "type": "string" },
     "teamDescription": { "type": "richtext" },
