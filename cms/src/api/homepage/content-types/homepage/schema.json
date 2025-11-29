@@ -26,11 +26,6 @@
     "impactGalleryTitle": { "type": "string" },
     "impactGalleryDescription": { "type": "richtext" },
     "impactGalleryImages": { "type": "media", "multiple": true },
-    "testimonials": {
-      "type": "component",
-      "repeatable": true,
-      "component": "homepage.testimonials"
-    },
     "teamMembers": {
       "type": "component",
       "repeatable": true,

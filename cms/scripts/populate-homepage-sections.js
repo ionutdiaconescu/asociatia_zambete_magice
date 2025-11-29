@@ -31,10 +31,7 @@ const { createStrapi } = require("@strapi/strapi");
       "Explicăm transparent pașii prin care transformăm donațiile în impact real."
     );
     setIfEmpty("impactGalleryTitle", "Impactul nostru");
-    setIfEmpty(
-      "impactGalleryDescription",
-      "Galerie și testimoniale vor fi adăugate curând."
-    );
+    setIfEmpty("impactGalleryDescription", "Galerie va fi adăugată curând.");
     setIfEmpty("teamTitle", "Echipa noastră");
     setIfEmpty(
       "teamDescription",

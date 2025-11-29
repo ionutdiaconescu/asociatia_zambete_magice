@@ -1,21 +1,6 @@
 {
   "components_homepage_team_members": [],
-  "components_homepage_testimonials": [
-    {
-      "id": 1,
-      "name": "Ionut",
-      "role": "Voluntar",
-      "content": "[{\"type\": \"paragraph\", \"children\": [{\"text\": \"Am strans fonduri pentru copii nevoiasi\", \"type\": \"text\"}]}]",
-      "futured": null
-    },
-    {
-      "id": 5,
-      "name": "Ionut",
-      "role": "Voluntar",
-      "content": "[{\"type\": \"paragraph\", \"children\": [{\"text\": \"Am strans fonduri pentru copii nevoiasi\", \"type\": \"text\"}]}]",
-      "futured": null
-    }
-  ],
+
   "components_homepage_work_steps": [
     {
       "id": 1,

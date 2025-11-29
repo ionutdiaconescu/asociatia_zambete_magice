@@ -202,9 +202,7 @@ export default function Home() {
               <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
                 <span className="text-gray-500">Galerie foto urmează</span>
               </div>
-              <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
-                <span className="text-gray-500">Testimoniale</span>
-              </div>
+              {/* Testimoniale placeholder removed */}
               <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
                 <span className="text-gray-500">Povești de succes</span>
               </div>
