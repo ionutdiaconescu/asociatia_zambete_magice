@@ -534,6 +534,7 @@ export interface ApiHomepageHomepage extends Struct.SingleTypeSchema {
     howWeWorkDescription: Schema.Attribute.RichText;
     howWeWorkTitle: Schema.Attribute.String;
     impactGalleryDescription: Schema.Attribute.RichText;
+    impactGalleryImages: Schema.Attribute.Media<undefined, true>;
     impactGalleryTitle: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
