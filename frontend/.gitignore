@@ -25,6 +25,9 @@ dist-ssr
 
 # Environment variables
 .env
+# Local and backup env files
+.env.local
+.env.prod.backup
 
 # Vercel
 .vercel/

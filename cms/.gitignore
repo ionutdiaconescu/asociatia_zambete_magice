@@ -20,22 +20,28 @@ Icon
 
 ############################
 # Windows
-############################
+!public/uploads/.gitkeep
+.vscode/
+public/uploads/*
+.tsbuildinfo
+.eslintcache
 
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 *.cab
+.env.local
+.env.prod.backup
 *.msi
 *.msm
 *.msp
 
 
 ############################
-# Packages
-############################
-
+.strapi-cloud.json
+cms/pooler-cert*.pem
+cms/pooler-chain.pem
 *.7z
 *.csv
 *.dat
