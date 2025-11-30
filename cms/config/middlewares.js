@@ -8,9 +8,11 @@ module.exports = ({ env }) => [
     name: "strapi::cors",
     config: {
       origin: [
+        "http://localhost:5173",
+        "http://localhost:3000",
         env("FRONTEND_URL", "http://localhost:5173"),
         "https://asociatia-zambete-magice.vercel.app",
-        "https://asociatia-zambete-magice.onrender.com", // Add self-origin for admin
+        "https://asociatia-zambete-magice.onrender.com",
         ...(env("CORS_EXTRA_ORIGINS") || "")
           .split(",")
           .map((s) => s.trim())
