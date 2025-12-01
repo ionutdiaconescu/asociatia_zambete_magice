@@ -7,11 +7,11 @@ export default defineConfig({
     dedupe: ["react", "react-dom"],
   },
   server: {
-    port: 5173,
+    port: 5174,
     host: true,
     strictPort: true, // Forțează portul exact, nu permite schimbarea
     hmr: {
-      port: 5173,
+      port: 5174,
       overlay: false,
     },
   },

@@ -10,6 +10,7 @@ module.exports = ({ env }) => [
       origin: [
         "http://localhost:5173",
         "http://localhost:3000",
+        "http://localhost:5174",
         env("FRONTEND_URL", "http://localhost:5173"),
         "https://asociatia-zambete-magice.vercel.app",
         "https://asociatia-zambete-magice.onrender.com",
