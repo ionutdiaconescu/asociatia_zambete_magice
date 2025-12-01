@@ -33,9 +33,30 @@ export default {
         // call it with a minimal env accessor to avoid side effects
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         const dbModule = require("../config/database");
-        const dbCfg = dbModule({
-          env: (k: string, d: any) => process.env[k] ?? d,
-        });
+        // Provide a minimal env accessor compatible with Strapi's env helper
+        const envHelper = {
+          (k: string, d?: any) {
+            // default string accessor
+            // @ts-ignore
+            return process.env[k] ?? d;
+          },
+          int(key: string, def?: number) {
+            const v = process.env[key];
+            const n = v !== undefined ? parseInt(v, 10) : NaN;
+            return Number.isNaN(n) ? (def as any) : n;
+          },
+          bool(key: string, def?: boolean) {
+            const v = (process.env[key] || "").toString().toLowerCase();
+            if (v === "true" || v === "1") return true;
+            if (v === "false" || v === "0") return false;
+            return def as any;
+          },
+          array(key: string, def?: string[]) {
+            const v = process.env[key];
+            return v ? v.split(",").map((s) => s.trim()).filter(Boolean) : (def as any);
+          },
+        } as any;
+        const dbCfg = dbModule({ env: envHelper });
         const user =
           dbCfg &&
           dbCfg.connection &&

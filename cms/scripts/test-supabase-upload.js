@@ -23,14 +23,9 @@ async function run() {
   else if (ext === ".gif") mime = "image/gif";
   else if (ext === ".webp") mime = "image/webp";
 
-  console.log("[test-upload] creating Strapi instance...");
-  const strapi = await createStrapi({
-    env: "development",
-    distDir: path.join(__dirname, "../dist"),
-    dir: path.join(__dirname, ".."),
-  });
-
-  await strapi.start();
+  console.log("[test-upload] creating Strapi instance (no HTTP server)...");
+  // Load Strapi without starting the HTTP server to avoid port conflicts
+  const strapi = await createStrapi().load();
 
   try {
     const uploadService = strapi.plugin("upload").service("upload");
