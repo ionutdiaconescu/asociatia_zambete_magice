@@ -18,6 +18,33 @@ export default {
    */
   async bootstrap({ strapi }: { strapi: any }) {
     try {
+      // Force temp directories to project-local to avoid Windows EPERM in OS temp
+      try {
+        const fs = require("fs");
+        const path = require("path");
+        const tmpBase = path.join(process.cwd(), ".tmp", "uploads", "tmp");
+        if (!fs.existsSync(tmpBase)) {
+          fs.mkdirSync(tmpBase, { recursive: true });
+        }
+        process.env.TMPDIR = tmpBase;
+        process.env.TEMP = tmpBase;
+        process.env.TMP = tmpBase;
+      } catch (_) {
+        // ignore temp dir setup errors
+      }
+
+      // Force OS temp dir to a project-local path to avoid Windows EPERM locks
+      const fs = require("fs");
+      const path = require("path");
+      const localTmp = path.join(process.cwd(), ".tmp", "uploads", "tmp");
+      try {
+        fs.mkdirSync(localTmp, { recursive: true });
+      } catch (_) {}
+      process.env.TMPDIR = localTmp;
+      process.env.TMP = localTmp;
+      process.env.TEMP = localTmp;
+      process.env.STRAPI_UPLOAD_TMP_DIR = localTmp;
+
       const id = process.env.WRAPPER_SENTINEL_ID || "<none>";
       // Use strapi logger if available, fallback to console
       const log =
