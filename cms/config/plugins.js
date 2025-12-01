@@ -19,8 +19,9 @@ module.exports = ({ env }) => {
             bucket: env("SUPABASE_BUCKET"),
             directory: env("SUPABASE_DIRECTORY", ""),
             public: true,
-            sizeLimit: Number(env("UPLOAD_SIZE_LIMIT", 100000000)),
           },
+          sizeLimit: Number(env("UPLOAD_SIZE_LIMIT", 100000000)),
+          sizeOptimization: env.bool("UPLOAD_SIZE_OPTIMIZATION", true),
           actionOptions: {
             upload: {},
             uploadStream: {},
@@ -36,9 +37,9 @@ module.exports = ({ env }) => {
     upload: {
       config: {
         provider: "local",
-        providerOptions: {
-          sizeLimit: Number(env("UPLOAD_SIZE_LIMIT", 100000000)), // 100MB
-        },
+        providerOptions: {},
+        sizeLimit: Number(env("UPLOAD_SIZE_LIMIT", 100000000)), // 100MB
+        sizeOptimization: env.bool("UPLOAD_SIZE_OPTIMIZATION", true),
         actionOptions: {
           upload: {},
           uploadStream: {},

@@ -1,4 +1,5 @@
 "use strict";
+const path = require("path");
 
 // Converted to function form so we can read env for dynamic CORS origins.
 module.exports = ({ env }) => [
@@ -33,6 +34,15 @@ module.exports = ({ env }) => [
       jsonLimit: env("BODY_JSON_LIMIT", "50mb"),
       formLimit: env("BODY_FORM_LIMIT", "50mb"),
       textLimit: env("BODY_TEXT_LIMIT", "50mb"),
+      multipart: true,
+      formidable: {
+        uploadDir: env(
+          "UPLOAD_TMP_DIR",
+          path.join(process.cwd(), ".tmp", "uploads")
+        ),
+        keepExtensions: true,
+        maxFileSize: env.int("UPLOAD_MAX_FILE_SIZE", 100 * 1024 * 1024),
+      },
       includeUnparsed: true,
     },
   },
