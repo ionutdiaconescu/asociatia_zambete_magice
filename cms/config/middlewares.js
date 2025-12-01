@@ -30,9 +30,9 @@ module.exports = ({ env }) => [
   {
     name: "strapi::body",
     config: {
-      jsonLimit: "3mb",
-      formLimit: "3mb",
-      textLimit: "3mb",
+      jsonLimit: env("BODY_JSON_LIMIT", "50mb"),
+      formLimit: env("BODY_FORM_LIMIT", "50mb"),
+      textLimit: env("BODY_TEXT_LIMIT", "50mb"),
       includeUnparsed: true,
     },
   },
