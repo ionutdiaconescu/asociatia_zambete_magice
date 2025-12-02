@@ -103,9 +103,75 @@ export default {
         }
       }
 
-      // Bootstrap clean - no automatic permission manipulation
-      // This avoids interfering with users-permissions plugin route detection
-      // Manage all permissions manually from Admin UI: Settings → Roles → Public
+      // Ensure About/Contact exist and are published; grant Public read permissions
+      try {
+        // Create and publish single-type entries if missing
+        const ensureSingle = async (
+          uid: string,
+          defaults: Record<string, any>
+        ) => {
+          const existing = await strapi.entityService.findMany(uid, {
+            publicationState: "preview",
+            populate: [],
+          });
+          if (!existing || (Array.isArray(existing) && existing.length === 0)) {
+            await strapi.entityService.create(uid, {
+              data: { ...defaults, publishedAt: new Date() },
+            });
+          } else {
+            const entry = Array.isArray(existing) ? existing[0] : existing;
+            if (!entry.publishedAt) {
+              await strapi.entityService.update(uid, entry.id, {
+                data: { publishedAt: new Date() },
+              });
+            }
+          }
+        };
+
+        await ensureSingle("api::about.about", { title: "Despre noi" });
+        await ensureSingle("api::contact.contact", { title: "Contact" });
+
+        // Grant Public role read permission for single types
+        const publicRole = await strapi.db
+          .query("plugin::users-permissions.role")
+          .findOne({ where: { type: "public" } });
+        if (publicRole) {
+          const ensurePermission = async (action: string) => {
+            const existingPerm = await strapi.db
+              .query("plugin::users-permissions.permission")
+              .findOne({
+                where: { role: publicRole.id, action },
+              });
+            if (!existingPerm) {
+              await strapi.db
+                .query("plugin::users-permissions.permission")
+                .create({
+                  data: { role: publicRole.id, action, enabled: true },
+                });
+            } else if (!existingPerm.enabled) {
+              await strapi.db
+                .query("plugin::users-permissions.permission")
+                .update({
+                  where: { id: existingPerm.id },
+                  data: { enabled: true },
+                });
+            }
+          };
+
+          await ensurePermission("api::about.about.find");
+          await ensurePermission("api::contact.contact.find");
+        }
+      } catch (permErr) {
+        const errLog =
+          strapi && strapi.log && strapi.log.warn
+            ? strapi.log.warn.bind(strapi.log)
+            : console.warn;
+        errLog(
+          `Bootstrap permission setup warning: ${
+            (permErr && permErr.message) || String(permErr)
+          }`
+        );
+      }
     } catch (e) {
       // swallow to avoid blocking bootstrap
     }
