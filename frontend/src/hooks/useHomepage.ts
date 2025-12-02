@@ -98,11 +98,34 @@ export function useHomepage() {
     const fetchHomepage = async () => {
       try {
         setLoading(true);
-        const apiUrl =
-          (import.meta.env.VITE_API_CMS_URL as string | undefined) ||
-          "http://localhost:1337/api";
-        const origin = apiUrl.replace(/\/api$/, "");
-        const response = await fetch(`${apiUrl}/homepage?populate=*`);
+        const envBase = (
+          import.meta.env.VITE_API_CMS_URL as string | undefined
+        )?.replace(/\/$/, "");
+        const isBrowser = typeof window !== "undefined";
+        const devPorts = new Set(["5173", "5174", "3000"]);
+        let apiBase = envBase;
+        if (!apiBase) {
+          if (isBrowser && devPorts.has(window.location.port)) {
+            apiBase = "/api"; // rely on Vite proxy in dev
+          } else if (
+            isBrowser &&
+            /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname)
+          ) {
+            apiBase = `http://${window.location.hostname}:1337/api`;
+          } else {
+            apiBase = "http://localhost:1337/api";
+          }
+        }
+        if (!/\/api$/.test(apiBase)) {
+          apiBase = `${apiBase.replace(/\/$/, "")}/api`;
+        }
+        const apiUrl = `${apiBase}/homepage?populate=*`;
+        const origin = apiBase.startsWith("http")
+          ? apiBase.replace(/\/api$/, "")
+          : isBrowser
+          ? window.location.origin
+          : "";
+        const response = await fetch(apiUrl);
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }

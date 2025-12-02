@@ -1,7 +1,52 @@
 import type { StaticPage } from "../types/page";
 
-// Pin API base to dev proxy path to avoid hitting 10000
-const API_BASE = "/api";
+const devPorts = new Set(["5173", "5174", "3000"]);
+
+function resolveApiConfig() {
+  const isBrowser = typeof window !== "undefined";
+  const envBase = (import.meta.env.VITE_API_CMS_URL as string | undefined)
+    ?.trim()
+    .replace(/\/$/, "");
+  let apiBase = envBase;
+  if (!apiBase) {
+    if (isBrowser && devPorts.has(window.location.port)) {
+      apiBase = "/api"; // use Vite proxy in dev
+    } else if (
+      isBrowser &&
+      /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname)
+    ) {
+      apiBase = `http://${window.location.hostname}:1337/api`;
+    } else if (isBrowser) {
+      apiBase = `${window.location.origin.replace(/\/$/, "")}/api`;
+    } else {
+      apiBase = "http://localhost:1337/api";
+    }
+  }
+  if (!/\/api$/i.test(apiBase)) {
+    apiBase = `${apiBase.replace(/\/$/, "")}/api`;
+  }
+  const mediaOrigin = apiBase.startsWith("http")
+    ? apiBase.replace(/\/api$/i, "")
+    : isBrowser
+    ? window.location.origin
+    : "";
+  return { apiBase, mediaOrigin };
+}
+
+const { apiBase: API_BASE, mediaOrigin: MEDIA_ORIGIN } = resolveApiConfig();
+
+type MediaLike =
+  | {
+      data?: {
+        attributes?: {
+          url?: string;
+        };
+      };
+      attributes?: { url?: string };
+      url?: string;
+    }
+  | null
+  | undefined;
 
 interface StrapiPageAttr {
   title?: string;
@@ -10,8 +55,8 @@ interface StrapiPageAttr {
   content?: string;
   updatedAt?: string;
   publishedAt?: string;
-  heroImage?: any;
-  gallery?: any;
+  heroImage?: MediaLike;
+  gallery?: { data?: MediaLike[] } | MediaLike[] | null;
   address?: string;
   phone?: string;
   email?: string;
@@ -27,26 +72,51 @@ async function safeFetch(input: RequestInfo | URL, init?: RequestInit) {
   return res.json();
 }
 
+const toAbsolute = (url?: string | null): string | null => {
+  if (!url) return null;
+  return url.startsWith("http") ? url : `${MEDIA_ORIGIN}${url}`;
+};
+
+const onlyStrings = (value: string | null | undefined): value is string =>
+  typeof value === "string" && value.length > 0;
+
+const extractMediaUrl = (media?: MediaLike): string | undefined => {
+  if (!media) return undefined;
+  if (media.data?.attributes?.url) return media.data.attributes.url;
+  if (media.attributes?.url) return media.attributes.url;
+  return media.url;
+};
+
+const normalizeGallery = (
+  gallery?: { data?: MediaLike[] } | MediaLike[] | null
+): MediaLike[] => {
+  if (!gallery) return [];
+  if (Array.isArray(gallery)) return gallery;
+  if (Array.isArray(gallery.data)) return gallery.data;
+  return [];
+};
+
 function mapPage(e: StrapiEntry<StrapiPageAttr>): StaticPage {
-  const a = e.attributes || {};
-  const hero = a.heroImage?.data?.attributes?.url as string | undefined;
-  const galleryArr = Array.isArray(a.gallery?.data) ? a.gallery.data : [];
-  const galleryUrls = galleryArr
-    .map((d: any) => d?.attributes?.url)
-    .filter(Boolean)
-    // Keep relative "/uploads"; Vite proxy forwards to Strapi in dev
-    .map((u: string) => (u.startsWith("http") ? u : u));
+  const rawAttrs = e.attributes
+    ? (e.attributes as StrapiPageAttr)
+    : (e as unknown as StrapiPageAttr) || {};
+  const hero = extractMediaUrl(rawAttrs.heroImage);
+  const galleryUrls = normalizeGallery(rawAttrs.gallery)
+    .map((media) => extractMediaUrl(media))
+    .filter(onlyStrings)
+    .map((u) => toAbsolute(u) ?? u)
+    .filter(onlyStrings);
   return {
     id: String(e.id),
-    slug: a.slug || String(e.id),
-    title: a.title || "Fără titlu",
-    body: a.body || a.content || "",
-    updatedAt: a.updatedAt || a.publishedAt,
-    heroImageUrl: hero ? (hero.startsWith("http") ? hero : hero) : null,
+    slug: rawAttrs.slug || String(e.id),
+    title: rawAttrs.title || "Fără titlu",
+    body: rawAttrs.body || rawAttrs.content || "",
+    updatedAt: rawAttrs.updatedAt || rawAttrs.publishedAt,
+    heroImageUrl: toAbsolute(hero),
     galleryUrls,
-    address: a.address,
-    phone: a.phone,
-    email: a.email,
+    address: rawAttrs.address,
+    phone: rawAttrs.phone,
+    email: rawAttrs.email,
   };
 }
 
@@ -54,24 +124,26 @@ async function fetchSingleType(path: string): Promise<StaticPage> {
   const res = await safeFetch(`${API_BASE}/${path}?populate=*`);
   const e = res?.data as StrapiEntry<StrapiPageAttr> | undefined;
   if (!e) throw new Error("Pagină negăsită");
-  const a = e.attributes || {};
-  const hero = a.heroImage?.data?.attributes?.url as string | undefined;
-  const galleryArr = Array.isArray(a.gallery?.data) ? a.gallery.data : [];
-  const galleryUrls = galleryArr
-    .map((d: any) => d?.attributes?.url)
-    .filter(Boolean)
-    .map((u: string) => (u.startsWith("http") ? u : u));
+  const attrs = e.attributes
+    ? (e.attributes as StrapiPageAttr)
+    : (e as unknown as StrapiPageAttr) || {};
+  const hero = extractMediaUrl(attrs.heroImage);
+  const galleryUrls = normalizeGallery(attrs.gallery)
+    .map((media) => extractMediaUrl(media))
+    .filter(onlyStrings)
+    .map((u) => toAbsolute(u) ?? u)
+    .filter(onlyStrings);
   return {
     id: String(e.id ?? path),
     slug: path,
-    title: a.title || (path === "about" ? "Despre noi" : "Contact"),
-    body: a.body || a.content || "",
-    updatedAt: a.updatedAt || a.publishedAt,
-    heroImageUrl: hero ? (hero.startsWith("http") ? hero : hero) : null,
+    title: attrs.title || (path === "about" ? "Despre noi" : "Contact"),
+    body: attrs.body || attrs.content || "",
+    updatedAt: attrs.updatedAt || attrs.publishedAt,
+    heroImageUrl: toAbsolute(hero),
     galleryUrls,
-    address: a.address,
-    phone: a.phone,
-    email: a.email,
+    address: attrs.address,
+    phone: attrs.phone,
+    email: attrs.email,
   };
 }
 
