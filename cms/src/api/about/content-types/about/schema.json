@@ -1,0 +1,19 @@
+{
+  "kind": "singleType",
+  "collectionName": "abouts",
+  "info": {
+    "singularName": "about",
+    "pluralName": "abouts",
+    "displayName": "About"
+  },
+  "options": { "draftAndPublish": true },
+  "attributes": {
+    "title": { "type": "string", "required": true },
+    "body": { "type": "richtext" },
+    "heroImage": { "type": "media", "multiple": false },
+    "gallery": { "type": "media", "multiple": true },
+    "seoTitle": { "type": "string" },
+    "seoDescription": { "type": "text" },
+    "seoSocialImage": { "type": "media", "multiple": false }
+  }
+}

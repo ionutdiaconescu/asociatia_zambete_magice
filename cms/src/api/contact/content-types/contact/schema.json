@@ -1,0 +1,22 @@
+{
+  "kind": "singleType",
+  "collectionName": "contacts",
+  "info": {
+    "singularName": "contact",
+    "pluralName": "contacts",
+    "displayName": "Contact"
+  },
+  "options": { "draftAndPublish": true },
+  "attributes": {
+    "title": { "type": "string", "required": true },
+    "body": { "type": "richtext" },
+    "address": { "type": "string" },
+    "phone": { "type": "string" },
+    "email": { "type": "string" },
+    "mapEmbed": { "type": "text" },
+    "heroImage": { "type": "media", "multiple": false },
+    "seoTitle": { "type": "string" },
+    "seoDescription": { "type": "text" },
+    "seoSocialImage": { "type": "media", "multiple": false }
+  }
+}

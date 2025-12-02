@@ -32,8 +32,27 @@ function mapPage(e: StrapiEntry<StrapiPageAttr>): StaticPage {
   };
 }
 
+async function fetchSingleType(path: string): Promise<StaticPage> {
+  const res = await safeFetch(`${API_BASE}/${path}`);
+  const e = res?.data as StrapiEntry<StrapiPageAttr> | undefined;
+  if (!e) throw new Error("Pagină negăsită");
+  const a = e.attributes || {};
+  return {
+    id: String(e.id ?? path),
+    slug: path,
+    title: a.title || (path === "about" ? "Despre noi" : "Contact"),
+    body: a.body || a.content || "",
+    updatedAt: a.updatedAt || a.publishedAt,
+  };
+}
+
 export async function fetchPage(slug: string): Promise<StaticPage> {
   try {
+    // Use single types for about/contact
+    if (slug === "about" || slug === "contact") {
+      return await fetchSingleType(slug);
+    }
+    // Fallback to collection type 'pages' for other slugs
     const res = await safeFetch(
       `${API_BASE}/pages?filters[slug][$eq]=${encodeURIComponent(slug)}`
     );
@@ -41,15 +60,17 @@ export async function fetchPage(slug: string): Promise<StaticPage> {
     throw new Error("Pagină negăsită");
   } catch (e) {
     console.warn("Fallback static page", e);
-    // Simple fallback content
     return {
       id: slug,
       slug,
-      title: slug === "about" ? "Despre noi" : "Contact",
+      title:
+        slug === "about" ? "Despre noi" : slug === "contact" ? "Contact" : slug,
       body:
         slug === "about"
           ? "Conținutul paginii despre noi va fi disponibil în curând."
-          : "Conținutul paginii de contact va fi disponibil în curând.",
+          : slug === "contact"
+          ? "Conținutul paginii de contact va fi disponibil în curând."
+          : "Această pagină va fi disponibilă în curând.",
       updatedAt: new Date().toISOString(),
     };
   }

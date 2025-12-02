@@ -21,7 +21,10 @@ module.exports = ({ env }) => {
             public: true,
           },
           sizeLimit: Number(env("UPLOAD_SIZE_LIMIT", 100000000)),
-          sizeOptimization: env.bool("UPLOAD_SIZE_OPTIMIZATION", true),
+          // Disable optimization to avoid Windows EBUSY/EPERM on temp unlink
+          sizeOptimization: false,
+          // Disable responsive image generation (no thumbnails/medium/large)
+          breakpoints: {},
           actionOptions: {
             upload: {},
             uploadStream: {},
@@ -39,7 +42,10 @@ module.exports = ({ env }) => {
         provider: "local",
         providerOptions: {},
         sizeLimit: Number(env("UPLOAD_SIZE_LIMIT", 100000000)), // 100MB
-        sizeOptimization: env.bool("UPLOAD_SIZE_OPTIMIZATION", true),
+        // Disable optimization to avoid Windows EBUSY/EPERM on temp unlink
+        sizeOptimization: false,
+        // Disable responsive image generation (no thumbnails/medium/large)
+        breakpoints: {},
         actionOptions: {
           upload: {},
           uploadStream: {},
