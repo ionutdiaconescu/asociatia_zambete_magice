@@ -123,8 +123,8 @@ export function useHomepage() {
         const origin = apiBase.startsWith("http")
           ? apiBase.replace(/\/api$/, "")
           : isBrowser
-          ? window.location.origin
-          : "";
+            ? window.location.origin
+            : "";
         const response = await fetch(apiUrl);
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -173,9 +173,17 @@ export function useHomepage() {
 
         // Helper media: preferă formatul cu lățimea cea mai apropiată de target (ex: 1600) dacă există.
         const mediaUrl = (m: unknown, targetWidth = 1600): string | null => {
+          const absolutize = (raw?: string | null): string | null => {
+            if (!raw) return null;
+            if (raw.startsWith("http://") || raw.startsWith("https://")) {
+              return raw;
+            }
+            return origin ? `${origin}${raw}` : raw;
+          };
+
           if (!m) return null;
           if (typeof m === "string") {
-            return m.startsWith("http") ? m : `${origin}${m}`;
+            return absolutize(m);
           }
           if (Array.isArray(m)) {
             return mediaUrl((m as unknown[])[0], targetWidth);
@@ -183,7 +191,19 @@ export function useHomepage() {
           if (typeof m === "object") {
             const mo = m as {
               url?: string;
+              attributes?: {
+                url?: string;
+                formats?: Record<
+                  string,
+                  { url?: string; width?: number; height?: number }
+                >;
+              };
               data?: {
+                url?: string;
+                formats?: Record<
+                  string,
+                  { url?: string; width?: number; height?: number }
+                >;
                 attributes?: {
                   url?: string;
                   formats?: Record<
@@ -194,7 +214,10 @@ export function useHomepage() {
               };
             };
             // Dacă avem data.attributes.formats alege cel mai potrivit format.
-            const formats = mo.data?.attributes?.formats;
+            const formats =
+              mo.data?.formats ||
+              mo.data?.attributes?.formats ||
+              mo.attributes?.formats;
             if (formats && typeof formats === "object") {
               const candidates = Object.values(formats).filter(Boolean) as {
                 url?: string;
@@ -211,19 +234,17 @@ export function useHomepage() {
                 });
                 const picked = candidates[0];
                 if (picked?.url) {
-                  return picked.url.startsWith("http")
-                    ? picked.url
-                    : `${origin}${picked.url}`;
+                  return absolutize(picked.url);
                 }
               }
             }
             // Fallback la url direct.
-            const rawUrl = mo.url || mo.data?.attributes?.url;
-            return rawUrl
-              ? rawUrl.startsWith("http")
-                ? rawUrl
-                : `${origin}${rawUrl}`
-              : null;
+            const rawUrl =
+              mo.url ||
+              mo.attributes?.url ||
+              mo.data?.url ||
+              mo.data?.attributes?.url;
+            return absolutize(rawUrl);
           }
           return null;
         };
@@ -256,7 +277,7 @@ export function useHomepage() {
           howWeWorkDescription: extractTextFromRichText(a.howWeWorkDescription),
           impactGalleryTitle: a.impactGalleryTitle ?? null,
           impactGalleryDescription: extractTextFromRichText(
-            a.impactGalleryDescription
+            a.impactGalleryDescription,
           ),
           teamTitle: a.teamTitle ?? null,
           teamDescription: extractTextFromRichText(a.teamDescription),
@@ -273,7 +294,7 @@ export function useHomepage() {
         };
         console.log(
           "[Homepage] Processed data:",
-          JSON.stringify(processedData, null, 2)
+          JSON.stringify(processedData, null, 2),
         );
         setHomepage(processedData);
         setError(null);

@@ -27,6 +27,12 @@ export function HeroSection({
 }: HeroSectionProps) {
   // Determinare automată a modului de afișare dacă nu se potrivește aspect ratio standard.
   const [autoFit, setAutoFit] = useState<"cover" | "contain">(backgroundFit);
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [backgroundImage]);
+
   useEffect(() => {
     if (!backgroundImage) return;
     const img = new Image();
@@ -49,12 +55,14 @@ export function HeroSection({
 
       {/* Layer: image - suport atât cover cât și contain */}
       {backgroundImage &&
+        !imageFailed &&
         (autoFit === "cover" ? (
           <div className="absolute inset-0 -z-10">
             <img
               src={backgroundImage}
               alt="Imagine reprezentativă hero"
               className="w-full h-full object-cover object-center brightness-[0.92]"
+              onError={() => setImageFailed(true)}
               loading="eager"
               decoding="async"
               fetchPriority="high"
@@ -66,6 +74,7 @@ export function HeroSection({
               src={backgroundImage}
               alt="Imagine reprezentativă încadrată"
               className="max-h-full max-w-full w-auto h-auto object-contain drop-shadow-xl brightness-95"
+              onError={() => setImageFailed(true)}
               loading="eager"
               decoding="async"
               fetchPriority="high"
@@ -81,7 +90,7 @@ export function HeroSection({
       <div className="absolute inset-0 bg-black/45 backdrop-blur-[1px]" />
 
       {/* Decorative blobs only if no image */}
-      {!backgroundImage && (
+      {(!backgroundImage || imageFailed) && (
         <>
           <div className="absolute top-10 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl" />
           <div className="absolute bottom-10 right-10 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl" />

@@ -8,7 +8,7 @@ try {
     "config",
     "env",
     nodeEnv,
-    "database.js"
+    "database.js",
   );
   const cfgPath = path.join(__dirname, "..", "config", "database.js");
   let dbConfigFactory;
@@ -23,7 +23,7 @@ try {
       console.error(
         "[print-db-config] error evaluating database config: Cannot find module",
         envCfgPath,
-        cfgPath
+        cfgPath,
       );
       process.exit(0);
       return;
@@ -52,7 +52,7 @@ try {
     result = dbConfigFactory({ env });
   } else {
     console.error(
-      "[print-db-config] error: config/database.js nu exportă o funcție!"
+      "[print-db-config] error: config/database.js nu exportă o funcție!",
     );
     result = dbConfigFactory;
   }
@@ -77,18 +77,18 @@ try {
 
   console.log("[print-db-config] evaluated database config:");
   // Print the result safely
-  console.log(JSON.stringify(result, null, 2));
+  console.log(JSON.stringify(maskedResult, null, 2));
 
   // Scrie configul evaluat într-un fișier pentru debugging pe Render
   try {
     const fs = require("fs");
     const outPath = "/tmp/strapi-db-config.json";
-    fs.writeFileSync(outPath, JSON.stringify(result, null, 2));
+    fs.writeFileSync(outPath, JSON.stringify(maskedResult, null, 2));
     console.log(`[print-db-config] config scris la ${outPath}`);
   } catch (e) {
     console.error(
       "[print-db-config] nu pot scrie /tmp/strapi-db-config.json:",
-      e && e.message
+      e && e.message,
     );
   }
 
@@ -98,7 +98,7 @@ try {
       "[print-db-config] runtime overrides: DATABASE_USERNAME=",
       process.env.DATABASE_USERNAME || "(unset)",
       "DATABASE_PASSWORD=",
-      process.env.DATABASE_PASSWORD ? "***" : "(unset)"
+      process.env.DATABASE_PASSWORD ? "***" : "(unset)",
     );
   } catch (e) {
     // ignore
@@ -106,6 +106,6 @@ try {
 } catch (e) {
   console.error(
     "[print-db-config] error evaluating database config:",
-    e && e.message
+    e && e.message,
   );
 }

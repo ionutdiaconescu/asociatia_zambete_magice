@@ -16,7 +16,7 @@ module.exports = {
 
     if (!apiUrl || !apiKey || !bucket) {
       throw new Error(
-        "[supabase-upload] Missing required config: apiUrl/url, apiKey, bucket."
+        "[supabase-upload] Missing required config: apiUrl/url, apiKey, bucket.",
       );
     }
 
@@ -85,7 +85,7 @@ module.exports = {
           return file;
         } catch (err) {
           logger.error(
-            `[supabase-upload] upload failed: ${err.message || String(err)}`
+            `[supabase-upload] upload failed: ${err.message || String(err)}`,
           );
           throw err;
         }
@@ -99,23 +99,34 @@ module.exports = {
         try {
           let objectPath = file.objectPath;
           if (!objectPath && file.url) {
-            objectPath = extractObjectPathFromUrl(file.url) || file.url;
+            objectPath = extractObjectPathFromUrl(file.url);
+            if (!objectPath) {
+              logger.warn(
+                `[supabase-upload] delete skipped for non-supabase URL: ${file.url}`,
+              );
+              return;
+            }
           }
           if (!objectPath) {
             logger.warn(
-              "[supabase-upload] delete: cannot resolve object path from file."
+              "[supabase-upload] delete: cannot resolve object path from file.",
             );
             return;
           }
           const delRes = await supabase.storage
             .from(bucket)
             .remove([objectPath]);
-          if (delRes.error) {
+          if (
+            delRes.error &&
+            !/not found|no such file|does not exist/i.test(
+              String(delRes.error.message || delRes.error),
+            )
+          ) {
             throw delRes.error;
           }
         } catch (err) {
           logger.error(
-            `[supabase-upload] delete failed: ${err.message || String(err)}`
+            `[supabase-upload] delete failed: ${err.message || String(err)}`,
           );
           throw err;
         }
