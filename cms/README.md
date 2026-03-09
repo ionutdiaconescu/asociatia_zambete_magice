@@ -173,6 +173,22 @@ Fără procesator online pentru faza inițială – folosim instrucțiuni IBAN c
 - `donationReferenceHint` – Scurt șir sugerat ex: `DONATIE GENERALA` sau `DONATIE EDU` (≤ 35 caractere)
 - `seoTitle`, `seoDescription`, `seoSocialImage` – SEO per homepage
 
+### Recomandări imagine Hero (`heroBackgroundMedia`)
+
+- Raport recomandat: `16:9`
+- Dimensiune ideală: `2400x1350` px
+- Dimensiune minimă: `1920x1080` px
+- Format recomandat: `JPG` sau `WEBP`
+- Greutate fișier recomandată: sub `2 MB` pentru încărcare rapidă
+- Evită text important în margini: păstrează subiectul principal în zona centrală (safe area)
+
+Checklist după schimbarea imaginii Hero:
+
+1. În `Content Manager -> Homepage`, atașezi fișierul în `heroBackgroundMedia`.
+2. Apeși `Save` și apoi `Publish` (obligatoriu la single type cu draft/publish).
+3. Verifici endpointul public: `GET /api/homepage?populate=*` și confirmi că `heroBackgroundMedia` nu este `null`.
+4. Verifici vizual homepage pe desktop și mobil.
+
 ### Afișare în frontend
 
 - Secțiune dedicată "Donează prin transfer bancar"

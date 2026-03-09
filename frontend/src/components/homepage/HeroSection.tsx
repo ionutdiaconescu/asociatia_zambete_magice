@@ -25,28 +25,11 @@ export function HeroSection({
   backgroundImage,
   backgroundFit = "cover",
 }: HeroSectionProps) {
-  // Determinare automată a modului de afișare dacă nu se potrivește aspect ratio standard.
-  const [autoFit, setAutoFit] = useState<"cover" | "contain">(backgroundFit);
   const [imageFailed, setImageFailed] = useState(false);
 
   useEffect(() => {
     setImageFailed(false);
   }, [backgroundImage]);
-
-  useEffect(() => {
-    if (!backgroundImage) return;
-    const img = new Image();
-    img.src = backgroundImage;
-    img.onload = () => {
-      const ratio = img.naturalWidth / img.naturalHeight; // >1 = landscape, <1 = portrait
-      // Dacă imaginea este foarte panoramică sau foarte înaltă, o încadrăm (contain)
-      if (ratio < 1.1 || ratio > 2.4) {
-        setAutoFit("contain");
-      } else {
-        setAutoFit(backgroundFit);
-      }
-    };
-  }, [backgroundImage, backgroundFit]);
 
   return (
     <section className="relative text-white overflow-hidden min-h-[600px] md:min-h-[680px] flex items-center">
@@ -56,12 +39,12 @@ export function HeroSection({
       {/* Layer: image - suport atât cover cât și contain */}
       {backgroundImage &&
         !imageFailed &&
-        (autoFit === "cover" ? (
+        (backgroundFit === "cover" ? (
           <div className="absolute inset-0 -z-10">
             <img
               src={backgroundImage}
               alt="Imagine reprezentativă hero"
-              className="w-full h-full object-cover object-center brightness-[0.92]"
+              className="w-full h-full object-cover object-center brightness-[0.9]"
               onError={() => setImageFailed(true)}
               loading="eager"
               decoding="async"

@@ -45,6 +45,139 @@ type RichTextBlock =
   | null
   | undefined;
 
+const devPorts = new Set(["5173", "5174", "3000"]);
+
+function resolveCmsApiConfig() {
+  const isBrowser = typeof window !== "undefined";
+  const envBase = (import.meta.env.VITE_API_CMS_URL as string | undefined)
+    ?.trim()
+    .replace(/\/$/, "");
+
+  let apiBase = envBase;
+  if (!apiBase) {
+    if (isBrowser && devPorts.has(window.location.port)) {
+      apiBase = "/api"; // rely on Vite proxy in dev
+    } else if (
+      isBrowser &&
+      /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname)
+    ) {
+      apiBase = `http://${window.location.hostname}:1337/api`;
+    } else if (isBrowser) {
+      apiBase = `${window.location.origin.replace(/\/$/, "")}/api`;
+    } else {
+      apiBase = "http://localhost:1337/api";
+    }
+  }
+
+  if (!/\/api$/i.test(apiBase)) {
+    apiBase = `${apiBase.replace(/\/$/, "")}/api`;
+  }
+
+  const mediaOrigin = apiBase.startsWith("http")
+    ? apiBase.replace(/\/api$/i, "")
+    : isBrowser
+      ? window.location.origin
+      : "";
+
+  return { apiBase, mediaOrigin };
+}
+
+function absolutizeMediaUrl(raw: string | null | undefined, origin: string) {
+  if (!raw) return null;
+  if (/^https?:\/\//i.test(raw)) return raw;
+  if (raw.startsWith("//")) return `https:${raw}`;
+  if (!origin) return raw;
+  if (raw.startsWith("/")) return `${origin}${raw}`;
+  return `${origin}/${raw}`;
+}
+
+function pickPreferredFormatUrl(
+  formats: Record<string, { url?: string; width?: number }> | undefined,
+  targetWidth: number,
+) {
+  if (!formats || typeof formats !== "object") return null;
+  const candidates = Object.values(formats).filter(
+    (f): f is { url: string; width?: number } => !!f?.url,
+  );
+  if (!candidates.length) return null;
+
+  candidates.sort((a, b) => {
+    const aw = a.width ?? 0;
+    const bw = b.width ?? 0;
+    return Math.abs(aw - targetWidth) - Math.abs(bw - targetWidth);
+  });
+
+  return candidates[0]?.url ?? null;
+}
+
+function resolveMediaUrl(
+  input: unknown,
+  origin: string,
+  targetWidth = 1600,
+): string | null {
+  if (!input) return null;
+
+  if (typeof input === "string") {
+    return absolutizeMediaUrl(input, origin);
+  }
+
+  if (Array.isArray(input)) {
+    return resolveMediaUrl(input[0], origin, targetWidth);
+  }
+
+  if (typeof input !== "object") return null;
+
+  const media = input as {
+    url?: string;
+    formats?: Record<string, { url?: string; width?: number }>;
+    attributes?: {
+      url?: string;
+      formats?: Record<string, { url?: string; width?: number }>;
+    };
+    data?:
+      | {
+          url?: string;
+          formats?: Record<string, { url?: string; width?: number }>;
+          attributes?: {
+            url?: string;
+            formats?: Record<string, { url?: string; width?: number }>;
+          };
+        }
+      | Array<{
+          url?: string;
+          attributes?: {
+            url?: string;
+            formats?: Record<string, { url?: string; width?: number }>;
+          };
+        }>;
+  };
+
+  const fromDataArray = Array.isArray(media.data)
+    ? resolveMediaUrl(media.data[0], origin, targetWidth)
+    : null;
+  if (fromDataArray) return fromDataArray;
+
+  const formatUrl = pickPreferredFormatUrl(
+    media.formats ||
+      media.attributes?.formats ||
+      (!Array.isArray(media.data)
+        ? media.data?.formats || media.data?.attributes?.formats
+        : undefined),
+    targetWidth,
+  );
+  if (formatUrl) {
+    return absolutizeMediaUrl(formatUrl, origin);
+  }
+
+  const rawUrl =
+    media.url ||
+    media.attributes?.url ||
+    (!Array.isArray(media.data) ? media.data?.url : undefined) ||
+    (!Array.isArray(media.data) ? media.data?.attributes?.url : undefined);
+
+  return absolutizeMediaUrl(rawUrl, origin);
+}
+
 // Funcție pentru a converti rich-text în string simplu
 function extractTextFromRichText(richText: RichTextBlock): string | null {
   if (!richText) return null;
@@ -98,37 +231,22 @@ export function useHomepage() {
     const fetchHomepage = async () => {
       try {
         setLoading(true);
-        const envBase = (
-          import.meta.env.VITE_API_CMS_URL as string | undefined
-        )?.replace(/\/$/, "");
-        const isBrowser = typeof window !== "undefined";
-        const devPorts = new Set(["5173", "5174", "3000"]);
-        let apiBase = envBase;
-        if (!apiBase) {
-          if (isBrowser && devPorts.has(window.location.port)) {
-            apiBase = "/api"; // rely on Vite proxy in dev
-          } else if (
-            isBrowser &&
-            /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname)
-          ) {
-            apiBase = `http://${window.location.hostname}:1337/api`;
-          } else {
-            apiBase = "http://localhost:1337/api";
-          }
-        }
-        if (!/\/api$/.test(apiBase)) {
-          apiBase = `${apiBase.replace(/\/$/, "")}/api`;
-        }
+        const { apiBase, mediaOrigin } = resolveCmsApiConfig();
         const apiUrl = `${apiBase}/homepage?populate=*`;
-        const origin = apiBase.startsWith("http")
-          ? apiBase.replace(/\/api$/, "")
-          : isBrowser
-            ? window.location.origin
-            : "";
         const response = await fetch(apiUrl);
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
+
+        const responseOrigin = (() => {
+          try {
+            return response.url ? new URL(response.url).origin : "";
+          } catch {
+            return "";
+          }
+        })();
+        const effectiveMediaOrigin = mediaOrigin || responseOrigin;
+
         const result = await response.json();
         const raw = result?.data as {
           id?: number | string;
@@ -171,85 +289,6 @@ export function useHomepage() {
         };
         const a = attrs as Attrs;
 
-        // Helper media: preferă formatul cu lățimea cea mai apropiată de target (ex: 1600) dacă există.
-        const mediaUrl = (m: unknown, targetWidth = 1600): string | null => {
-          const absolutize = (raw?: string | null): string | null => {
-            if (!raw) return null;
-            if (raw.startsWith("http://") || raw.startsWith("https://")) {
-              return raw;
-            }
-            return origin ? `${origin}${raw}` : raw;
-          };
-
-          if (!m) return null;
-          if (typeof m === "string") {
-            return absolutize(m);
-          }
-          if (Array.isArray(m)) {
-            return mediaUrl((m as unknown[])[0], targetWidth);
-          }
-          if (typeof m === "object") {
-            const mo = m as {
-              url?: string;
-              attributes?: {
-                url?: string;
-                formats?: Record<
-                  string,
-                  { url?: string; width?: number; height?: number }
-                >;
-              };
-              data?: {
-                url?: string;
-                formats?: Record<
-                  string,
-                  { url?: string; width?: number; height?: number }
-                >;
-                attributes?: {
-                  url?: string;
-                  formats?: Record<
-                    string,
-                    { url?: string; width?: number; height?: number }
-                  >;
-                };
-              };
-            };
-            // Dacă avem data.attributes.formats alege cel mai potrivit format.
-            const formats =
-              mo.data?.formats ||
-              mo.data?.attributes?.formats ||
-              mo.attributes?.formats;
-            if (formats && typeof formats === "object") {
-              const candidates = Object.values(formats).filter(Boolean) as {
-                url?: string;
-                width?: number;
-              }[];
-              if (candidates.length) {
-                // Sortează după |width - targetWidth| ascendent.
-                candidates.sort((a, b) => {
-                  const aw = a.width ?? 0;
-                  const bw = b.width ?? 0;
-                  return (
-                    Math.abs(aw - targetWidth) - Math.abs(bw - targetWidth)
-                  );
-                });
-                const picked = candidates[0];
-                if (picked?.url) {
-                  return absolutize(picked.url);
-                }
-              }
-            }
-            // Fallback la url direct.
-            const rawUrl =
-              mo.url ||
-              mo.attributes?.url ||
-              mo.data?.url ||
-              mo.data?.attributes?.url;
-            return absolutize(rawUrl);
-          }
-          return null;
-        };
-
-        console.log("[Homepage] Raw attributes:", JSON.stringify(a, null, 2));
         // Determină media pentru background hero din variante multiple de câmp
         const heroBgSource =
           a.heroBackgroundMedia ??
@@ -268,7 +307,11 @@ export function useHomepage() {
           heroDescription: extractTextFromRichText(a.heroDescription),
           heroCtaText: a.heroCtaText ?? null,
           heroCtaLink: a.heroCtaLink ?? null,
-          heroBackgroundImage: mediaUrl(heroBgSource),
+          heroBackgroundImage: resolveMediaUrl(
+            heroBgSource,
+            effectiveMediaOrigin,
+            1920,
+          ),
           statsYearsActive: Number(a.statsYearsActive ?? 0),
           statsTotalBeneficiaries: Number(a.statsTotalBeneficiaries ?? 0),
           statsCompletedProjects: Number(a.statsCompletedProjects ?? 0),
@@ -290,12 +333,12 @@ export function useHomepage() {
           donationReferenceHint: a.donationReferenceHint ?? null,
           seoTitle: a.seoTitle ?? null,
           seoDescription: a.seoDescription ?? null,
-          seoSocialImage: mediaUrl(a.seoSocialImage),
+          seoSocialImage: resolveMediaUrl(
+            a.seoSocialImage,
+            effectiveMediaOrigin,
+            1200,
+          ),
         };
-        console.log(
-          "[Homepage] Processed data:",
-          JSON.stringify(processedData, null, 2),
-        );
         setHomepage(processedData);
         setError(null);
       } catch (err) {
