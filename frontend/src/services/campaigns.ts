@@ -2,6 +2,8 @@
 // Falls back to mock data if backend not reachable (early dev convenience).
 import type { CampaignSummary, CampaignDetail } from "../types/campaign";
 import { enhanceCampaign, enhanceMany } from "../utils/campaign";
+import { resolveCmsApiConfig } from "./cmsConfig";
+import { resolveMediaUrl } from "./cmsMedia";
 
 // Mock data (fallback)
 const mockCampaigns: CampaignSummary[] = [
@@ -28,21 +30,12 @@ const mockCampaigns: CampaignSummary[] = [
   },
 ];
 
-// Canonical API base; MUST be set via VITE_API_CMS_URL (include /api). Fall back to window guess only for localhost dev.
-let API_BASE = import.meta.env.VITE_API_CMS_URL || "";
+const { apiBase: API_BASE, mediaOrigin: API_ORIGIN } = resolveCmsApiConfig();
 const DEBUG_CAMPAIGNS = Boolean(import.meta.env.VITE_DEBUG_CAMPAIGNS);
-if (!API_BASE && typeof window !== "undefined") {
-  API_BASE = `${window.location.protocol}//${window.location.hostname}:1337/api`;
-}
-// Ensure it ends with /api (Strapi standard)
-// Regex fix: ensure ends NOT already with /api or api
-if (API_BASE && !/\/?api$/.test(API_BASE)) {
-  API_BASE = API_BASE.replace(/\/$/, "") + "/api";
-}
+
 function computeCandidateBases(): string[] {
   return API_BASE ? [API_BASE] : [];
 }
-const API_ORIGIN = API_BASE.replace(/\/?api$/, "");
 
 async function safeFetch(input: RequestInfo | URL, init?: RequestInit) {
   const controller = new AbortController();
@@ -106,7 +99,7 @@ interface StrapiEntry<T> {
 }
 
 function mapStrapiCampaign(
-  entry: StrapiEntry<StrapiCampaignAttributes>
+  entry: StrapiEntry<StrapiCampaignAttributes>,
 ): CampaignSummary {
   type Flat = StrapiCampaignAttributes & StrapiEntry<StrapiCampaignAttributes>;
   const a: Flat = (
@@ -131,13 +124,8 @@ function mapStrapiCampaign(
   }
   const shortDesc =
     a.shortDescription || a.short_description || a.body?.slice(0, 140) || "";
-  const img = a.coverImage as StrapiMediaItem | undefined;
-  const urlRel = img?.url || img?.data?.attributes?.url;
-  const coverImage = urlRel
-    ? urlRel.startsWith("http")
-      ? urlRel
-      : API_ORIGIN.replace(/\/$/, "") + urlRel
-    : undefined;
+  const coverImage =
+    resolveMediaUrl(a.coverImage, API_ORIGIN, 1600) || undefined;
 
   return enhanceCampaign({
     id: String(entry.id),
@@ -156,13 +144,13 @@ export async function fetchCampaigns(): Promise<CampaignSummary[]> {
   const base = computeCandidateBases()[0];
   if (!base) {
     console.error(
-      "[campaigns] API base not set. Define VITE_API_CMS_URL in .env.local"
+      "[campaigns] API base not set. Define VITE_API_CMS_URL in .env.local",
     );
     return mockCampaigns;
   }
   const url = `${base.replace(
     /\/$/,
-    ""
+    "",
   )}/campaigns?populate=coverImage&sort=createdAt:desc`;
   try {
     if (DEBUG_CAMPAIGNS) console.debug("[campaigns] Fetch", url);
@@ -176,7 +164,7 @@ export async function fetchCampaigns(): Promise<CampaignSummary[]> {
   } catch (e) {
     if ((e as Error).message.includes("404")) {
       console.error(
-        "[campaigns] 404 Not Found on /campaigns. Verifica daca Content-Type exista si este publicat."
+        "[campaigns] 404 Not Found on /campaigns. Verifica daca Content-Type exista si este publicat.",
       );
     } else {
       console.error("[campaigns] Fetch error", e);
@@ -186,7 +174,7 @@ export async function fetchCampaigns(): Promise<CampaignSummary[]> {
 }
 
 export async function fetchCampaignDetail(
-  identifier: string
+  identifier: string,
 ): Promise<CampaignDetail> {
   // identifier can be an id or slug. Try slug query first if not purely numeric.
   const isNumeric = /^\d+$/.test(identifier);
@@ -195,7 +183,7 @@ export async function fetchCampaignDetail(
     const slugPaths = [
       (b: string) =>
         `${b}/campaigns?filters[slug][$eq]=${encodeURIComponent(
-          identifier
+          identifier,
         )}&populate=coverImage`,
     ];
     if (!isNumeric) {

@@ -1,3 +1,5 @@
+import { RichHtml } from "../ui/RichHtml";
+
 interface HowWeWorkSectionProps {
   title?: string | null;
   description?: string | null;
@@ -48,9 +50,9 @@ export function HowWeWorkSection({
             {title || "Cum lucrăm"}
           </h2>
           {description ? (
-            <div
+            <RichHtml
+              html={description}
               className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: description }}
             />
           ) : (
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">

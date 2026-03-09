@@ -1,5 +1,34 @@
 // import type { Core } from '@strapi/strapi';
 
+function getLogger(strapi: any, level: "info" | "warn" | "error") {
+  const logger = strapi && strapi.log ? strapi.log : null;
+  const fallback =
+    level === "error"
+      ? console.error
+      : level === "warn"
+        ? console.warn
+        : console.log;
+  return logger && typeof logger[level] === "function"
+    ? logger[level].bind(logger)
+    : fallback;
+}
+
+function applyTempEnvironment(tmpDir: string) {
+  process.env.TMPDIR = tmpDir;
+  process.env.TMP = tmpDir;
+  process.env.TEMP = tmpDir;
+  process.env.STRAPI_UPLOAD_TMP_DIR = tmpDir;
+}
+
+function ensureUploadTmpDir() {
+  const fs = require("fs");
+  const path = require("path");
+  const localTmp = path.join(process.cwd(), ".tmp", "uploads", "tmp");
+  fs.mkdirSync(localTmp, { recursive: true });
+  applyTempEnvironment(localTmp);
+  return localTmp;
+}
+
 export default {
   /**
    * An asynchronous register function that runs before
@@ -18,39 +47,52 @@ export default {
    */
   async bootstrap({ strapi }: { strapi: any }) {
     try {
-      // Force temp directories to project-local to avoid Windows EPERM in OS temp
       try {
-        const fs = require("fs");
-        const path = require("path");
-        const tmpBase = path.join(process.cwd(), ".tmp", "uploads", "tmp");
-        if (!fs.existsSync(tmpBase)) {
-          fs.mkdirSync(tmpBase, { recursive: true });
+        ensureUploadTmpDir();
+      } catch (_) {}
+
+      // Upload plugin settings are stored in DB and can override config/plugins.js.
+      // Force safe defaults to avoid image optimization temp-file locking on Windows.
+      try {
+        const uploadStore = strapi.store({
+          type: "plugin",
+          name: "upload",
+          key: "settings",
+        });
+        const currentUploadSettings =
+          (await uploadStore.get()) || ({} as Record<string, any>);
+        const desiredUploadSettings = {
+          ...currentUploadSettings,
+          sizeOptimization: false,
+          responsiveDimensions: false,
+          autoOrientation: false,
+          aiMetadata: false,
+        };
+
+        const changed =
+          currentUploadSettings.sizeOptimization !== false ||
+          currentUploadSettings.responsiveDimensions !== false ||
+          currentUploadSettings.autoOrientation !== false ||
+          currentUploadSettings.aiMetadata !== false;
+
+        if (changed) {
+          await uploadStore.set({ value: desiredUploadSettings });
+          const infoLog = getLogger(strapi, "info");
+          infoLog(
+            "[upload-settings] Forced safe upload settings in plugin store",
+          );
         }
-        process.env.TMPDIR = tmpBase;
-        process.env.TEMP = tmpBase;
-        process.env.TMP = tmpBase;
-      } catch (_) {
-        // ignore temp dir setup errors
+      } catch (uploadErr) {
+        const warnLog = getLogger(strapi, "warn");
+        warnLog(
+          `[upload-settings] Could not enforce upload settings: ${
+            (uploadErr && (uploadErr as any).message) || String(uploadErr)
+          }`,
+        );
       }
 
-      // Force OS temp dir to a project-local path to avoid Windows EPERM locks
-      const fs = require("fs");
-      const path = require("path");
-      const localTmp = path.join(process.cwd(), ".tmp", "uploads", "tmp");
-      try {
-        fs.mkdirSync(localTmp, { recursive: true });
-      } catch (_) {}
-      process.env.TMPDIR = localTmp;
-      process.env.TMP = localTmp;
-      process.env.TEMP = localTmp;
-      process.env.STRAPI_UPLOAD_TMP_DIR = localTmp;
-
       const id = process.env.WRAPPER_SENTINEL_ID || "<none>";
-      // Use strapi logger if available, fallback to console
-      const log =
-        strapi && strapi.log && strapi.log.info
-          ? strapi.log.info.bind(strapi.log)
-          : console.log;
+      const log = getLogger(strapi, "info");
       log(`[strapi-sentinel] WRAPPER_SENTINEL_ID=${id}`);
 
       // Try to read the evaluated DB config to show which DB user Strapi will use
@@ -91,12 +133,9 @@ export default {
         log(`[strapi-sentinel] db.user=${user || "<none>"}`);
       } catch (e) {
         try {
-          const errLog =
-            strapi && strapi.log && strapi.log.error
-              ? strapi.log.error.bind(strapi.log)
-              : console.error;
+          const errLog = getLogger(strapi, "error");
           errLog(
-            `[strapi-sentinel] failed to evaluate DB config: ${e && e.message ? e.message : String(e)}`
+            `[strapi-sentinel] failed to evaluate DB config: ${e && e.message ? e.message : String(e)}`,
           );
         } catch (_) {
           // ignore
@@ -108,7 +147,7 @@ export default {
         // Create and publish single-type entries if missing
         const ensureSingle = async (
           uid: string,
-          defaults: Record<string, any>
+          defaults: Record<string, any>,
         ) => {
           const existing = await strapi.entityService.findMany(uid, {
             publicationState: "preview",
@@ -162,14 +201,11 @@ export default {
           await ensurePermission("api::contact.contact.find");
         }
       } catch (permErr) {
-        const errLog =
-          strapi && strapi.log && strapi.log.warn
-            ? strapi.log.warn.bind(strapi.log)
-            : console.warn;
+        const errLog = getLogger(strapi, "warn");
         errLog(
           `Bootstrap permission setup warning: ${
             (permErr && permErr.message) || String(permErr)
-          }`
+          }`,
         );
       }
     } catch (e) {

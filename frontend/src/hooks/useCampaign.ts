@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Campaign } from "../types/campaign";
+import { fetchCampaignDetail } from "../services/campaigns";
 
 // Canonical detail fetch using slug filter against plural collection route.
 export function useCampaign(slug: string) {
@@ -13,61 +14,30 @@ export function useCampaign(slug: string) {
     const run = async () => {
       setLoading(true);
       setError(null);
-      const apiBase =
-        (import.meta.env.VITE_API_CMS_URL as string | undefined) ||
-        "http://localhost:1337/api";
-      const origin = apiBase.replace(/\/?api$/, "");
-      const url = `${apiBase.replace(
-        /\/$/,
-        ""
-      )}/campaigns?filters[slug][$eq]=${encodeURIComponent(
-        slug
-      )}&populate=coverImage`;
+
       try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json = await res.json();
-        if (!Array.isArray(json?.data) || !json.data.length)
-          throw new Error("Campania nu a fost găsită");
-        const raw = json.data[0];
-        const a = raw?.attributes ? { ...raw.attributes } : raw;
-        const goal = Number(a.goal) || 0;
-        const raised = Number(a.raised) || 0;
-        const media = a.coverImage?.data?.attributes?.url || a.coverImage?.url;
-        const coverImage = media
-          ? media.startsWith("http")
-            ? media
-            : origin.replace(/\/$/, "") + media
-          : undefined;
-        // Campaign.id in types may be number; ensure numeric if possible
-        const numericId =
-          typeof raw.id === "number" ? raw.id : Number(raw.id) || 0;
-        interface FeatureAttrs {
-          isFeatured?: boolean;
-        }
-        const feat = a as FeatureAttrs;
+        const detail = await fetchCampaignDetail(slug);
+        const numericId = Number(detail.id);
+
         const campaign: Campaign = {
-          id: numericId,
-          slug: (a.slug as string) || String(raw.id),
-          title:
-            (a.title as string) ||
-            (a.titlu as string) ||
-            (a.name as string) ||
-            "Fără titlu",
-          shortDescription:
-            (a.shortDescription as string) ||
-            (a.short_description as string) ||
-            (a.description as string) ||
-            "",
-          description: (a.description as string) || (a.body as string) || "",
-          goal,
-          raised,
-          status: (a.status as string) || "active",
-          coverImage: (coverImage as string | undefined) || null,
-          donorCount: (a.donorCount as number) || 0,
-          daysLeft: a.daysLeft as number | undefined,
-          isFeatured: feat.isFeatured ?? false,
+          id: Number.isFinite(numericId) ? numericId : 0,
+          slug: detail.slug,
+          title: detail.title,
+          shortDescription: detail.shortDescription,
+          description: detail.body || detail.shortDescription,
+          goal: detail.goal,
+          raised: detail.raised,
+          status: detail.status || "active",
+          coverImage: detail.coverImage || null,
+          donorCount: 0,
+          daysLeft: undefined,
+          isFeatured: detail.isFeatured ?? false,
+          startDate: detail.startDate,
+          endDate: detail.endDate,
+          isActiveNow: detail.isActiveNow,
+          isHistorical: detail.isHistorical,
         };
+
         if (!cancelled) {
           setData(campaign);
           setError(null);

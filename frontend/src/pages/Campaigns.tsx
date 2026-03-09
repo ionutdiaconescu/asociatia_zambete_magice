@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useCampaigns } from "../hooks/useCampaigns";
 import {
   CampaignCard,
@@ -10,15 +11,15 @@ import { ContentState } from "../components/ui/ContentState";
 export default function Campaigns() {
   const { data, loading, error, reload } = useCampaigns();
 
-  // Announce state changes politely (basic implementation)
-  if (typeof document !== "undefined") {
+  useEffect(() => {
+    if (typeof document === "undefined") return;
     const live = document.getElementById("app-live-region");
-    if (live) {
-      if (loading) live.textContent = "Se încarcă campaniile...";
-      else if (error) live.textContent = `Eroare: ${error}`;
-      else if (data) live.textContent = `Încărcate ${data.length} campanii.`;
-    }
-  }
+    if (!live) return;
+
+    if (loading) live.textContent = "Se încarcă campaniile...";
+    else if (error) live.textContent = `Eroare: ${error}`;
+    else if (data) live.textContent = `Încărcate ${data.length} campanii.`;
+  }, [loading, error, data]);
 
   return (
     <>

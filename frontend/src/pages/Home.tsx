@@ -4,7 +4,10 @@ import { StatisticsSection } from "../components/homepage/StatisticsSection";
 import { HowWeWorkSection } from "../components/homepage/HowWeWorkSection";
 import { TransparencySection } from "../components/homepage/TransparencySection";
 import { CampaignGrid } from "../components/campaigns/CampaignGrid";
-import { SEO } from "../components/SEO";
+import { Meta } from "../components/seo/Meta";
+import { RichHtml } from "../components/ui/RichHtml";
+import { excerptFromHtml } from "../utils/content";
+import { buildCanonical, buildCreativeWork } from "../utils/seo";
 
 export default function Home() {
   const { homepage, loading, error } = useHomepage();
@@ -64,14 +67,27 @@ export default function Home() {
 
   return (
     <div className="homepage">
-      <SEO
+      <Meta
         title={homepage.seoTitle || homepage.heroTitle}
         description={
           homepage.seoDescription ||
-          homepage.heroDescription ||
+          excerptFromHtml(homepage.heroDescription || "", 160) ||
           "Asociația Zâmbete Magice - Campanii umanitare pentru copii."
         }
-        image={homepage.seoSocialImage}
+        canonical={buildCanonical("/")}
+        ogImage={homepage.seoSocialImage || undefined}
+        jsonLd={buildCreativeWork({
+          name: homepage.seoTitle || homepage.heroTitle,
+          description:
+            homepage.seoDescription ||
+            excerptFromHtml(homepage.heroDescription || "", 200) ||
+            "Asociația Zâmbete Magice - Campanii umanitare pentru copii.",
+          image:
+            homepage.seoSocialImage ||
+            homepage.heroBackgroundImage ||
+            undefined,
+          url: buildCanonical("/"),
+        })}
       />
       {/* Hero Section */}
       <HeroSection
@@ -141,11 +157,9 @@ export default function Home() {
               </div>
 
               {homepage.donationInstructions && (
-                <div
+                <RichHtml
+                  html={homepage.donationInstructions}
                   className="text-purple-100 text-sm leading-relaxed border-t border-white/20 pt-4"
-                  dangerouslySetInnerHTML={{
-                    __html: homepage.donationInstructions,
-                  }}
                 />
               )}
 
@@ -189,11 +203,9 @@ export default function Home() {
               {homepage.impactGalleryTitle}
             </h2>
             {homepage.impactGalleryDescription && (
-              <div
+              <RichHtml
+                html={homepage.impactGalleryDescription}
                 className="text-xl text-gray-600 max-w-3xl mx-auto mb-12"
-                dangerouslySetInnerHTML={{
-                  __html: homepage.impactGalleryDescription,
-                }}
               />
             )}
 
@@ -219,9 +231,9 @@ export default function Home() {
               {homepage.teamTitle}
             </h2>
             {homepage.teamDescription && (
-              <div
+              <RichHtml
+                html={homepage.teamDescription}
                 className="text-xl text-gray-600 max-w-3xl mx-auto mb-12"
-                dangerouslySetInnerHTML={{ __html: homepage.teamDescription }}
               />
             )}
 

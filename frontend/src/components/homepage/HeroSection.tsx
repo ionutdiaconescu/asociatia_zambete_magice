@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { RichHtml } from "../ui/RichHtml";
 
 interface HeroSectionProps {
   title: string;
@@ -88,9 +89,9 @@ export function HeroSection({
           {subtitle}
         </h2>
         {description && (
-          <div
+          <RichHtml
+            html={description}
             className="text-lg md:text-xl mb-12 opacity-85 max-w-3xl mx-auto leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: description }}
           />
         )}
         {ctaText && ctaLink && (

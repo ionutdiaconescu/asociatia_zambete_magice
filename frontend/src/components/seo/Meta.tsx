@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-type JsonLdValue = Record<string, unknown> | Record<string, unknown>[];
+type JsonLdValue = object | object[];
 
 interface MetaProps {
   title?: string;
@@ -32,7 +32,7 @@ export function Meta({
     function setMeta(name: string, content?: string) {
       if (!content) return;
       let el = document.querySelector(
-        `meta[name="${name}"]`
+        `meta[name="${name}"]`,
       ) as HTMLMetaElement | null;
       if (!el) {
         el = document.createElement("meta");
@@ -44,7 +44,7 @@ export function Meta({
     function setProperty(property: string, content?: string) {
       if (!content) return;
       let el = document.querySelector(
-        `meta[property="${property}"]`
+        `meta[property="${property}"]`,
       ) as HTMLMetaElement | null;
       if (!el) {
         el = document.createElement("meta");
@@ -56,7 +56,7 @@ export function Meta({
     if (description) setMeta("description", description);
     if (canonical) {
       let link = document.querySelector(
-        'link[rel="canonical"]'
+        'link[rel="canonical"]',
       ) as HTMLLinkElement | null;
       if (!link) {
         link = document.createElement("link");
@@ -87,7 +87,7 @@ export function Meta({
       (script as HTMLScriptElement).textContent = JSON.stringify(
         jsonLd,
         null,
-        2
+        2,
       );
       if (!existing) document.head.appendChild(script as HTMLScriptElement);
     } else if (existing) {

@@ -25,6 +25,7 @@
     "admin:complete-fix": "node scripts/complete-admin-fix.js",
     "admin:production-fix": "node scripts/production-admin-fix.js",
     "admin:verify": "node scripts/ultimate-verification.js",
+    "fix:upload-settings": "node scripts/fix-upload-settings.js",
     "debug:routes": "node scripts/list-routes.js",
     "debug:db": "node scripts/diagnose-db-connect.js",
     "debug:env": "node scripts/print-runtime-env.js",

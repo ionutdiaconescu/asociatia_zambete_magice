@@ -10,6 +10,7 @@ export interface StaticPage {
   address?: string;
   phone?: string;
   email?: string;
+  mapEmbed?: string;
 }
 
 export interface AsyncState<T> {

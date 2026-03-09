@@ -1,52 +1,10 @@
 import type { StaticPage } from "../types/page";
+import { resolveCmsApiConfig } from "./cmsConfig";
+import { resolveMediaUrl } from "./cmsMedia";
 
-const devPorts = new Set(["5173", "5174", "3000"]);
+const { apiBase: API_BASE, mediaOrigin: MEDIA_ORIGIN } = resolveCmsApiConfig();
 
-function resolveApiConfig() {
-  const isBrowser = typeof window !== "undefined";
-  const envBase = (import.meta.env.VITE_API_CMS_URL as string | undefined)
-    ?.trim()
-    .replace(/\/$/, "");
-  let apiBase = envBase;
-  if (!apiBase) {
-    if (isBrowser && devPorts.has(window.location.port)) {
-      apiBase = "/api"; // use Vite proxy in dev
-    } else if (
-      isBrowser &&
-      /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname)
-    ) {
-      apiBase = `http://${window.location.hostname}:1337/api`;
-    } else if (isBrowser) {
-      apiBase = `${window.location.origin.replace(/\/$/, "")}/api`;
-    } else {
-      apiBase = "http://localhost:1337/api";
-    }
-  }
-  if (!/\/api$/i.test(apiBase)) {
-    apiBase = `${apiBase.replace(/\/$/, "")}/api`;
-  }
-  const mediaOrigin = apiBase.startsWith("http")
-    ? apiBase.replace(/\/api$/i, "")
-    : isBrowser
-    ? window.location.origin
-    : "";
-  return { apiBase, mediaOrigin };
-}
-
-const { apiBase: API_BASE, mediaOrigin: MEDIA_ORIGIN } = resolveApiConfig();
-
-type MediaLike =
-  | {
-      data?: {
-        attributes?: {
-          url?: string;
-        };
-      };
-      attributes?: { url?: string };
-      url?: string;
-    }
-  | null
-  | undefined;
+type MediaLike = unknown;
 
 interface StrapiPageAttr {
   title?: string;
@@ -60,6 +18,7 @@ interface StrapiPageAttr {
   address?: string;
   phone?: string;
   email?: string;
+  mapEmbed?: string;
 }
 interface StrapiEntry<T> {
   id: number | string;
@@ -72,23 +31,11 @@ async function safeFetch(input: RequestInfo | URL, init?: RequestInit) {
   return res.json();
 }
 
-const toAbsolute = (url?: string | null): string | null => {
-  if (!url) return null;
-  return url.startsWith("http") ? url : `${MEDIA_ORIGIN}${url}`;
-};
-
 const onlyStrings = (value: string | null | undefined): value is string =>
   typeof value === "string" && value.length > 0;
 
-const extractMediaUrl = (media?: MediaLike): string | undefined => {
-  if (!media) return undefined;
-  if (media.data?.attributes?.url) return media.data.attributes.url;
-  if (media.attributes?.url) return media.attributes.url;
-  return media.url;
-};
-
 const normalizeGallery = (
-  gallery?: { data?: MediaLike[] } | MediaLike[] | null
+  gallery?: { data?: MediaLike[] } | MediaLike[] | null,
 ): MediaLike[] => {
   if (!gallery) return [];
   if (Array.isArray(gallery)) return gallery;
@@ -100,11 +47,10 @@ function mapPage(e: StrapiEntry<StrapiPageAttr>): StaticPage {
   const rawAttrs = e.attributes
     ? (e.attributes as StrapiPageAttr)
     : (e as unknown as StrapiPageAttr) || {};
-  const hero = extractMediaUrl(rawAttrs.heroImage);
+  const hero = resolveMediaUrl(rawAttrs.heroImage, MEDIA_ORIGIN, 1920);
   const galleryUrls = normalizeGallery(rawAttrs.gallery)
-    .map((media) => extractMediaUrl(media))
+    .map((media) => resolveMediaUrl(media, MEDIA_ORIGIN, 1600))
     .filter(onlyStrings)
-    .map((u) => toAbsolute(u) ?? u)
     .filter(onlyStrings);
   return {
     id: String(e.id),
@@ -112,11 +58,12 @@ function mapPage(e: StrapiEntry<StrapiPageAttr>): StaticPage {
     title: rawAttrs.title || "Fără titlu",
     body: rawAttrs.body || rawAttrs.content || "",
     updatedAt: rawAttrs.updatedAt || rawAttrs.publishedAt,
-    heroImageUrl: toAbsolute(hero),
+    heroImageUrl: hero,
     galleryUrls,
     address: rawAttrs.address,
     phone: rawAttrs.phone,
     email: rawAttrs.email,
+    mapEmbed: rawAttrs.mapEmbed,
   };
 }
 
@@ -127,11 +74,10 @@ async function fetchSingleType(path: string): Promise<StaticPage> {
   const attrs = e.attributes
     ? (e.attributes as StrapiPageAttr)
     : (e as unknown as StrapiPageAttr) || {};
-  const hero = extractMediaUrl(attrs.heroImage);
+  const hero = resolveMediaUrl(attrs.heroImage, MEDIA_ORIGIN, 1920);
   const galleryUrls = normalizeGallery(attrs.gallery)
-    .map((media) => extractMediaUrl(media))
+    .map((media) => resolveMediaUrl(media, MEDIA_ORIGIN, 1600))
     .filter(onlyStrings)
-    .map((u) => toAbsolute(u) ?? u)
     .filter(onlyStrings);
   return {
     id: String(e.id ?? path),
@@ -139,11 +85,12 @@ async function fetchSingleType(path: string): Promise<StaticPage> {
     title: attrs.title || (path === "about" ? "Despre noi" : "Contact"),
     body: attrs.body || attrs.content || "",
     updatedAt: attrs.updatedAt || attrs.publishedAt,
-    heroImageUrl: toAbsolute(hero),
+    heroImageUrl: hero,
     galleryUrls,
     address: attrs.address,
     phone: attrs.phone,
     email: attrs.email,
+    mapEmbed: attrs.mapEmbed,
   };
 }
 
@@ -155,7 +102,7 @@ export async function fetchPage(slug: string): Promise<StaticPage> {
     }
     // Fallback to collection type 'pages' for other slugs
     const res = await safeFetch(
-      `${API_BASE}/pages?filters[slug][$eq]=${encodeURIComponent(slug)}`
+      `${API_BASE}/pages?filters[slug][$eq]=${encodeURIComponent(slug)}`,
     );
     if (res?.data?.length) return mapPage(res.data[0]);
     throw new Error("Pagină negăsită");
@@ -170,8 +117,8 @@ export async function fetchPage(slug: string): Promise<StaticPage> {
         slug === "about"
           ? "Conținutul paginii despre noi va fi disponibil în curând."
           : slug === "contact"
-          ? "Conținutul paginii de contact va fi disponibil în curând."
-          : "Această pagină va fi disponibilă în curând.",
+            ? "Conținutul paginii de contact va fi disponibil în curând."
+            : "Această pagină va fi disponibilă în curând.",
       updatedAt: new Date().toISOString(),
     };
   }

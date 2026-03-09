@@ -1,69 +1,99 @@
 import { usePage } from "../hooks/usePage";
 import { Meta } from "../components/seo/Meta";
 import { ContentState } from "../components/ui/ContentState";
+import { Link } from "react-router-dom";
+import { PageHero } from "../components/ui/PageHero";
+import { ImageGallery } from "../components/ui/ImageGallery";
+import { RichHtml } from "../components/ui/RichHtml";
+import { excerptFromHtml } from "../utils/content";
+import { buildCanonical, buildCreativeWork } from "../utils/seo";
 
 export default function About() {
   const { data, loading, error, reload } = usePage("about");
 
   return (
-    <div className="max-w-6xl mx-auto py-24 px-4">
+    <div className="py-16 md:py-24 bg-gradient-to-b from-slate-50 via-white to-white">
       {data && (
-        <Meta title={data.title} description={data.body.slice(0, 140)} />
+        <Meta
+          title={data.title}
+          description={excerptFromHtml(data.body, 160)}
+          canonical={buildCanonical("/about")}
+          ogImage={data.heroImageUrl || undefined}
+          jsonLd={buildCreativeWork({
+            name: data.title,
+            description: excerptFromHtml(data.body, 200),
+            image: data.heroImageUrl || undefined,
+            dateModified: data.updatedAt,
+            url: buildCanonical("/about"),
+          })}
+        />
       )}
-      {/* Hero section */}
-      {data?.heroImageUrl && (
-        <div className="mb-8 overflow-hidden rounded-2xl shadow">
-          <img
-            src={data.heroImageUrl}
-            alt={data.title}
-            className="w-full h-64 object-cover"
-            loading="lazy"
-          />
-        </div>
-      )}
-      <h1 className="text-4xl font-extrabold tracking-tight mb-4">
-        {data?.title || "Despre noi"}
-      </h1>
-      <p className="text-gray-600 mb-10">
-        Află povestea, misiunea și valorile noastre.
-      </p>
-      <ContentState
-        state={{ data, loading, error, reload }}
-        skeleton={
-          <div className="space-y-4 animate-pulse" aria-busy="true">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-4 bg-gray-200 rounded" />
-            ))}
-          </div>
-        }
-      >
-        {(page) => (
-          <article className="prose max-w-none">
-            {/* Body rich text rendered as HTML */}
-            <div
-              className="leading-relaxed text-gray-800 prose-img:rounded-xl"
-              dangerouslySetInnerHTML={{ __html: page.body }}
-            />
-            {/* Gallery */}
-            {page.galleryUrls && page.galleryUrls.length > 0 && (
-              <section className="mt-10">
-                <h2 className="text-2xl font-semibold mb-4">Galerie</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {page.galleryUrls.map((u, i) => (
-                    <img
-                      key={i}
-                      src={u}
-                      alt={`Galerie ${i + 1}`}
-                      className="w-full h-40 object-cover rounded-xl shadow"
-                      loading="lazy"
-                    />
-                  ))}
-                </div>
+      <div className="max-w-6xl mx-auto px-4">
+        <ContentState
+          state={{ data, loading, error, reload }}
+          skeleton={
+            <div className="space-y-4 animate-pulse" aria-busy="true">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="h-4 bg-gray-200 rounded" />
+              ))}
+            </div>
+          }
+        >
+          {(page) => (
+            <>
+              <PageHero
+                title={page.title || "Despre noi"}
+                subtitle="Afla povestea, misiunea si impactul pe care il construim impreuna in comunitate."
+                imageUrl={page.heroImageUrl}
+                badge="Asociatia Zambete Magice"
+                minHeightClassName="min-h-[340px] md:min-h-[420px]"
+                gradientClassName="bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-700"
+              />
+
+              <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10 md:mb-14">
+                <article className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
+                  <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-4">
+                    Cine suntem
+                  </h2>
+                  <RichHtml
+                    html={page.body}
+                    className="prose prose-slate max-w-none prose-p:leading-relaxed prose-headings:text-slate-900 prose-strong:text-slate-900"
+                  />
+                </article>
+
+                <aside className="bg-slate-900 text-white rounded-2xl p-6 md:p-7 shadow-lg">
+                  <h3 className="text-lg font-semibold mb-3">Implicare</h3>
+                  <p className="text-slate-200 text-sm leading-relaxed mb-6">
+                    Fiecare contributie, fiecare distribuire si fiecare ora de
+                    voluntariat adauga valoare reala pentru copii si familii.
+                  </p>
+                  <div className="space-y-3">
+                    <Link
+                      to="/campanii"
+                      className="block text-center w-full rounded-xl px-4 py-3 bg-white text-slate-900 font-semibold hover:bg-slate-100 transition-colors"
+                    >
+                      Vezi campaniile active
+                    </Link>
+                    <Link
+                      to="/contact"
+                      className="block text-center w-full rounded-xl px-4 py-3 bg-indigo-500/80 text-white font-semibold hover:bg-indigo-500 transition-colors"
+                    >
+                      Contacteaza-ne
+                    </Link>
+                  </div>
+                </aside>
               </section>
-            )}
-          </article>
-        )}
-      </ContentState>
+
+              <ImageGallery
+                title="Galerie"
+                images={page.galleryUrls || []}
+                altPrefix="Galerie"
+                className="mb-4"
+              />
+            </>
+          )}
+        </ContentState>
+      </div>
     </div>
   );
 }

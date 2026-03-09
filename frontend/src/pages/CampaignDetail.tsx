@@ -2,6 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { useCampaign } from "../hooks/useCampaign";
 import { formatRON } from "../utils/format";
 import { ArrowLeft, Calendar, Target, Users, Share2 } from "lucide-react";
+import { RichHtml } from "../components/ui/RichHtml";
 
 export default function CampaignDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -54,7 +55,7 @@ export default function CampaignDetail() {
   }
 
   const progressPercentage = Math.round(
-    (campaign.raised / campaign.goal) * 100
+    (campaign.raised / campaign.goal) * 100,
   );
 
   return (
@@ -176,9 +177,9 @@ export default function CampaignDetail() {
             </h2>
 
             {campaign.description ? (
-              <div
+              <RichHtml
+                html={campaign.description}
                 className="prose prose-lg max-w-none text-gray-700 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: campaign.description }}
               />
             ) : (
               <p className="text-gray-600 text-lg leading-relaxed">
