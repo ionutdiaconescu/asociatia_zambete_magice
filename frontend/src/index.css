@@ -1,17 +1,83 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --font-body: "Manrope", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  --font-heading:
+    "Sora", "Manrope", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  --brand-ink: #0f172a;
+  --brand-primary: #9a3412;
+  --brand-accent: #b45309;
+  --brand-soft: #fffbf5;
+}
+
+html {
+  font-size: clamp(16px, 0.2vw + 15.5px, 17.5px);
+}
+
+body {
+  font-family: var(--font-body);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  color: var(--brand-ink);
+  background: var(--brand-soft);
+}
+
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+  }
+
+  p,
+  li,
+  a,
+  button,
+  input,
+  textarea,
+  select {
+    font-size: 1rem;
+  }
+
+  p,
+  li {
+    line-height: 1.75;
+  }
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+@media (max-width: 640px) {
+  html {
+    font-size: 16px;
+  }
+}
+
 /* Global accessibility improvements */
 :focus-visible {
-  outline: 2px solid #2563eb; /* Tailwind blue-600 */
+  outline: 2px solid #b45309;
   outline-offset: 2px;
 }
 
 /* Smooth dark mode color transitions (avoid for users preferring reduced motion) */
 @media (prefers-reduced-motion: no-preference) {
   html {
-    transition: background-color 0.25s, color 0.25s;
+    transition:
+      background-color 0.25s,
+      color 0.25s;
   }
 }
 

@@ -15,10 +15,11 @@ export function Card({
   return (
     <div
       className={clsx(
-        "rounded-lg border border-gray-200 bg-white shadow-sm",
-        hover && "transition-shadow hover:shadow-md",
-        padded && "p-5",
-        className
+        "rounded-2xl border border-slate-200/90 bg-white shadow-[0_6px_20px_rgba(15,23,42,0.05)]",
+        hover &&
+          "transition duration-300 hover:shadow-[0_10px_28px_rgba(15,23,42,0.10)]",
+        padded && "p-6",
+        className,
       )}
       {...rest}
     />
@@ -43,7 +44,7 @@ export function CardTitle({
 }: HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
-      className={clsx("text-base font-semibold text-gray-800", className)}
+      className={clsx("text-lg font-semibold text-slate-900", className)}
       {...rest}
     />
   );
@@ -55,7 +56,7 @@ export function CardContent({
 }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={clsx("text-sm text-gray-600 space-y-3", className)}
+      className={clsx("text-base text-slate-600 space-y-3", className)}
       {...rest}
     />
   );

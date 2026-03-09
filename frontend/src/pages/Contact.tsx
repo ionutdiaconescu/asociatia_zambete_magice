@@ -12,7 +12,7 @@ export default function Contact() {
   const hasEmbeddedMap = isSafeMapEmbed(data?.mapEmbed);
 
   return (
-    <div className="py-16 md:py-24 bg-gradient-to-b from-sky-50/60 via-white to-white">
+    <div className="py-16 md:py-24 bg-gradient-to-b from-amber-50/55 via-white to-white">
       {data && (
         <Meta
           title={data.title}
@@ -46,8 +46,8 @@ export default function Contact() {
                 subtitle="Suntem aici pentru intrebari, propuneri de colaborare si orice forma de sprijin."
                 imageUrl={page.heroImageUrl}
                 minHeightClassName="min-h-[300px] md:min-h-[380px]"
-                gradientClassName="bg-gradient-to-br from-cyan-600 via-blue-600 to-indigo-700"
-                overlayClassName="absolute inset-0 bg-gradient-to-tr from-slate-950/70 via-slate-900/45 to-indigo-900/35"
+                gradientClassName="bg-gradient-to-br from-amber-900 via-orange-800 to-rose-700"
+                overlayClassName="absolute inset-0 bg-gradient-to-tr from-amber-950/70 via-orange-900/45 to-rose-900/30"
               />
 
               <section className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10 md:mb-12">
@@ -66,7 +66,7 @@ export default function Contact() {
                   {page.phone ? (
                     <a
                       href={`tel:${page.phone.replace(/\s+/g, "")}`}
-                      className="text-slate-900 font-semibold hover:text-indigo-600 transition-colors"
+                      className="text-slate-900 font-semibold hover:text-amber-800 transition-colors"
                     >
                       {page.phone}
                     </a>
@@ -83,7 +83,7 @@ export default function Contact() {
                   {page.email ? (
                     <a
                       href={`mailto:${page.email}`}
-                      className="text-slate-900 font-semibold break-all hover:text-indigo-600 transition-colors"
+                      className="text-slate-900 font-semibold break-all hover:text-amber-800 transition-colors"
                     >
                       {page.email}
                     </a>
@@ -106,7 +106,7 @@ export default function Contact() {
                   />
                 </article>
 
-                <aside className="bg-slate-900 text-white rounded-2xl p-6 md:p-7 shadow-lg">
+                <aside className="bg-gradient-to-br from-amber-900 to-rose-800 text-white rounded-2xl p-6 md:p-7 shadow-lg">
                   <h3 className="text-lg font-semibold mb-3">Raspuns rapid</h3>
                   <p className="text-slate-200 text-sm leading-relaxed mb-5">
                     Pentru solicitari urgente, foloseste telefonul sau emailul.
@@ -124,7 +124,7 @@ export default function Contact() {
                     {page.phone && (
                       <a
                         href={`tel:${page.phone.replace(/\s+/g, "")}`}
-                        className="block w-full text-center rounded-xl px-4 py-3 bg-indigo-500/85 text-white font-semibold hover:bg-indigo-500 transition-colors"
+                        className="block w-full text-center rounded-xl px-4 py-3 bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-colors"
                       >
                         Suna acum
                       </a>

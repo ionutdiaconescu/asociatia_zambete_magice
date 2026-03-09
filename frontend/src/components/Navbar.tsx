@@ -4,8 +4,8 @@ import Logo from "../assets/sigla-no bg.webp";
 
 const links = [
   { to: "/", label: "Home" },
-  { to: "/campaigns", label: "Campanii" },
-  { to: "/campaigns/history", label: "Istoric" },
+  { to: "/campanii", label: "Campanii" },
+  { to: "/campanii/istoric", label: "Istoric" },
   { to: "/about", label: "Despre" },
   { to: "/contact", label: "Contact" },
 ];
@@ -33,7 +33,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const { theme, toggle } = useTheme();
   return (
-    <nav className="fixed top-0 left-0 w-full z-20 backdrop-blur bg-white/85 dark:bg-gray-900/75 border-b border-gray-200 dark:border-gray-700">
+    <nav className="fixed top-0 left-0 w-full z-20 backdrop-blur-md bg-white/90 dark:bg-gray-900/85 border-b border-slate-200 dark:border-gray-700 shadow-[0_4px_20px_rgba(15,23,42,0.06)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         <Link
           to="/"
@@ -47,7 +47,7 @@ export default function Navbar() {
             loading="lazy"
             decoding="async"
           />
-          <span className="text-2xl md:text-3xl font-extrabold leading-tight tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <span className="text-2xl md:text-3xl font-extrabold leading-tight tracking-tight text-slate-900 dark:text-white">
             Zâmbete Magice
           </span>
         </Link>
@@ -58,10 +58,10 @@ export default function Navbar() {
               key={l.to}
               to={l.to}
               className={({ isActive }) =>
-                `text-sm font-medium transition-colors ${
+                `text-[0.98rem] font-semibold transition-colors ${
                   isActive
-                    ? "text-blue-600 dark:text-blue-400"
-                    : "text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+                    ? "text-amber-800 dark:text-amber-300"
+                    : "text-slate-600 dark:text-gray-300 hover:text-amber-800 dark:hover:text-amber-300"
                 }`
               }
             >
@@ -70,7 +70,7 @@ export default function Navbar() {
           ))}
           <NavLink
             to="/donate"
-            className="ml-2 inline-flex items-center px-4 py-2 rounded-full bg-blue-600 text-white text-sm font-semibold shadow hover:bg-blue-700 transition dark:shadow-blue-900/40"
+            className="ml-2 inline-flex items-center px-5 py-2.5 rounded-full bg-amber-700 text-white text-[0.98rem] font-semibold shadow hover:bg-amber-800 transition"
           >
             Donează
           </NavLink>
@@ -78,7 +78,7 @@ export default function Navbar() {
             type="button"
             onClick={toggle}
             aria-label="Comută tema"
-            className="ml-2 inline-flex items-center justify-center rounded-md p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="ml-2 inline-flex items-center justify-center rounded-md p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
           >
             {theme === "dark" ? (
               <svg
@@ -108,7 +108,7 @@ export default function Navbar() {
         <button
           aria-label="Deschide meniul"
           onClick={() => setOpen((o) => !o)}
-          className="md:hidden inline-flex items-center justify-center rounded p-2 text-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="md:hidden inline-flex items-center justify-center rounded p-2 text-amber-800 hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-400"
         >
           <svg
             className="h-7 w-7"
@@ -138,10 +138,10 @@ export default function Navbar() {
               to={l.to}
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
-                `py-2 text-sm font-medium transition-colors ${
+                `py-2.5 text-[0.98rem] font-semibold transition-colors ${
                   isActive
-                    ? "text-blue-600 dark:text-blue-400"
-                    : "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+                    ? "text-amber-800 dark:text-amber-300"
+                    : "text-slate-700 dark:text-gray-300 hover:text-amber-800 dark:hover:text-amber-300"
                 }`
               }
             >
@@ -151,7 +151,7 @@ export default function Navbar() {
           <NavLink
             to="/donate"
             onClick={() => setOpen(false)}
-            className="mt-2 inline-flex justify-center px-4 py-2 rounded-full bg-blue-600 text-white text-sm font-semibold shadow hover:bg-blue-700 transition dark:shadow-blue-900/40"
+            className="mt-2 inline-flex justify-center px-4 py-2.5 rounded-full bg-amber-700 text-white text-[0.98rem] font-semibold shadow hover:bg-amber-800 transition"
           >
             Donează
           </NavLink>
@@ -159,7 +159,7 @@ export default function Navbar() {
             type="button"
             onClick={toggle}
             aria-label="Comută tema"
-            className="mt-2 inline-flex items-center justify-center rounded-md p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="mt-2 inline-flex items-center justify-center rounded-md p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
           >
             {theme === "dark" ? (
               <svg

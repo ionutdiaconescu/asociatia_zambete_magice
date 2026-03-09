@@ -7,7 +7,7 @@ export default function Layout() {
     <>
       <a
         href="#content"
-        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 bg-blue-600 text-white px-4 py-2 rounded shadow"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 bg-amber-700 text-white px-4 py-2 rounded shadow"
       >
         Sari la conținut
       </a>
@@ -15,8 +15,10 @@ export default function Layout() {
       <main
         id="content"
         role="main"
-        className="pt-20 min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors"
+        className="relative overflow-hidden pt-20 min-h-screen bg-[linear-gradient(180deg,#fffaf2_0%,#ffffff_42%,#fff8ef_100%)] dark:bg-gray-950 text-slate-900 dark:text-gray-100 transition-colors"
       >
+        <div className="pointer-events-none absolute -top-24 -left-20 w-72 h-72 rounded-full bg-amber-200/35 blur-3xl" />
+        <div className="pointer-events-none absolute top-24 -right-24 w-80 h-80 rounded-full bg-orange-200/30 blur-3xl" />
         {/* Live region for dynamic status messages (polite) */}
         <div
           id="app-live-region"
@@ -27,9 +29,15 @@ export default function Layout() {
         <Outlet />
       </main>
       <FloatingLogoBadge />
-      <footer className="bg-white dark:bg-gray-900 border-t dark:border-gray-800 mt-8 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
-        © {new Date().getFullYear()} Asociația Zâmbete Magice. Toate drepturile
-        rezervate.
+      <footer className="bg-white/95 dark:bg-gray-900 border-t border-slate-200 dark:border-gray-800 mt-8 py-8 text-center text-sm text-slate-600 dark:text-gray-400">
+        <div className="max-w-7xl mx-auto px-4">
+          <p className="font-medium">
+            © {new Date().getFullYear()} Asociația Zâmbete Magice
+          </p>
+          <p className="mt-1 text-slate-500">
+            Solidaritate, transparență, impact real.
+          </p>
+        </div>
       </footer>
     </>
   );

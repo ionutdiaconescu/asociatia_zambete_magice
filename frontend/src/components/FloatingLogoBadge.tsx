@@ -33,7 +33,7 @@ export function FloatingLogoBadge() {
       <Link
         to="/donate"
         aria-label="Donează acum"
-        className={`inline-flex items-center gap-1 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow ${donateSize} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors`}
+        className={`inline-flex items-center gap-1 rounded-full bg-amber-700 hover:bg-amber-800 text-white font-semibold shadow ${donateSize} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors`}
       >
         <svg
           className="w-3.5 h-3.5"

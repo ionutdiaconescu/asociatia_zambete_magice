@@ -6,19 +6,19 @@ export default function CampaignsHistory() {
   const historical = (data || []).filter((c) => c.isHistorical);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10">
+    <div className="max-w-7xl mx-auto px-4 py-14">
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-800 dark:text-gray-100">
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-gray-100">
           Istoric campanii
         </h1>
         <button
           onClick={reload}
-          className="inline-flex items-center px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200"
+          className="inline-flex items-center px-4 py-2 text-base rounded-xl border border-slate-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-slate-50 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-200"
         >
           Reîncarcă
         </button>
       </div>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 max-w-2xl">
+      <p className="text-base text-slate-600 dark:text-gray-400 mb-8 max-w-3xl">
         Campaniile finalizate sau expirate sunt arhivate aici pentru
         transparență și pentru a arăta impactul activităților anterioare.
       </p>
@@ -41,7 +41,7 @@ export default function CampaignsHistory() {
         {historical.map((c) => (
           <li
             key={c.id}
-            className="group rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-hidden shadow-sm hover:shadow-md transition"
+            className="group rounded-3xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-hidden shadow-[0_8px_30px_rgba(15,23,42,0.07)] hover:shadow-[0_16px_40px_rgba(15,23,42,0.14)] transition"
           >
             {c.coverImage && (
               <div className="aspect-video overflow-hidden">
@@ -54,13 +54,13 @@ export default function CampaignsHistory() {
               </div>
             )}
             <div className="p-4 flex flex-col gap-3">
-              <h2 className="font-semibold text-base text-gray-800 dark:text-gray-100 line-clamp-2">
+              <h2 className="font-semibold text-lg text-slate-900 dark:text-gray-100 line-clamp-2">
                 {c.title}
               </h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-3 whitespace-pre-line">
+              <p className="text-sm text-slate-600 dark:text-gray-400 line-clamp-3 whitespace-pre-line">
                 {c.shortDescription}
               </p>
-              <div className="mt-auto flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+              <div className="mt-auto flex items-center justify-between text-sm text-slate-500 dark:text-gray-400">
                 {c.endDate ? (
                   <span>Încheiată: {c.endDate}</span>
                 ) : (
@@ -73,8 +73,8 @@ export default function CampaignsHistory() {
                 )}
               </div>
               <Link
-                to={`/campaigns/${c.slug}`}
-                className="inline-flex justify-center mt-2 text-xs font-medium px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                to={`/campanii/${c.slug}`}
+                className="inline-flex justify-center mt-2 text-sm font-semibold px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500"
               >
                 Vezi detalii
               </Link>

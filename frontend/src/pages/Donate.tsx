@@ -37,7 +37,7 @@ export default function Donate() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ amount, campaignId: 1 }), // TODO: allow choosing a campaign
-        }
+        },
       );
       if (!res.ok) throw new Error("Checkout session failed");
       const data = await res.json();
@@ -55,12 +55,13 @@ export default function Donate() {
   }
 
   return (
-    <>
+    <div className="bg-[linear-gradient(180deg,#fff9f2_0%,#ffffff_42%,#fff8ef_100%)]">
       <Section
         title="Donează"
         description="Sprijină activitățile noastre și ajută-ne să aducem zâmbete copiilor. Alege o sumă sau introdu una personalizată."
+        className="pt-16"
       >
-        <div className="grid md:grid-cols-5 gap-8">
+        <div className="grid md:grid-cols-5 gap-8 items-start">
           <div className="md:col-span-3 space-y-8">
             <Card>
               <CardHeader>
@@ -75,10 +76,10 @@ export default function Donate() {
                         type="button"
                         key={v}
                         onClick={() => selectAmount(v)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium border transition focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                        className={`px-4 py-2.5 rounded-full text-sm font-semibold border transition focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                           active
-                            ? "bg-blue-600 text-white border-blue-600 shadow"
-                            : "border-gray-300 text-gray-700 hover:border-blue-400 hover:text-blue-600"
+                            ? "bg-gradient-to-r from-amber-700 to-rose-700 text-white border-transparent shadow"
+                            : "border-slate-300 text-slate-700 hover:border-amber-500 hover:text-amber-800"
                         }`}
                       >
                         {v} RON
@@ -93,10 +94,10 @@ export default function Donate() {
                       placeholder="Suma personalizată"
                       value={custom}
                       onChange={onCustomChange}
-                      className="w-40 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400"
+                      className="w-44 rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-400"
                     />
                     {custom && amount !== "" && (
-                      <span className="text-xs text-gray-500">RON</span>
+                      <span className="text-xs text-slate-500">RON</span>
                     )}
                   </div>
                 </div>
@@ -107,7 +108,7 @@ export default function Donate() {
                 <CardTitle>Detalii rapide</CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="list-disc pl-5 text-sm space-y-1">
+                <ul className="list-disc pl-5 text-sm space-y-2 marker:text-amber-700">
                   <li>Donațiile susțin programe educaționale și sociale.</li>
                   <li>
                     Vei primi un email de confirmare după integrarea Stripe.
@@ -117,27 +118,27 @@ export default function Donate() {
               </CardContent>
             </Card>
           </div>
-          <div className="md:col-span-2 space-y-6">
-            <Card>
+          <div className="md:col-span-2 space-y-6 md:sticky md:top-28">
+            <Card className="border-amber-100 bg-gradient-to-b from-white to-amber-50/40">
               <CardHeader>
                 <CardTitle>Rezumat donație</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-sm text-slate-700">
                     <span>Suma selectată</span>
                     <span className="font-semibold">
                       {amount ? `${amount} RON` : "-"}
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-sm text-slate-700">
                     <span>Comision procesare (estimativ)</span>
-                    <span className="text-gray-500">Inclus</span>
+                    <span className="text-slate-500">Inclus</span>
                   </div>
-                  <hr />
-                  <div className="flex justify-between text-sm">
+                  <hr className="border-slate-200" />
+                  <div className="flex justify-between text-sm text-slate-700">
                     <span>Total</span>
-                    <span className="font-bold text-gray-900">
+                    <span className="font-bold text-slate-900">
                       {amount ? `${amount} RON` : "-"}
                     </span>
                   </div>
@@ -149,7 +150,7 @@ export default function Donate() {
                   >
                     Continuă către plată
                   </Button>
-                  <p className="text-[11px] leading-relaxed text-gray-500">
+                  <p className="text-[11px] leading-relaxed text-slate-500">
                     Prin continuare vei fi redirecționat către pagina securizată
                     de plată Stripe.
                   </p>
@@ -159,6 +160,6 @@ export default function Donate() {
           </div>
         </div>
       </Section>
-    </>
+    </div>
   );
 }

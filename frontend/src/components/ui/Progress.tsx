@@ -18,7 +18,7 @@ export const Progress: React.FC<ProgressProps> = ({
   showPercent = false,
   heightClass = "h-2",
   roundedClass = "rounded-full",
-  colorClass = "bg-blue-600",
+  colorClass = "bg-amber-700",
   animate = true,
   className = "",
   ...rest
@@ -32,7 +32,7 @@ export const Progress: React.FC<ProgressProps> = ({
       aria-valuemax={max}
       aria-valuenow={value}
       aria-label={label}
-      className={`w-full bg-gray-200 ${heightClass} ${roundedClass} overflow-hidden ${className}`}
+      className={`w-full bg-slate-200 ${heightClass} ${roundedClass} overflow-hidden ${className}`}
       {...rest}
     >
       <div

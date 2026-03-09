@@ -33,9 +33,9 @@ export function HeroSection({
   }, [backgroundImage]);
 
   return (
-    <section className="relative text-white overflow-hidden min-h-[600px] md:min-h-[680px] flex items-center">
+    <section className="relative text-white overflow-hidden min-h-[620px] md:min-h-[700px] flex items-center">
       {/* Layer: gradient background */}
-      <div className="absolute inset-0 -z-20 bg-gradient-to-br from-purple-700 via-blue-600 to-indigo-700" />
+      <div className="absolute inset-0 -z-20 bg-gradient-to-br from-amber-900 via-orange-800 to-rose-700" />
 
       {/* Layer: image - suport atât cover cât și contain */}
       {backgroundImage &&
@@ -71,21 +71,21 @@ export function HeroSection({
         ))}
 
       {/* Layer: dark overlay for readability */}
-      <div className="absolute inset-0 bg-black/45 backdrop-blur-[1px]" />
+      <div className="absolute inset-0 bg-gradient-to-tr from-amber-950/72 via-orange-900/45 to-rose-900/28" />
 
       {/* Decorative blobs only if no image */}
       {(!backgroundImage || imageFailed) && (
         <>
-          <div className="absolute top-10 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-10 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl" />
+          <div className="absolute top-10 left-10 w-72 h-72 bg-amber-100/12 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-rose-200/15 rounded-full blur-3xl" />
         </>
       )}
 
       <div className="relative container mx-auto px-4 py-24 md:py-28 text-center">
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight drop-shadow-md">
+        <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-tight drop-shadow-md">
           {title}
         </h1>
-        <h2 className="text-xl md:text-2xl lg:text-3xl mb-8 opacity-90 max-w-4xl mx-auto font-light drop-shadow-sm">
+        <h2 className="text-2xl md:text-3xl lg:text-4xl mb-8 opacity-95 max-w-4xl mx-auto font-medium drop-shadow-sm">
           {subtitle}
         </h2>
         {description && (
@@ -97,7 +97,7 @@ export function HeroSection({
         {ctaText && ctaLink && (
           <Link
             to={ctaLink}
-            className="inline-flex items-center bg-white text-purple-700 px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-2xl hover:bg-gray-100 transform hover:scale-[1.03] transition-all duration-300"
+            className="inline-flex items-center bg-white text-amber-800 px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-2xl hover:bg-amber-50 transform hover:scale-[1.03] transition-all duration-300"
           >
             {ctaText}
             <svg

@@ -14,10 +14,10 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">Se încarcă...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-amber-700 mx-auto mb-4"></div>
+          <p className="text-slate-600 text-lg">Se încarcă...</p>
         </div>
       </div>
     );
@@ -25,19 +25,19 @@ export default function Home() {
 
   if (error || !homepage) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center max-w-md mx-auto">
           <div className="text-6xl mb-6">😔</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-extrabold text-slate-900 mb-4">
             Eroare la încărcarea paginii
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-slate-600 mb-6">
             {error ||
               "Nu am putut încărca conținutul. Vă rugăm încercați din nou."}
           </p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-purple-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-purple-700 transition-colors duration-300"
+            className="bg-amber-700 text-white px-6 py-3 rounded-full font-semibold hover:bg-amber-800 transition-colors duration-300 shadow"
           >
             Încearcă din nou
           </button>
@@ -54,7 +54,7 @@ export default function Home() {
       const el = document.createElement("div");
       el.textContent = "IBAN copiat";
       el.className =
-        "fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded shadow-lg text-sm animate-fade-in";
+        "fixed top-4 right-4 bg-amber-700 text-white px-4 py-2 rounded shadow-lg text-sm animate-fade-in";
       document.body.appendChild(el);
       setTimeout(() => {
         el.classList.add("opacity-0", "transition-opacity", "duration-500");
@@ -115,13 +115,13 @@ export default function Home() {
 
       {/* Donation Section (Transfer Bancar) */}
       {homepage.donationIban && (
-        <section className="py-20 bg-gradient-to-br from-purple-600 to-indigo-600 text-white">
+        <section className="py-20 bg-gradient-to-br from-amber-900 via-orange-800 to-rose-700 text-white">
           <div className="container mx-auto px-4 max-w-4xl">
             <div className="text-center mb-10">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              <h2 className="text-3xl md:text-4xl font-extrabold mb-4">
                 Donează prin transfer bancar
               </h2>
-              <p className="text-purple-100 text-lg max-w-2xl mx-auto">
+              <p className="text-amber-100 text-lg max-w-2xl mx-auto">
                 Copiază IBAN-ul asociației și fă un transfer direct din
                 aplicația ta bancară. Orice sumă contează.
               </p>
@@ -129,19 +129,19 @@ export default function Home() {
             <div className="bg-white/10 backdrop-blur rounded-2xl p-6 md:p-8 border border-white/20 space-y-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="flex-1">
-                  <p className="uppercase tracking-wider text-sm text-purple-200 font-semibold mb-2">
+                  <p className="uppercase tracking-wider text-sm text-amber-200 font-semibold mb-2">
                     IBAN Asociație
                   </p>
                   <p className="font-mono text-xl md:text-2xl font-bold break-all">
                     {homepage.donationIban}
                   </p>
                   {homepage.donationBankName && (
-                    <p className="mt-2 text-sm text-purple-200">
+                    <p className="mt-2 text-sm text-amber-100">
                       Bancă: {homepage.donationBankName}
                     </p>
                   )}
                   {homepage.donationBeneficiaryName && (
-                    <p className="text-sm text-purple-200">
+                    <p className="text-sm text-amber-100">
                       Beneficiar: {homepage.donationBeneficiaryName}
                     </p>
                   )}
@@ -149,7 +149,7 @@ export default function Home() {
                 <div className="flex-shrink-0 flex items-center gap-3">
                   <button
                     onClick={handleCopyIban}
-                    className="inline-flex items-center gap-2 bg-white text-purple-700 font-semibold px-5 py-3 rounded-full shadow hover:bg-purple-50 transition-colors"
+                    className="inline-flex items-center gap-2 bg-white text-amber-800 font-semibold px-5 py-3 rounded-full shadow hover:bg-amber-50 transition-colors"
                   >
                     <span>Copiază IBAN</span>
                   </button>
@@ -159,11 +159,11 @@ export default function Home() {
               {homepage.donationInstructions && (
                 <RichHtml
                   html={homepage.donationInstructions}
-                  className="text-purple-100 text-sm leading-relaxed border-t border-white/20 pt-4"
+                  className="text-amber-100 text-sm leading-relaxed border-t border-white/20 pt-4"
                 />
               )}
 
-              <div className="text-sm text-purple-100">
+              <div className="text-sm text-amber-100">
                 <p>
                   Recomandare: adaugă la descrierea plății cuvântul DONATIE și
                   (opțional) numele campaniei pe care vrei să o susții.
@@ -180,13 +180,13 @@ export default function Home() {
       )}
 
       {/* Active Campaigns */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-[linear-gradient(180deg,#fff8f1_0%,#fffdf8_100%)]">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-6">
               Campaniile noastre active
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
               Fiecare campanie este o oportunitate de a face o diferență în
               viața unui copil. Alege-ți modalitatea de a ajuta.
             </p>
@@ -199,24 +199,24 @@ export default function Home() {
       {homepage.impactGalleryTitle && (
         <section className="py-20 bg-white">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-6">
               {homepage.impactGalleryTitle}
             </h2>
             {homepage.impactGalleryDescription && (
               <RichHtml
                 html={homepage.impactGalleryDescription}
-                className="text-xl text-gray-600 max-w-3xl mx-auto mb-12"
+                className="text-xl text-slate-600 max-w-3xl mx-auto mb-12"
               />
             )}
 
             {/* Placeholder pentru galerie - va fi implementată când vom avea imagini */}
             <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-              <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
-                <span className="text-gray-500">Galerie foto urmează</span>
+              <div className="bg-slate-100 rounded-2xl h-64 flex items-center justify-center border border-slate-200">
+                <span className="text-slate-500">Galerie foto urmează</span>
               </div>
               {/* Testimoniale placeholder removed */}
-              <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
-                <span className="text-gray-500">Povești de succes</span>
+              <div className="bg-slate-100 rounded-2xl h-64 flex items-center justify-center border border-slate-200">
+                <span className="text-slate-500">Povești de succes</span>
               </div>
             </div>
           </div>
@@ -225,27 +225,30 @@ export default function Home() {
 
       {/* Team placeholder */}
       {homepage.teamTitle && (
-        <section className="py-20 bg-gradient-to-br from-purple-50 to-blue-50">
+        <section className="py-20 bg-gradient-to-br from-amber-50/70 to-rose-50/60">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-6">
               {homepage.teamTitle}
             </h2>
             {homepage.teamDescription && (
               <RichHtml
                 html={homepage.teamDescription}
-                className="text-xl text-gray-600 max-w-3xl mx-auto mb-12"
+                className="text-xl text-slate-600 max-w-3xl mx-auto mb-12"
               />
             )}
 
             {/* Placeholder pentru echipă */}
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
               {[1, 2, 3, 4].map((index) => (
-                <div key={index} className="bg-white p-6 rounded-2xl shadow-lg">
-                  <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4"></div>
-                  <h3 className="font-semibold text-gray-900 mb-2">
+                <div
+                  key={index}
+                  className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm"
+                >
+                  <div className="w-24 h-24 bg-slate-200 rounded-full mx-auto mb-4"></div>
+                  <h3 className="font-semibold text-slate-900 mb-2">
                     Membru echipă
                   </h3>
-                  <p className="text-gray-600 text-sm">Funcție în asociație</p>
+                  <p className="text-slate-600 text-sm">Funcție în asociație</p>
                 </div>
               ))}
             </div>

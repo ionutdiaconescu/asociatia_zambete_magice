@@ -28,9 +28,14 @@ function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Home />} />
+          {/* Campaign routes keep both EN and RO aliases to avoid 404 on shared links */}
           <Route path="campaigns" element={<Campaigns />} />
           <Route path="campaigns/:slug" element={<CampaignDetail />} />
           <Route path="campaigns/history" element={<CampaignsHistory />} />
+          <Route path="campanii" element={<Campaigns />} />
+          <Route path="campanii/:slug" element={<CampaignDetail />} />
+          <Route path="campanii/history" element={<CampaignsHistory />} />
+          <Route path="campanii/istoric" element={<CampaignsHistory />} />
           <Route path="about" element={<About />} />
           <Route path="contact" element={<Contact />} />
           <Route path="donate" element={<Donate />} />

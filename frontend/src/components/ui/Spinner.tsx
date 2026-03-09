@@ -18,9 +18,9 @@ export function Spinner({
   return (
     <div className="flex items-center gap-3" role="status" aria-live="polite">
       <span
-        className={`inline-block animate-spin rounded-full border-current border-t-transparent text-blue-600 ${sizeMap[size]} ${className}`}
+        className={`inline-block animate-spin rounded-full border-current border-t-transparent text-amber-700 ${sizeMap[size]} ${className}`}
       />
-      {label && <span className="text-sm text-gray-600">{label}...</span>}
+      {label && <span className="text-sm text-slate-600">{label}...</span>}
     </div>
   );
 }

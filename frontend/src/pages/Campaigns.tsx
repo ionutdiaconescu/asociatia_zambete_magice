@@ -22,14 +22,15 @@ export default function Campaigns() {
   }, [loading, error, data]);
 
   return (
-    <>
+    <div className="bg-[linear-gradient(180deg,#f8fbff_0%,#ffffff_100%)]">
       <Meta
         title="Campanii"
         description="Campanii active ale asociației Zâmbete Magice"
       />
       <Section
         title="Campanii"
-        description="Proiecte active pe care le poți susține."
+        description="Proiecte active pe care le poți susține astăzi, cu impact direct în comunitate."
+        className="pt-16"
       >
         <ContentState
           state={{ data, loading, error, reload }}
@@ -44,7 +45,7 @@ export default function Campaigns() {
             </div>
           }
           empty={
-            <p className="text-sm text-gray-600">
+            <p className="text-base text-slate-600">
               Nu există campanii momentan.
             </p>
           }
@@ -58,6 +59,6 @@ export default function Campaigns() {
           )}
         </ContentState>
       </Section>
-    </>
+    </div>
   );
 }

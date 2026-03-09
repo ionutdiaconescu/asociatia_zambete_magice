@@ -10,7 +10,7 @@ interface PageHeroProps {
 }
 
 const DEFAULT_OVERLAY =
-  "absolute inset-0 bg-gradient-to-tr from-slate-950/75 via-slate-900/50 to-indigo-900/35";
+  "absolute inset-0 bg-gradient-to-tr from-amber-950/75 via-orange-900/45 to-rose-900/30";
 
 export function PageHero({
   title,

@@ -12,7 +12,7 @@ export default function About() {
   const { data, loading, error, reload } = usePage("about");
 
   return (
-    <div className="py-16 md:py-24 bg-gradient-to-b from-slate-50 via-white to-white">
+    <div className="py-16 md:py-24 bg-gradient-to-b from-amber-50/50 via-white to-white">
       {data && (
         <Meta
           title={data.title}
@@ -47,7 +47,7 @@ export default function About() {
                 imageUrl={page.heroImageUrl}
                 badge="Asociatia Zambete Magice"
                 minHeightClassName="min-h-[340px] md:min-h-[420px]"
-                gradientClassName="bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-700"
+                gradientClassName="bg-gradient-to-br from-amber-900 via-orange-800 to-rose-700"
               />
 
               <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10 md:mb-14">
@@ -61,7 +61,7 @@ export default function About() {
                   />
                 </article>
 
-                <aside className="bg-slate-900 text-white rounded-2xl p-6 md:p-7 shadow-lg">
+                <aside className="bg-gradient-to-br from-amber-900 to-rose-800 text-white rounded-2xl p-6 md:p-7 shadow-lg">
                   <h3 className="text-lg font-semibold mb-3">Implicare</h3>
                   <p className="text-slate-200 text-sm leading-relaxed mb-6">
                     Fiecare contributie, fiecare distribuire si fiecare ora de
@@ -76,7 +76,7 @@ export default function About() {
                     </Link>
                     <Link
                       to="/contact"
-                      className="block text-center w-full rounded-xl px-4 py-3 bg-indigo-500/80 text-white font-semibold hover:bg-indigo-500 transition-colors"
+                      className="block text-center w-full rounded-xl px-4 py-3 bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-colors"
                     >
                       Contacteaza-ne
                     </Link>
