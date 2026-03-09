@@ -8,8 +8,8 @@ const CampaignDetail = lazy(() => import("./pages/CampaignDetail"));
 const CampaignsHistory = lazy(() => import("./pages/CampaignsHistory"));
 const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
-const DonateSuccess = lazy(() => import("./pages/DonateSuccess"));
-const DonateCancel = lazy(() => import("./pages/DonateCancel"));
+const DonateSuccess = lazy(() => import("./pages/DonateSuccess.tsx"));
+const DonateCancel = lazy(() => import("./pages/DonateCancel.tsx"));
 const Donate = lazy(() => import("./pages/Donate"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
