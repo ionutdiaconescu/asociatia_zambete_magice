@@ -33,15 +33,15 @@ export function HeroSection({
   }, [backgroundImage]);
 
   return (
-    <section className="relative text-white overflow-hidden min-h-[620px] md:min-h-[700px] flex items-center">
+    <section className="relative isolate text-white overflow-hidden min-h-[620px] md:min-h-[700px] flex items-center">
       {/* Layer: gradient background */}
-      <div className="absolute inset-0 -z-20 bg-gradient-to-br from-amber-900 via-orange-800 to-rose-700" />
+      <div className="absolute inset-0 z-0 bg-gradient-to-br from-amber-900 via-orange-800 to-rose-700" />
 
       {/* Layer: image - suport atât cover cât și contain */}
       {backgroundImage &&
         !imageFailed &&
         (backgroundFit === "cover" ? (
-          <div className="absolute inset-0 -z-10">
+          <div className="absolute inset-0 z-10">
             <img
               src={backgroundImage}
               alt="Imagine reprezentativă hero"
@@ -53,7 +53,7 @@ export function HeroSection({
             />
           </div>
         ) : (
-          <div className="absolute inset-0 -z-10 flex items-center justify-center p-4 md:p-8">
+          <div className="absolute inset-0 z-10 flex items-center justify-center p-4 md:p-8">
             <img
               src={backgroundImage}
               alt="Imagine reprezentativă încadrată"
@@ -71,17 +71,17 @@ export function HeroSection({
         ))}
 
       {/* Layer: dark overlay for readability */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-amber-950/72 via-orange-900/45 to-rose-900/28" />
+      <div className="absolute inset-0 z-20 bg-gradient-to-tr from-amber-950/62 via-orange-900/36 to-rose-900/24" />
 
       {/* Decorative blobs only if no image */}
       {(!backgroundImage || imageFailed) && (
         <>
-          <div className="absolute top-10 left-10 w-72 h-72 bg-amber-100/12 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-10 w-96 h-96 bg-rose-200/15 rounded-full blur-3xl" />
+          <div className="absolute top-10 left-10 z-10 w-72 h-72 bg-amber-100/12 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 right-10 z-10 w-96 h-96 bg-rose-200/15 rounded-full blur-3xl" />
         </>
       )}
 
-      <div className="relative container mx-auto px-4 py-24 md:py-28 text-center">
+      <div className="relative z-30 container mx-auto px-4 py-24 md:py-28 text-center">
         <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-tight drop-shadow-md">
           {title}
         </h1>
