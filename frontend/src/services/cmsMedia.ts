@@ -22,13 +22,22 @@ function pickPreferredFormatUrl(
   );
   if (!candidates.length) return null;
 
-  candidates.sort((a, b) => {
+  // Ignore tiny derivatives (e.g. thumbnail 156px) for large targets like hero backgrounds.
+  // If no candidate passes this threshold, caller should fall back to original media URL.
+  const minUsefulWidth = Math.max(320, Math.floor(targetWidth * 0.45));
+  const viable = candidates.filter(
+    (c) => typeof c.width !== "number" || c.width >= minUsefulWidth,
+  );
+  const pool = viable.length > 0 ? viable : [];
+  if (!pool.length) return null;
+
+  pool.sort((a, b) => {
     const aw = a.width ?? 0;
     const bw = b.width ?? 0;
     return Math.abs(aw - targetWidth) - Math.abs(bw - targetWidth);
   });
 
-  return candidates[0]?.url ?? null;
+  return pool[0]?.url ?? null;
 }
 
 export function resolveMediaUrl(
