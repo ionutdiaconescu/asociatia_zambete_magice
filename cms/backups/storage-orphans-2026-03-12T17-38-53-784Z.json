@@ -1,0 +1,17 @@
+{
+  "generatedAt": "2026-03-12T17:38:53.784Z",
+  "mode": "dry-run",
+  "bucket": "uploads",
+  "prefix": "files",
+  "strapiUploadRows": 19,
+  "referencedPathsCount": 35,
+  "storagePathsCount": 38,
+  "orphanCandidatesCount": 3,
+  "missingInStorageCount": 0,
+  "orphanCandidatesSample": [
+    "files/fundal2_75c4529719.webp",
+    "files/probe_1773335773995.jpg",
+    "files/thumbnail_fundal2_75c4529719.webp"
+  ],
+  "missingInStorageSample": []
+}
