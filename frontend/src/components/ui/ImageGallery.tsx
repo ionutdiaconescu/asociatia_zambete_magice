@@ -1,5 +1,5 @@
 interface ImageGalleryProps {
-  title: string;
+  title?: string;
   images: string[];
   altPrefix: string;
   className?: string;
@@ -16,9 +16,13 @@ export function ImageGallery({
   return (
     <section className={className}>
       <div className="flex items-end justify-between mb-5">
-        <h2 className="text-2xl md:text-3xl font-bold text-slate-900">
-          {title}
-        </h2>
+        {title ? (
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900">
+            {title}
+          </h2>
+        ) : (
+          <div />
+        )}
         <span className="text-sm text-slate-500">{images.length} imagini</span>
       </div>
 

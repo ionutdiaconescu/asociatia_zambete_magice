@@ -29,6 +29,7 @@
 
     "teamTitle": { "type": "string" },
     "teamDescription": { "type": "richtext" },
+    "teamImages": { "type": "media", "multiple": true },
 
     "transparencyTitle": { "type": "string" },
 

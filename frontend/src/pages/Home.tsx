@@ -6,6 +6,7 @@ import { TransparencySection } from "../components/homepage/TransparencySection"
 import { CampaignGrid } from "../components/campaigns/CampaignGrid";
 import { Meta } from "../components/seo/Meta";
 import { RichHtml } from "../components/ui/RichHtml";
+import { ImageGallery } from "../components/ui/ImageGallery";
 import { excerptFromHtml } from "../utils/content";
 import { buildCanonical, buildCreativeWork } from "../utils/seo";
 
@@ -195,7 +196,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Impact Gallery placeholder */}
+      {/* Impact Gallery */}
       {homepage.impactGalleryTitle && (
         <section className="py-20 bg-white">
           <div className="container mx-auto px-4 text-center">
@@ -209,21 +210,25 @@ export default function Home() {
               />
             )}
 
-            {/* Placeholder pentru galerie - va fi implementată când vom avea imagini */}
-            <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-              <div className="bg-slate-100 rounded-2xl h-64 flex items-center justify-center border border-slate-200">
-                <span className="text-slate-500">Galerie foto urmează</span>
+            {homepage.impactGalleryImages.length > 0 ? (
+              <ImageGallery
+                title=""
+                images={homepage.impactGalleryImages}
+                altPrefix="Impact"
+                className="max-w-5xl mx-auto"
+              />
+            ) : (
+              <div className="bg-slate-100 rounded-2xl h-40 flex items-center justify-center border border-slate-200 max-w-3xl mx-auto">
+                <span className="text-slate-500">
+                  Adaugă imagini în câmpul impactGalleryImages din CMS.
+                </span>
               </div>
-              {/* Testimoniale placeholder removed */}
-              <div className="bg-slate-100 rounded-2xl h-64 flex items-center justify-center border border-slate-200">
-                <span className="text-slate-500">Povești de succes</span>
-              </div>
-            </div>
+            )}
           </div>
         </section>
       )}
 
-      {/* Team placeholder */}
+      {/* Team */}
       {homepage.teamTitle && (
         <section className="py-20 bg-gradient-to-br from-amber-50/70 to-rose-50/60">
           <div className="container mx-auto px-4 text-center">
@@ -237,21 +242,21 @@ export default function Home() {
               />
             )}
 
-            {/* Placeholder pentru echipă */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
-              {[1, 2, 3, 4].map((index) => (
-                <div
-                  key={index}
-                  className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm"
-                >
-                  <div className="w-24 h-24 bg-slate-200 rounded-full mx-auto mb-4"></div>
-                  <h3 className="font-semibold text-slate-900 mb-2">
-                    Membru echipă
-                  </h3>
-                  <p className="text-slate-600 text-sm">Funcție în asociație</p>
-                </div>
-              ))}
-            </div>
+            {homepage.teamImages.length > 0 ? (
+              <ImageGallery
+                title=""
+                images={homepage.teamImages}
+                altPrefix="Voluntar"
+                className="max-w-5xl mx-auto"
+              />
+            ) : (
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-3xl mx-auto">
+                <p className="text-slate-600 text-sm">
+                  Pentru imagini în această secțiune adaugă câmpul `teamImages`
+                  în Homepage (după deploy) și încarcă media acolo.
+                </p>
+              </div>
+            )}
           </div>
         </section>
       )}

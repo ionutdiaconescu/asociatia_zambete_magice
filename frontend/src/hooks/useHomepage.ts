@@ -19,8 +19,10 @@ interface HomepageData {
   howWeWorkDescription: string | null;
   impactGalleryTitle: string | null;
   impactGalleryDescription: string | null;
+  impactGalleryImages: string[];
   teamTitle: string | null;
   teamDescription: string | null;
+  teamImages: string[];
   transparencyTitle: string | null;
   donationIban?: string | null; // Added
   donationBankName?: string | null;
@@ -46,6 +48,44 @@ type RichTextBlock =
   | RichTextBlock[]
   | null
   | undefined;
+
+function resolveMediaList(
+  input: unknown,
+  origin: string,
+  targetWidth = 1600,
+): string[] {
+  if (!input) return [];
+
+  const urls = new Set<string>();
+  const add = (candidate: unknown) => {
+    const u = resolveMediaUrl(candidate, origin, targetWidth);
+    if (u) urls.add(u);
+  };
+
+  if (Array.isArray(input)) {
+    input.forEach(add);
+    return [...urls];
+  }
+
+  if (typeof input === "object") {
+    const obj = input as {
+      data?: unknown[] | unknown;
+    };
+
+    if (Array.isArray(obj.data)) {
+      obj.data.forEach(add);
+      return [...urls];
+    }
+
+    if (obj.data) {
+      add(obj.data);
+      return [...urls];
+    }
+  }
+
+  add(input);
+  return [...urls];
+}
 
 // Funcție pentru a converti rich-text în string simplu
 function extractTextFromRichText(richText: RichTextBlock): string | null {
@@ -144,8 +184,10 @@ export function useHomepage() {
           howWeWorkDescription?: RichTextBlock;
           impactGalleryTitle?: string | null;
           impactGalleryDescription?: RichTextBlock;
+          impactGalleryImages?: unknown;
           teamTitle?: string | null;
           teamDescription?: RichTextBlock;
+          teamImages?: unknown;
           transparencyTitle?: string | null;
           donationIban?: string | null;
           donationBankName?: string | null;
@@ -191,8 +233,18 @@ export function useHomepage() {
           impactGalleryDescription: extractTextFromRichText(
             a.impactGalleryDescription,
           ),
+          impactGalleryImages: resolveMediaList(
+            a.impactGalleryImages,
+            effectiveMediaOrigin,
+            1600,
+          ),
           teamTitle: a.teamTitle ?? null,
           teamDescription: extractTextFromRichText(a.teamDescription),
+          teamImages: resolveMediaList(
+            a.teamImages,
+            effectiveMediaOrigin,
+            1200,
+          ),
           transparencyTitle: a.transparencyTitle ?? null,
           // Donații / SEO
           donationIban: a.donationIban ?? null,
@@ -233,8 +285,10 @@ export function useHomepage() {
           impactGalleryTitle: "Impactul nostru",
           impactGalleryDescription:
             "Vezi transformările pe care le-am realizat împreună.",
+          impactGalleryImages: [],
           teamTitle: "Echipa noastră",
           teamDescription: "Oameni dedicați unei cauze nobile.",
+          teamImages: [],
           transparencyTitle: "Transparență",
           donationIban: null,
           donationBankName: null,
