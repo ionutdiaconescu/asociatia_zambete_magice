@@ -1,4 +1,6 @@
 const DEV_PORTS = new Set(["5173", "5174", "3000"]);
+const DEFAULT_PROD_CMS_API =
+  "https://asociatia-zambete-magice.onrender.com/api";
 
 export interface CmsApiConfig {
   apiBase: string;
@@ -10,6 +12,12 @@ export function resolveCmsApiConfig(): CmsApiConfig {
   const envBase = (import.meta.env.VITE_API_CMS_URL as string | undefined)
     ?.trim()
     .replace(/\/$/, "");
+  const envProdFallback = (
+    import.meta.env.VITE_API_CMS_PROD_FALLBACK as string | undefined
+  )
+    ?.trim()
+    .replace(/\/$/, "");
+  const prodFallback = envProdFallback || DEFAULT_PROD_CMS_API;
 
   let apiBase = envBase;
   if (!apiBase) {
@@ -21,9 +29,10 @@ export function resolveCmsApiConfig(): CmsApiConfig {
     ) {
       apiBase = `http://${window.location.hostname}:1337/api`;
     } else if (isBrowser) {
-      apiBase = `${window.location.origin.replace(/\/$/, "")}/api`;
+      // In production, prefer explicit CMS host over same-origin /api fallback.
+      apiBase = prodFallback;
     } else {
-      apiBase = "http://localhost:1337/api";
+      apiBase = prodFallback;
     }
   }
 
