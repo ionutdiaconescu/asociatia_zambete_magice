@@ -9,7 +9,7 @@ const path = require("path");
 
 console.log(
   "[strapi-wrapper] Executing start-strapi-wrapper.js at",
-  new Date().toISOString()
+  new Date().toISOString(),
 );
 
 // Rulează print-db-config.js la fiecare start pentru debugging
@@ -18,7 +18,7 @@ try {
 } catch (e) {
   console.error(
     "[strapi-wrapper] Eroare la execuția print-db-config.js:",
-    e && e.message
+    e && e.message,
   );
 }
 
@@ -36,7 +36,7 @@ try {
       "admin",
       "dist",
       "server",
-      "build"
+      "build",
     ),
     path.join(
       __dirname,
@@ -47,7 +47,7 @@ try {
       "dist",
       "server",
       "server",
-      "build"
+      "build",
     ),
   ];
 
@@ -68,7 +68,7 @@ try {
           "[admin-fix] ⚠️ Eroare copiere la",
           targetPath,
           ":",
-          e.message
+          e.message,
         );
       }
     }
@@ -79,47 +79,30 @@ try {
   console.log("[admin-fix] Warning:", error.message);
 }
 
-// Copy API JS (controllers/services/routes) from src -> dist so production loads routes
+// Copy API artifacts (JS + JSON schemas) from src -> dist so production runtime
+// picks up route code and content-type schema updates.
 try {
   const srcApiRoot = path.join(__dirname, "..", "src", "api");
   const distApiRoot = path.join(__dirname, "..", "dist", "src", "api");
 
   if (fs.existsSync(srcApiRoot)) {
-    const apis = fs.readdirSync(srcApiRoot).filter((d) => {
-      try {
-        return fs.statSync(path.join(srcApiRoot, d)).isDirectory();
-      } catch (_) {
-        return false;
-      }
+    fs.mkdirSync(distApiRoot, { recursive: true });
+
+    fs.cpSync(srcApiRoot, distApiRoot, {
+      recursive: true,
+      force: true,
+      filter: (srcPath) => {
+        try {
+          const st = fs.statSync(srcPath);
+          if (st.isDirectory()) return true;
+          return /\.(js|json)$/i.test(srcPath);
+        } catch (_) {
+          return false;
+        }
+      },
     });
 
-    for (const apiName of apis) {
-      const subDirs = ["controllers", "services", "routes"];
-      for (const sub of subDirs) {
-        const fromDir = path.join(srcApiRoot, apiName, sub);
-        if (!fs.existsSync(fromDir)) continue;
-
-        const toDir = path.join(distApiRoot, apiName, sub);
-        fs.mkdirSync(toDir, { recursive: true });
-
-        const entries = fs
-          .readdirSync(fromDir)
-          .filter((f) => f.endsWith(".js"));
-        for (const file of entries) {
-          const from = path.join(fromDir, file);
-          const to = path.join(toDir, file);
-          try {
-            fs.copyFileSync(from, to);
-            console.log(`[api-sync] Copiat ${apiName}/${sub}/${file}`);
-          } catch (e) {
-            console.log(
-              `[api-sync] ⚠️ Eroare copiere ${apiName}/${sub}/${file}:`,
-              e.message
-            );
-          }
-        }
-      }
-    }
+    console.log("[api-sync] ✅ Sincronizare src/api -> dist/src/api (js+json)");
   } else {
     console.log("[api-sync] src/api nu există, skip...");
   }
