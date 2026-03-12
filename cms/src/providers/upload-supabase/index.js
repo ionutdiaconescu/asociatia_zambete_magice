@@ -6,6 +6,7 @@
 // Optional: directory, public (boolean), sizeLimit
 
 const { createClient } = require("@supabase/supabase-js");
+const fs = require("fs");
 
 module.exports = {
   init(config) {
@@ -54,17 +55,45 @@ module.exports = {
         stream.on("end", () => resolve(Buffer.concat(chunks)));
       });
 
+    const readFilePathToBuffer = async (file) => {
+      const candidatePath =
+        file.filepath || file.path || file.tmpPath || file.tempFilePath;
+      if (!candidatePath) return null;
+
+      try {
+        return await fs.promises.readFile(candidatePath);
+      } catch (_) {
+        return null;
+      }
+    };
+
+    const resolveFileBuffer = async (file) => {
+      if (file.buffer) return file.buffer;
+
+      if (file.stream && typeof file.stream.on === "function") {
+        return readStreamToBuffer(file.stream);
+      }
+
+      if (typeof file.getStream === "function") {
+        const maybeStream = file.getStream();
+        if (maybeStream && typeof maybeStream.on === "function") {
+          return readStreamToBuffer(maybeStream);
+        }
+      }
+
+      return readFilePathToBuffer(file);
+    };
+
     return {
       async upload(file) {
         try {
           const objectPath = buildObjectPath(file);
 
-          let fileBuffer = file.buffer;
-          if (!fileBuffer && file.stream) {
-            fileBuffer = await readStreamToBuffer(file.stream);
-          }
+          const fileBuffer = await resolveFileBuffer(file);
           if (!fileBuffer) {
-            throw new Error("No buffer or stream available for upload.");
+            throw new Error(
+              "No upload content found (expected buffer, stream, getStream, or filepath/path).",
+            );
           }
 
           const uploadRes = await supabase.storage

@@ -17,6 +17,7 @@ function applyTempEnvironment(tmpDir: string) {
   process.env.TMPDIR = tmpDir;
   process.env.TMP = tmpDir;
   process.env.TEMP = tmpDir;
+  process.env.UPLOAD_TMP_DIR = tmpDir;
   process.env.STRAPI_UPLOAD_TMP_DIR = tmpDir;
 }
 
