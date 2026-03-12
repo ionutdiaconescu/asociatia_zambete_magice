@@ -27,6 +27,8 @@ export function HeroSection({
   backgroundFit = "cover",
 }: HeroSectionProps) {
   const [imageFailed, setImageFailed] = useState(false);
+  const isExternalCta =
+    !!ctaLink && /^(https?:\/\/|\/\/|mailto:|tel:)/i.test(ctaLink);
 
   useEffect(() => {
     setImageFailed(false);
@@ -94,27 +96,51 @@ export function HeroSection({
             className="text-lg md:text-xl mb-12 opacity-85 max-w-3xl mx-auto leading-relaxed"
           />
         )}
-        {ctaText && ctaLink && (
-          <Link
-            to={ctaLink}
-            className="inline-flex items-center bg-white text-amber-800 px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-2xl hover:bg-amber-50 transform hover:scale-[1.03] transition-all duration-300"
-          >
-            {ctaText}
-            <svg
-              className="ml-2 w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+        {ctaText &&
+          ctaLink &&
+          (isExternalCta ? (
+            <a
+              href={ctaLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center bg-white text-amber-800 px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-2xl hover:bg-amber-50 transform hover:scale-[1.03] transition-all duration-300"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </Link>
-        )}
+              {ctaText}
+              <svg
+                className="ml-2 w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </a>
+          ) : (
+            <Link
+              to={ctaLink}
+              className="inline-flex items-center bg-white text-amber-800 px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-2xl hover:bg-amber-50 transform hover:scale-[1.03] transition-all duration-300"
+            >
+              {ctaText}
+              <svg
+                className="ml-2 w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </Link>
+          ))}
       </div>
     </section>
   );

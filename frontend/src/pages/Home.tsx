@@ -1,4 +1,5 @@
 import { useHomepage } from "../hooks/useHomepage";
+import { Link } from "react-router-dom";
 import { HeroSection } from "../components/homepage/HeroSection";
 import { StatisticsSection } from "../components/homepage/StatisticsSection";
 import { HowWeWorkSection } from "../components/homepage/HowWeWorkSection";
@@ -251,10 +252,25 @@ export default function Home() {
               />
             ) : (
               <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm max-w-3xl mx-auto">
-                <p className="text-slate-600 text-sm">
-                  Pentru imagini în această secțiune adaugă câmpul `teamImages`
-                  în Homepage (după deploy) și încarcă media acolo.
+                <p className="text-slate-700 text-sm md:text-base leading-relaxed">
+                  Echipa noastră se schimbă de la o campanie la alta. Punem
+                  accent pe impactul activităților și pe implicarea continuă a
+                  voluntarilor în proiectele curente.
                 </p>
+                <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+                  <Link
+                    to="/contact"
+                    className="inline-flex items-center rounded-full bg-amber-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-amber-800 transition-colors"
+                  >
+                    Devino voluntar
+                  </Link>
+                  <Link
+                    to="/campanii"
+                    className="inline-flex items-center rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                  >
+                    Vezi campanii active
+                  </Link>
+                </div>
               </div>
             )}
           </div>
