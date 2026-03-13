@@ -26,7 +26,7 @@ function ContactCard({
       <h2 className="mb-2 text-sm font-semibold uppercase tracking-[0.22em] text-slate-500">
         {label}
       </h2>
-      <div className="text-slate-900 text-[1.05rem] font-semibold leading-relaxed">
+      <div className="min-w-0 text-base font-semibold leading-relaxed text-slate-900 sm:text-[1.05rem]">
         {children}
       </div>
     </article>
@@ -115,12 +115,14 @@ export default function Contact() {
                   {page.email ? (
                     <a
                       href={`mailto:${page.email}`}
-                      className="inline-flex items-center gap-2 break-all text-slate-900 transition-colors hover:text-amber-800"
+                      className="inline-flex min-w-0 flex-col items-start gap-2 text-slate-900 transition-colors hover:text-amber-800"
                     >
                       <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
                         Mail
                       </span>
-                      <span>{page.email}</span>
+                      <span className="max-w-full text-sm font-semibold leading-snug [overflow-wrap:anywhere] sm:text-base">
+                        {page.email}
+                      </span>
                     </a>
                   ) : (
                     <p className="text-slate-700">

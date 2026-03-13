@@ -24,17 +24,17 @@ export default function CampaignsHistory() {
         jsonLd={seo.jsonLd}
       />
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-gray-100">
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
           Istoric campanii
         </h1>
         <button
           onClick={reload}
-          className="inline-flex items-center px-4 py-2 text-base rounded-xl border border-slate-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-slate-50 dark:hover:bg-gray-700 text-slate-700 dark:text-gray-200"
+          className="inline-flex items-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-base text-slate-700 hover:bg-slate-50"
         >
           Reîncarcă
         </button>
       </div>
-      <p className="text-base text-slate-600 dark:text-gray-400 mb-8 max-w-3xl">
+      <p className="mb-8 max-w-3xl text-base text-slate-600">
         Campaniile finalizate sau expirate sunt arhivate aici pentru
         transparență și pentru a arăta impactul activităților anterioare.
       </p>
@@ -57,7 +57,7 @@ export default function CampaignsHistory() {
         {historical.map((c) => (
           <li
             key={c.id}
-            className="group rounded-3xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-hidden shadow-[0_8px_30px_rgba(15,23,42,0.07)] hover:shadow-[0_16px_40px_rgba(15,23,42,0.14)] transition"
+            className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.07)] transition hover:shadow-[0_16px_40px_rgba(15,23,42,0.14)]"
           >
             {c.coverImage && (
               <div className="aspect-video overflow-hidden">
@@ -70,20 +70,20 @@ export default function CampaignsHistory() {
               </div>
             )}
             <div className="p-4 flex flex-col gap-3">
-              <h2 className="font-semibold text-lg text-slate-900 dark:text-gray-100 line-clamp-2">
+              <h2 className="line-clamp-2 text-lg font-semibold text-slate-900">
                 {c.title}
               </h2>
-              <p className="text-sm text-slate-600 dark:text-gray-400 line-clamp-3 whitespace-pre-line">
+              <p className="line-clamp-3 whitespace-pre-line text-sm text-slate-600">
                 {c.shortDescription}
               </p>
-              <div className="mt-auto flex flex-col gap-2 text-sm text-slate-500 dark:text-gray-400 sm:flex-row sm:items-center sm:justify-between">
+              <div className="mt-auto flex flex-col gap-2 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
                 {c.endDate ? (
                   <span>Încheiată: {c.endDate}</span>
                 ) : (
                   <span className="italic">Finalizată</span>
                 )}
                 {c.isFeatured && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-300/10 dark:text-amber-300 border border-amber-300/50 text-[11px] font-medium">
+                  <span className="inline-flex items-center rounded-full border border-amber-300/50 bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">
                     Evidențiată
                   </span>
                 )}

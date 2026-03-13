@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 import Logo from "../assets/sigla-no bg.webp";
 
@@ -10,37 +10,17 @@ const links = [
   { to: "/contact", label: "Contact" },
 ];
 
-function useTheme() {
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    if (typeof window === "undefined") return "light";
-    const stored = localStorage.getItem("theme");
-    if (stored === "dark" || stored === "light") return stored;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-  });
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "dark") root.classList.add("dark");
-    else root.classList.remove("dark");
-    localStorage.setItem("theme", theme);
-  }, [theme]);
-  const toggle = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
-  return { theme, toggle };
-}
-
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const { theme, toggle } = useTheme();
   return (
-    <nav className="fixed top-0 left-0 w-full z-20 backdrop-blur-md bg-white/90 dark:bg-gray-900/85 border-b border-slate-200 dark:border-gray-700 shadow-[0_4px_20px_rgba(15,23,42,0.06)]">
+    <nav className="fixed top-0 left-0 z-20 w-full border-b border-slate-200 bg-white/90 backdrop-blur-md shadow-[0_4px_20px_rgba(15,23,42,0.06)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         <Link
           to="/"
           className="flex min-w-0 items-center gap-2 pr-3 sm:gap-3 group"
           aria-label="Acasă - Asociația Zâmbete Magice"
         >
-          <span className="rounded-2xl transition-colors dark:bg-white/95 dark:p-1.5 dark:shadow-[0_10px_24px_rgba(15,23,42,0.2)]">
+          <span className="rounded-2xl">
             <img
               src={Logo}
               alt="Sigla Zâmbete Magice"
@@ -49,7 +29,7 @@ export default function Navbar() {
               decoding="async"
             />
           </span>
-          <span className="max-w-[10.5rem] truncate text-lg font-extrabold leading-tight tracking-tight text-slate-900 dark:text-white sm:max-w-none sm:text-2xl md:text-3xl">
+          <span className="max-w-[10.5rem] truncate text-lg font-extrabold leading-tight tracking-tight text-slate-900 sm:max-w-none sm:text-2xl md:text-3xl">
             Zâmbete Magice
           </span>
         </Link>
@@ -62,8 +42,8 @@ export default function Navbar() {
               className={({ isActive }) =>
                 `text-[0.98rem] font-semibold transition-colors ${
                   isActive
-                    ? "text-amber-800 dark:text-amber-300"
-                    : "text-slate-600 dark:text-gray-300 hover:text-amber-800 dark:hover:text-amber-300"
+                    ? "text-amber-800"
+                    : "text-slate-600 hover:text-amber-800"
                 }`
               }
             >
@@ -76,35 +56,6 @@ export default function Navbar() {
           >
             Donează
           </NavLink>
-          <button
-            type="button"
-            onClick={toggle}
-            aria-label="Comută tema"
-            className="ml-2 inline-flex items-center justify-center rounded-md p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
-          >
-            {theme === "dark" ? (
-              <svg
-                className="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M12 3a9 9 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-              </svg>
-            ) : (
-              <svg
-                className="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <circle cx="12" cy="12" r="4" />
-                <path d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.07 6.07-1.42-1.42M6.35 6.35 4.93 4.93m12.72 0-1.42 1.42M6.35 17.65l-1.42 1.42" />
-              </svg>
-            )}
-          </button>
         </div>
         {/* Mobile button */}
         <button
@@ -129,7 +80,7 @@ export default function Navbar() {
       </div>
       {/* Mobile menu */}
       <div
-        className={`md:hidden overflow-hidden transition-[max-height] duration-300 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 ${
+        className={`md:hidden overflow-hidden border-b border-gray-200 bg-white transition-[max-height] duration-300 ${
           open ? "max-h-96" : "max-h-0"
         }`}
       >
@@ -142,8 +93,8 @@ export default function Navbar() {
               className={({ isActive }) =>
                 `py-2.5 text-[0.98rem] font-semibold transition-colors ${
                   isActive
-                    ? "text-amber-800 dark:text-amber-300"
-                    : "text-slate-700 dark:text-gray-300 hover:text-amber-800 dark:hover:text-amber-300"
+                    ? "text-amber-800"
+                    : "text-slate-700 hover:text-amber-800"
                 }`
               }
             >
@@ -157,35 +108,6 @@ export default function Navbar() {
           >
             Donează
           </NavLink>
-          <button
-            type="button"
-            onClick={toggle}
-            aria-label="Comută tema"
-            className="mt-2 inline-flex items-center justify-center rounded-md p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
-          >
-            {theme === "dark" ? (
-              <svg
-                className="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M12 3a9 9 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-              </svg>
-            ) : (
-              <svg
-                className="h-5 w-5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <circle cx="12" cy="12" r="4" />
-                <path d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.07 6.07-1.42-1.42M6.35 6.35 4.93 4.93m12.72 0-1.42 1.42M6.35 17.65l-1.42 1.42" />
-              </svg>
-            )}
-          </button>
         </div>
       </div>
     </nav>

@@ -15,7 +15,7 @@ export default function Layout() {
       <main
         id="content"
         role="main"
-        className="relative overflow-hidden pt-20 min-h-screen bg-[linear-gradient(180deg,#fffaf2_0%,#ffffff_42%,#fff8ef_100%)] dark:bg-gray-950 text-slate-900 dark:text-gray-100 transition-colors"
+        className="relative min-h-screen overflow-hidden bg-[linear-gradient(180deg,#fffaf2_0%,#ffffff_42%,#fff8ef_100%)] pt-20 text-slate-900"
       >
         <div className="pointer-events-none absolute -top-24 -left-20 w-72 h-72 rounded-full bg-amber-200/35 blur-3xl" />
         <div className="pointer-events-none absolute top-24 -right-24 w-80 h-80 rounded-full bg-orange-200/30 blur-3xl" />
@@ -29,7 +29,7 @@ export default function Layout() {
         <Outlet />
       </main>
       <FloatingLogoBadge />
-      <footer className="bg-white/95 dark:bg-gray-900 border-t border-slate-200 dark:border-gray-800 mt-8 py-8 text-center text-sm text-slate-600 dark:text-gray-400">
+      <footer className="mt-8 border-t border-slate-200 bg-white/95 py-8 text-center text-sm text-slate-600">
         <div className="max-w-7xl mx-auto px-4">
           <p className="font-medium">
             © {new Date().getFullYear()} Asociația Zâmbete Magice
