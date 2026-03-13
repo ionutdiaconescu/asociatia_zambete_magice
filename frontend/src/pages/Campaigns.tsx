@@ -7,9 +7,19 @@ import {
 import { Section } from "../components/ui/Section";
 import { Meta } from "../components/seo/Meta";
 import { ContentState } from "../components/ui/ContentState";
+import { getActiveCampaigns } from "../utils/campaign";
+import { buildWebPageMeta } from "../utils/seo";
 
 export default function Campaigns() {
   const { data, loading, error, reload } = useCampaigns();
+  const activeCampaigns = getActiveCampaigns(data);
+  const seo = buildWebPageMeta({
+    title: "Campanii",
+    path: "/campanii",
+    description:
+      "Campanii active ale asociatiei Zambete Magice, cu impact direct in comunitate.",
+    type: "CollectionPage",
+  });
 
   useEffect(() => {
     if (typeof document === "undefined") return;
@@ -18,14 +28,17 @@ export default function Campaigns() {
 
     if (loading) live.textContent = "Se încarcă campaniile...";
     else if (error) live.textContent = `Eroare: ${error}`;
-    else if (data) live.textContent = `Încărcate ${data.length} campanii.`;
-  }, [loading, error, data]);
+    else if (data)
+      live.textContent = `Încărcate ${activeCampaigns.length} campanii active.`;
+  }, [loading, error, data, activeCampaigns.length]);
 
   return (
     <div className="bg-[linear-gradient(180deg,#f8fbff_0%,#ffffff_100%)]">
       <Meta
         title="Campanii"
         description="Campanii active ale asociației Zâmbete Magice"
+        canonical={seo.canonical}
+        jsonLd={seo.jsonLd}
       />
       <Section
         title="Campanii"
@@ -33,7 +46,7 @@ export default function Campaigns() {
         className="pt-16"
       >
         <ContentState
-          state={{ data, loading, error, reload }}
+          state={{ data: activeCampaigns, loading, error, reload }}
           skeleton={
             <div
               className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"

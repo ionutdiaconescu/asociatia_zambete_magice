@@ -34,6 +34,9 @@ export function useCampaign(slug: string) {
           isFeatured: detail.isFeatured ?? false,
           startDate: detail.startDate,
           endDate: detail.endDate,
+          progressPercent: detail.progressPercent,
+          remaining: detail.remaining,
+          isCompleted: detail.isCompleted,
           isActiveNow: detail.isActiveNow,
           isHistorical: detail.isHistorical,
         };

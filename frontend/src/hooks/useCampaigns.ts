@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import type { CampaignSummary, AsyncState } from "../types/campaign";
+import type { AsyncState } from "../types/async";
+import type { CampaignSummary } from "../types/campaign";
 import { fetchCampaigns } from "../services/campaigns";
 
 // Canonical Strapi collection route: /api/campaigns

@@ -23,7 +23,7 @@
     "export:content": "node scripts/export-content.js",
     "bootstrap:db": "node scripts/bootstrap-db.js",
     "admin:complete-fix": "node scripts/complete-admin-fix.js",
-    "admin:production-fix": "node scripts/production-admin-fix.js",
+    "admin:production-fix": "node scripts/copy-admin-build.js",
     "admin:verify": "node scripts/ultimate-verification.js",
     "fix:upload-settings": "node scripts/fix-upload-settings.js",
     "storage:orphans": "node scripts/cleanup-supabase-orphans.js",

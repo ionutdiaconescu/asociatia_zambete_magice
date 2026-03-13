@@ -1,12 +1,28 @@
 import { useCampaigns } from "../hooks/useCampaigns";
 import { Link } from "react-router-dom";
+import { Meta } from "../components/seo/Meta";
+import { getHistoricalCampaigns } from "../utils/campaign";
+import { buildWebPageMeta } from "../utils/seo";
 
 export default function CampaignsHistory() {
   const { data, loading, error, reload } = useCampaigns();
-  const historical = (data || []).filter((c) => c.isHistorical);
+  const historical = getHistoricalCampaigns(data);
+  const seo = buildWebPageMeta({
+    title: "Istoric campanii",
+    path: "/campanii/istoric",
+    description:
+      "Campanii finalizate sau incheiate ale asociatiei Zambete Magice, pastrate pentru transparenta.",
+    type: "CollectionPage",
+  });
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-14">
+      <Meta
+        title="Istoric campanii"
+        description="Campanii finalizate sau încheiate, păstrate pentru transparență și context."
+        canonical={seo.canonical}
+        jsonLd={seo.jsonLd}
+      />
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-gray-100">
           Istoric campanii
@@ -60,7 +76,7 @@ export default function CampaignsHistory() {
               <p className="text-sm text-slate-600 dark:text-gray-400 line-clamp-3 whitespace-pre-line">
                 {c.shortDescription}
               </p>
-              <div className="mt-auto flex items-center justify-between text-sm text-slate-500 dark:text-gray-400">
+              <div className="mt-auto flex flex-col gap-2 text-sm text-slate-500 dark:text-gray-400 sm:flex-row sm:items-center sm:justify-between">
                 {c.endDate ? (
                   <span>Încheiată: {c.endDate}</span>
                 ) : (

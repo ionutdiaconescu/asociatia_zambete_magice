@@ -3,6 +3,8 @@ import { useCampaign } from "../hooks/useCampaign";
 import { formatRON } from "../utils/format";
 import { ArrowLeft, Calendar, Target, Users, Share2 } from "lucide-react";
 import { RichHtml } from "../components/ui/RichHtml";
+import { Meta } from "../components/seo/Meta";
+import { buildWebPageMeta } from "../utils/seo";
 
 export default function CampaignDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -76,12 +78,25 @@ export default function CampaignDetail() {
     );
   }
 
-  const progressPercentage = Math.round(
-    (campaign.raised / campaign.goal) * 100,
-  );
+  const progressPercentage = campaign.progressPercent ?? 0;
+  const canDonateOnline = campaign.isActiveNow === true;
+  const seo = buildWebPageMeta({
+    title: campaign.title,
+    path: `/campanii/${campaign.slug}`,
+    description: campaign.shortDescription,
+    image: campaign.coverImage || undefined,
+  });
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#fffaf2_0%,#ffffff_52%,#fff8ef_100%)]">
+      <Meta
+        title={campaign.title}
+        description={campaign.shortDescription}
+        canonical={seo.canonical}
+        ogImage={campaign.coverImage || undefined}
+        ogType="article"
+        jsonLd={seo.jsonLd}
+      />
       {/* Header cu navigare înapoi */}
       <div className="bg-white/90 border-b border-slate-200 backdrop-blur">
         <div className="container mx-auto px-4 py-4">
@@ -109,18 +124,18 @@ export default function CampaignDetail() {
               </div>
             )}
 
-            <div className="p-8">
-              <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4 leading-tight">
+            <div className="p-5 sm:p-8">
+              <h1 className="mb-4 text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl md:text-5xl">
                 {campaign.title}
               </h1>
 
-              <p className="text-xl text-slate-600 mb-6 leading-relaxed">
+              <p className="mb-6 text-lg leading-relaxed text-slate-600 sm:text-xl">
                 {campaign.shortDescription}
               </p>
 
               {/* Progress section */}
-              <div className="bg-slate-50 rounded-2xl p-6 mb-6 border border-slate-200">
-                <div className="flex justify-between items-center mb-4">
+              <div className="mb-6 rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
+                <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-lg font-semibold text-slate-900">
                     Progres
                   </span>
@@ -136,7 +151,7 @@ export default function CampaignDetail() {
                   ></div>
                 </div>
 
-                <div className="flex justify-between text-sm text-slate-600">
+                <div className="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
                   <span>
                     <span className="font-semibold text-amber-700">
                       {formatRON(campaign.raised)}
@@ -153,17 +168,24 @@ export default function CampaignDetail() {
               </div>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link
-                  to="/donate"
-                  className="flex-1 inline-flex items-center justify-center bg-slate-900 text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-slate-800 transition shadow"
-                >
-                  Donează acum
-                </Link>
+              <div className="flex flex-col gap-4 sm:flex-row">
+                {canDonateOnline ? (
+                  <Link
+                    to={`/donate?campaign=${campaign.id}`}
+                    className="flex-1 inline-flex items-center justify-center bg-slate-900 text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-slate-800 transition shadow"
+                  >
+                    Donează acum
+                  </Link>
+                ) : (
+                  <div className="flex-1 rounded-3xl border border-amber-200 bg-amber-50 px-6 py-4 text-center text-sm font-medium text-amber-900">
+                    Această campanie este în istoric și nu mai acceptă donații
+                    online.
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={handleShare}
-                  className="flex items-center justify-center px-6 py-4 border-2 border-slate-300 rounded-full font-semibold hover:border-amber-700 hover:text-amber-800 transition-colors duration-300"
+                  className="w-full sm:w-auto flex items-center justify-center px-6 py-4 border-2 border-slate-300 rounded-full font-semibold hover:border-amber-700 hover:text-amber-800 transition-colors duration-300"
                 >
                   <Share2 className="w-5 h-5 mr-2" />
                   Distribuie
@@ -173,7 +195,7 @@ export default function CampaignDetail() {
           </div>
 
           {/* Stats cards */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <div className="mb-8 grid gap-4 sm:gap-6 md:grid-cols-3">
             <div className="bg-white rounded-2xl p-6 text-center border border-slate-200 shadow-sm">
               <Target className="w-8 h-8 text-amber-700 mx-auto mb-3" />
               <div className="text-2xl font-bold text-slate-900 mb-1">
@@ -200,7 +222,7 @@ export default function CampaignDetail() {
           </div>
 
           {/* Descrierea completă */}
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8">
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
             <h2 className="text-2xl font-extrabold text-slate-900 mb-6">
               Despre această campanie
             </h2>

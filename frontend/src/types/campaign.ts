@@ -1,4 +1,20 @@
-export interface Campaign {
+export interface CampaignDerivedState {
+  progressPercent?: number; // 0..100 (rounded integer)
+  remaining?: number; // goal - raised (never negative)
+  isCompleted?: boolean; // true if raised >= goal and goal>0
+  isActiveNow?: boolean;
+  isHistorical?: boolean;
+}
+
+export type EnhancedCampaign<T> = T & {
+  progressPercent: number;
+  remaining: number;
+  isCompleted: boolean;
+  isActiveNow: boolean;
+  isHistorical: boolean;
+};
+
+export interface Campaign extends CampaignDerivedState {
   id: number;
   slug: string;
   title: string;
@@ -13,11 +29,8 @@ export interface Campaign {
   isFeatured?: boolean;
   startDate?: string; // ISO date (YYYY-MM-DD)
   endDate?: string; // ISO date (YYYY-MM-DD)
-  // Derived (not persisted) classification flags (set in mapping/util):
-  isActiveNow?: boolean;
-  isHistorical?: boolean;
 }
-export interface CampaignSummary {
+export interface CampaignSummary extends CampaignDerivedState {
   id: string;
   title: string;
   slug: string; // friendly identifier (fallback to id if missing)
@@ -27,27 +40,13 @@ export interface CampaignSummary {
   status?: string; // mapped from Strapi 'stare' / 'status'
   coverImage?: string;
   updatedAt?: string; // last update timestamp
-  // Computed/enhanced fields (optional so older mapping code still compiles):
-  progressPercent?: number; // 0..100 (rounded integer)
-  remaining?: number; // goal - raised (never negative)
-  isCompleted?: boolean; // true if raised >= goal and goal>0
   isFeatured?: boolean; // featured flag
   startDate?: string;
   endDate?: string;
-  isActiveNow?: boolean;
-  isHistorical?: boolean;
 }
 
 export interface CampaignDetail extends CampaignSummary {
   body: string;
   createdAt: string;
   updatedAt: string; // ensure non-optional in detail
-}
-
-// Generic async state shape (kept here for reuse by related hooks)
-export interface AsyncState<T> {
-  data: T | null;
-  loading: boolean;
-  error: string | null;
-  reload: () => void;
 }

@@ -18,7 +18,7 @@ export function Card({
         "rounded-2xl border border-slate-200/90 bg-white shadow-[0_6px_20px_rgba(15,23,42,0.05)]",
         hover &&
           "transition duration-300 hover:shadow-[0_10px_28px_rgba(15,23,42,0.10)]",
-        padded && "p-6",
+        padded && "p-5 sm:p-6",
         className,
       )}
       {...rest}

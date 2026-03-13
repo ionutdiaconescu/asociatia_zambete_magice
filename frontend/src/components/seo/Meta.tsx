@@ -1,4 +1,10 @@
 import { useEffect } from "react";
+import {
+  DEFAULT_OG_IMAGE_PATH,
+  DEFAULT_SEO_DESCRIPTION,
+  SEO_APP_NAME,
+  toAbsoluteUrl,
+} from "../../utils/seo";
 
 type JsonLdValue = object | object[];
 
@@ -9,10 +15,9 @@ interface MetaProps {
   noIndex?: boolean;
   ogImage?: string;
   ogType?: string;
+  ogImageAlt?: string;
   jsonLd?: JsonLdValue;
 }
-
-const APP_NAME = "Zâmbete Magice";
 
 export function Meta({
   title,
@@ -21,19 +26,31 @@ export function Meta({
   noIndex,
   ogImage,
   ogType = "website",
+  ogImageAlt,
   jsonLd,
 }: MetaProps) {
   useEffect(() => {
-    if (title) {
-      document.title = title.includes(APP_NAME)
+    const resolvedTitle = title
+      ? title.includes(SEO_APP_NAME)
         ? title
-        : `${title} • ${APP_NAME}`;
-    }
+        : `${title} • ${SEO_APP_NAME}`
+      : SEO_APP_NAME;
+    const resolvedDescription = description || DEFAULT_SEO_DESCRIPTION;
+    const resolvedCanonical =
+      canonical ||
+      (typeof window !== "undefined" ? window.location.href : undefined);
+    const resolvedImage = toAbsoluteUrl(ogImage || DEFAULT_OG_IMAGE_PATH);
+
+    document.title = resolvedTitle;
+
     function setMeta(name: string, content?: string) {
-      if (!content) return;
       let el = document.querySelector(
         `meta[name="${name}"]`,
       ) as HTMLMetaElement | null;
+      if (!content) {
+        el?.remove();
+        return;
+      }
       if (!el) {
         el = document.createElement("meta");
         el.setAttribute("name", name);
@@ -42,10 +59,13 @@ export function Meta({
       el.setAttribute("content", content);
     }
     function setProperty(property: string, content?: string) {
-      if (!content) return;
       let el = document.querySelector(
         `meta[property="${property}"]`,
       ) as HTMLMetaElement | null;
+      if (!content) {
+        el?.remove();
+        return;
+      }
       if (!el) {
         el = document.createElement("meta");
         el.setAttribute("property", property);
@@ -53,8 +73,11 @@ export function Meta({
       }
       el.setAttribute("content", content);
     }
-    if (description) setMeta("description", description);
-    if (canonical) {
+
+    setMeta("description", resolvedDescription);
+    setMeta("robots", noIndex ? "noindex, nofollow" : "index, follow");
+
+    if (resolvedCanonical) {
       let link = document.querySelector(
         'link[rel="canonical"]',
       ) as HTMLLinkElement | null;
@@ -63,19 +86,26 @@ export function Meta({
         link.rel = "canonical";
         document.head.appendChild(link);
       }
-      link.href = canonical;
+      link.href = resolvedCanonical;
+    } else {
+      document.querySelector('link[rel="canonical"]')?.remove();
     }
-    if (noIndex) setMeta("robots", "noindex, nofollow");
-    const ogTitle = title
-      ? title.includes(APP_NAME)
-        ? title
-        : `${title} • ${APP_NAME}`
-      : APP_NAME;
+
+    const ogTitle = resolvedTitle;
     setProperty("og:title", ogTitle);
-    if (description) setProperty("og:description", description);
-    if (ogImage) setProperty("og:image", ogImage);
-    setProperty("og:site_name", APP_NAME);
+    setProperty("og:description", resolvedDescription);
+    setProperty("og:image", resolvedImage);
+    setProperty("og:image:alt", ogImageAlt || resolvedTitle);
+    setProperty("og:site_name", SEO_APP_NAME);
     if (ogType) setProperty("og:type", ogType);
+    setProperty("og:url", resolvedCanonical);
+    setProperty("og:locale", "ro_RO");
+
+    setMeta("twitter:card", resolvedImage ? "summary_large_image" : "summary");
+    setMeta("twitter:title", resolvedTitle);
+    setMeta("twitter:description", resolvedDescription);
+    setMeta("twitter:image", resolvedImage);
+    setMeta("twitter:image:alt", ogImageAlt || resolvedTitle);
 
     // JSON-LD structured data
     const existing = document.getElementById("app-jsonld");
@@ -93,6 +123,15 @@ export function Meta({
     } else if (existing) {
       existing.remove();
     }
-  }, [title, description, canonical, noIndex, ogImage, ogType, jsonLd]);
+  }, [
+    title,
+    description,
+    canonical,
+    noIndex,
+    ogImage,
+    ogType,
+    ogImageAlt,
+    jsonLd,
+  ]);
   return null;
 }

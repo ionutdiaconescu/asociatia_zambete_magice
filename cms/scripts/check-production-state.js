@@ -3,45 +3,43 @@
  * Run this on Render to check why endpoints return 404
  */
 
-const Strapi = require("@strapi/strapi");
+const { createStrapi } = require("@strapi/strapi");
 
 async function checkProductionState() {
   console.log("🔍 Checking production state...\n");
 
-  const app = await Strapi().load();
+  const app = await createStrapi().load();
 
   try {
     console.log("1️⃣ Checking Content Types:");
-    const contentTypes = Object.keys(strapi.contentTypes);
+    const contentTypes = Object.keys(app.contentTypes);
     const appTypes = contentTypes.filter((ct) => ct.startsWith("api::"));
     console.log(`   Found ${appTypes.length} application content types:`);
     appTypes.forEach((ct) => console.log(`   - ${ct}`));
 
     console.log("\n2️⃣ Checking Homepage Entry:");
-    const homepage = await strapi
-      .documents("api::homepage.homepage")
-      .findFirst();
+    const homepage = await app.documents("api::homepage.homepage").findFirst();
     if (homepage) {
       console.log(
-        `   ✅ Homepage exists (ID: ${homepage.id}, publishedAt: ${homepage.publishedAt})`
+        `   ✅ Homepage exists (ID: ${homepage.id}, publishedAt: ${homepage.publishedAt})`,
       );
     } else {
       console.log("   ❌ Homepage entry NOT FOUND");
     }
 
     console.log("\n3️⃣ Checking Campaigns:");
-    const campaigns = await strapi
+    const campaigns = await app
       .documents("api::campanie-de-donatii.campanie-de-donatii")
       .findMany({ limit: 5 });
     console.log(`   Found ${campaigns.length} campaigns`);
     if (campaigns.length > 0) {
       campaigns.forEach((c) =>
-        console.log(`   - ${c.title} (published: ${!!c.publishedAt})`)
+        console.log(`   - ${c.title} (published: ${!!c.publishedAt})`),
       );
     }
 
     console.log("\n4️⃣ Checking Public Role Permissions:");
-    const publicRole = await strapi
+    const publicRole = await app
       .query("plugin::users-permissions.role")
       .findOne({
         where: { type: "public" },
@@ -52,13 +50,13 @@ async function checkProductionState() {
       const relevantPerms = publicRole.permissions.filter(
         (p) =>
           p.action.includes("homepage") ||
-          p.action.includes("campanie-de-donatii")
+          p.action.includes("campanie-de-donatii"),
       );
       console.log(
-        `   Public role has ${relevantPerms.length} relevant permissions:`
+        `   Public role has ${relevantPerms.length} relevant permissions:`,
       );
       relevantPerms.forEach((p) =>
-        console.log(`   - ${p.action} (enabled: ${p.enabled})`)
+        console.log(`   - ${p.action} (enabled: ${p.enabled})`),
       );
     } else {
       console.log("   ❌ Public role NOT FOUND");
@@ -66,15 +64,15 @@ async function checkProductionState() {
 
     console.log("\n5️⃣ Testing Direct Query:");
     try {
-      const directHomepage = await strapi.entityService.findMany(
+      const directHomepage = await app.entityService.findMany(
         "api::homepage.homepage",
         {
           publicationState: "live",
-        }
+        },
       );
       console.log(
         `   Direct query result:`,
-        directHomepage ? "✅ Found" : "❌ Not found"
+        directHomepage ? "✅ Found" : "❌ Not found",
       );
     } catch (e) {
       console.log(`   ❌ Direct query error: ${e.message}`);

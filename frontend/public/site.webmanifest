@@ -1,0 +1,17 @@
+{
+  "name": "Asociatia Zambete Magice",
+  "short_name": "Zambete Magice",
+  "description": "Asociatia Zambete Magice sprijina copiii prin campanii umanitare, proiecte educationale si interventii sociale.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff8f1",
+  "theme_color": "#9a3412",
+  "icons": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

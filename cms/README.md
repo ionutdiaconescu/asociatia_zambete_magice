@@ -102,12 +102,47 @@ Maintenance scripts:
 - Sync donation decimals: `npm run sync:donations -- --dry` then without `--dry`
 - Recompute campaign raised: `npm run recompute:raised -- --dry` then without
 
-Stripe flow (simplified placeholder):
+Stripe flow (current CMS-based flow):
 
-1. Frontend calls backend to create Checkout Session (amount user-entered)
+1. Frontend calls CMS payments API to create Checkout Session (amount user-entered)
 2. User pays on Stripe hosted page
 3. Webhook (payment succeeded) → create donation (store minor units, set `stare=completed`)
 4. (Optional batch) Recompute campaign raised
+
+Current endpoints:
+
+- `GET /api/payments/status`
+- `POST /api/payments/create-checkout-session`
+- `POST /api/stripe/webhook`
+
+Current activation model:
+
+- Dacă `STRIPE_SECRET_KEY` sau `FRONTEND_URL` lipsesc, `payments/status` returnează `ready: false`.
+- În starea aceasta frontend-ul dezactivează checkout-ul în loc să lase utilizatorul să intre într-un flow stricat.
+- `create-checkout-session` răspunde cu `503` și `PAYMENTS_NOT_CONFIGURED` când Stripe nu este gata.
+
+## 🌐 Production Domains
+
+- Frontend: `https://zambetemagice.com`
+- CMS: `https://asociatia-zambete-magice.onrender.com`
+
+## ✅ Stripe Activation Checklist
+
+De făcut când contul Stripe al asociației este pregătit:
+
+1. Setezi în CMS env:
+   - `STRIPE_SECRET_KEY`
+   - `STRIPE_WEBHOOK_SECRET`
+   - `FRONTEND_URL=https://zambetemagice.com`
+   - opțional `DONATION_CURRENCY=RON`
+2. Configurezi webhook Stripe către `https://asociatia-zambete-magice.onrender.com/api/stripe/webhook`.
+3. Faci redeploy la CMS.
+4. Verifici `GET /api/payments/status` și confirmi `ready: true`.
+5. Testezi un checkout complet cu card de test înainte de live.
+
+Observație:
+
+- Build-urile locale frontend și CMS au trecut după ultimele schimbări; dacă live există probleme după push, focusul trebuie să fie pe env/redeploy/runtime, nu pe compilare.
 
 ## 🧭 Campaign History Criteria
 

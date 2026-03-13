@@ -1,6 +1,10 @@
 // Service layer for campaigns API integration (no React imports here).
-// Falls back to mock data if backend not reachable (early dev convenience).
-import type { CampaignSummary, CampaignDetail } from "../types/campaign";
+// Falls back to mock data if CMS API is not reachable (early dev convenience).
+import type {
+  CampaignSummary,
+  CampaignDetail,
+  EnhancedCampaign,
+} from "../types/campaign";
 import { enhanceCampaign, enhanceMany } from "../utils/campaign";
 import { resolveCmsApiConfig } from "./cmsConfig";
 import { resolveMediaUrl } from "./cmsMedia";
@@ -29,6 +33,7 @@ const mockCampaigns: CampaignSummary[] = [
     updatedAt: new Date().toISOString(),
   },
 ];
+const mockEnhancedCampaigns = enhanceMany(mockCampaigns);
 
 const { apiBase: API_BASE, mediaOrigin: API_ORIGIN } = resolveCmsApiConfig();
 const DEBUG_CAMPAIGNS = Boolean(import.meta.env.VITE_DEBUG_CAMPAIGNS);
@@ -70,6 +75,9 @@ interface StrapiCampaignAttributes {
   raised?: number | string;
   status?: string;
   stare?: string;
+  isFeatured?: boolean;
+  startDate?: string;
+  endDate?: string;
   coverImage?: StrapiMediaItem & {
     formats?: Record<string, StrapiMediaFormat>;
   };
@@ -92,6 +100,9 @@ interface StrapiEntry<T> {
   raised?: number | string;
   status?: string;
   stare?: string;
+  isFeatured?: boolean;
+  startDate?: string;
+  endDate?: string;
   coverImage?: StrapiCampaignAttributes["coverImage"];
   updatedAt?: string;
   publishedAt?: string;
@@ -136,17 +147,22 @@ function mapStrapiCampaign(
     raised: raisedNum,
     status: a.status || a.stare,
     coverImage,
+    isFeatured: Boolean(a.isFeatured),
+    startDate: a.startDate,
+    endDate: a.endDate,
     updatedAt: a.updatedAt || a.publishedAt,
   });
 }
 
-export async function fetchCampaigns(): Promise<CampaignSummary[]> {
+export async function fetchCampaigns(): Promise<
+  EnhancedCampaign<CampaignSummary>[]
+> {
   const base = computeCandidateBases()[0];
   if (!base) {
     console.error(
       "[campaigns] API base not set. Define VITE_API_CMS_URL in .env.local",
     );
-    return mockCampaigns;
+    return mockEnhancedCampaigns;
   }
   const url = `${base.replace(
     /\/$/,
@@ -170,12 +186,12 @@ export async function fetchCampaigns(): Promise<CampaignSummary[]> {
       console.error("[campaigns] Fetch error", e);
     }
   }
-  return mockCampaigns;
+  return mockEnhancedCampaigns;
 }
 
 export async function fetchCampaignDetail(
   identifier: string,
-): Promise<CampaignDetail> {
+): Promise<EnhancedCampaign<CampaignDetail>> {
   // identifier can be an id or slug. Try slug query first if not purely numeric.
   const isNumeric = /^\d+$/.test(identifier);
   try {

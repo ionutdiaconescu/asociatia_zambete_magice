@@ -35,7 +35,7 @@ export function HeroSection({
   }, [backgroundImage]);
 
   return (
-    <section className="relative isolate text-white overflow-hidden min-h-[620px] md:min-h-[700px] flex items-center">
+    <section className="relative isolate flex min-h-[540px] items-center overflow-hidden text-white sm:min-h-[620px] md:min-h-[700px]">
       {/* Layer: gradient background */}
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-amber-900 via-orange-800 to-rose-700" />
 
@@ -83,17 +83,17 @@ export function HeroSection({
         </>
       )}
 
-      <div className="relative z-30 container mx-auto px-4 py-24 md:py-28 text-center">
-        <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-tight drop-shadow-md">
+      <div className="relative z-30 container mx-auto px-4 py-20 text-center sm:py-24 md:py-28">
+        <h1 className="mb-6 text-4xl font-extrabold leading-tight drop-shadow-md sm:text-5xl md:text-6xl lg:text-7xl">
           {title}
         </h1>
-        <h2 className="text-2xl md:text-3xl lg:text-4xl mb-8 opacity-95 max-w-4xl mx-auto font-medium drop-shadow-sm">
+        <h2 className="mx-auto mb-8 max-w-4xl text-xl font-medium opacity-95 drop-shadow-sm sm:text-2xl md:text-3xl lg:text-4xl">
           {subtitle}
         </h2>
         {description && (
           <RichHtml
             html={description}
-            className="text-lg md:text-xl mb-12 opacity-85 max-w-3xl mx-auto leading-relaxed"
+            className="mx-auto mb-10 max-w-3xl text-base leading-relaxed opacity-85 sm:text-lg md:mb-12 md:text-xl"
           />
         )}
         {ctaText &&
@@ -103,7 +103,7 @@ export function HeroSection({
               href={ctaLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center bg-white text-amber-800 px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-2xl hover:bg-amber-50 transform hover:scale-[1.03] transition-all duration-300"
+              className="inline-flex w-full items-center justify-center rounded-full bg-white px-6 py-3.5 text-base font-semibold text-amber-800 shadow-lg transition-all duration-300 hover:scale-[1.03] hover:bg-amber-50 hover:shadow-2xl sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
             >
               {ctaText}
               <svg
@@ -123,7 +123,7 @@ export function HeroSection({
           ) : (
             <Link
               to={ctaLink}
-              className="inline-flex items-center bg-white text-amber-800 px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-2xl hover:bg-amber-50 transform hover:scale-[1.03] transition-all duration-300"
+              className="inline-flex w-full items-center justify-center rounded-full bg-white px-6 py-3.5 text-base font-semibold text-amber-800 shadow-lg transition-all duration-300 hover:scale-[1.03] hover:bg-amber-50 hover:shadow-2xl sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
             >
               {ctaText}
               <svg

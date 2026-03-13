@@ -37,17 +37,19 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         <Link
           to="/"
-          className="flex items-center gap-3 group"
+          className="flex min-w-0 items-center gap-2 pr-3 sm:gap-3 group"
           aria-label="Acasă - Asociația Zâmbete Magice"
         >
-          <img
-            src={Logo}
-            alt="Sigla Zâmbete Magice"
-            className="h-12 w-auto object-contain drop-shadow-sm transition-transform group-hover:scale-[1.04]"
-            loading="lazy"
-            decoding="async"
-          />
-          <span className="text-2xl md:text-3xl font-extrabold leading-tight tracking-tight text-slate-900 dark:text-white">
+          <span className="rounded-2xl transition-colors dark:bg-white/95 dark:p-1.5 dark:shadow-[0_10px_24px_rgba(15,23,42,0.2)]">
+            <img
+              src={Logo}
+              alt="Sigla Zâmbete Magice"
+              className="h-10 w-auto object-contain drop-shadow-sm transition-transform group-hover:scale-[1.04] sm:h-12"
+              loading="lazy"
+              decoding="async"
+            />
+          </span>
+          <span className="max-w-[10.5rem] truncate text-lg font-extrabold leading-tight tracking-tight text-slate-900 dark:text-white sm:max-w-none sm:text-2xl md:text-3xl">
             Zâmbete Magice
           </span>
         </Link>
@@ -108,7 +110,7 @@ export default function Navbar() {
         <button
           aria-label="Deschide meniul"
           onClick={() => setOpen((o) => !o)}
-          className="md:hidden inline-flex items-center justify-center rounded p-2 text-amber-800 hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-400"
+          className="md:hidden shrink-0 inline-flex items-center justify-center rounded p-2 text-amber-800 hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-400"
         >
           <svg
             className="h-7 w-7"

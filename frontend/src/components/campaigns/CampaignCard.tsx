@@ -42,12 +42,14 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
               srLabel={`Progres strângere fonduri: ${percent}`}
               heightClass="h-2"
             />
-            <div className="flex justify-between text-xs text-slate-600">
-              <span>
+            <div className="flex flex-col gap-1 text-xs text-slate-600 sm:flex-row sm:items-center sm:justify-between">
+              <span className="break-words">
                 {formatRON(campaign.raised)} strânși din{" "}
                 {formatRON(campaign.goal)}
               </span>
-              <span className="font-semibold text-slate-800">{percent}</span>
+              <span className="font-semibold text-slate-800 sm:text-right">
+                {percent}
+              </span>
             </div>
           </div>
         </CardContent>

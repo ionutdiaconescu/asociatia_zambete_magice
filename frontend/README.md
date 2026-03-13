@@ -38,6 +38,7 @@ Routes are nested under a single `Layout` component so Navbar / Footer are centr
   <Route path="campaigns/:id" element={<CampaignDetail/>} />
   <Route path="about" element={<About/>} />
   <Route path="contact" element={<Contact/>} />
+  <Route path="donate" element={<Donate/>} />
   <Route path="donate/success" element={<DonateSuccess/>} />
   <Route path="donate/cancel" element={<DonateCancel/>} />
   <Route path="*" element={<NotFound/>}/> (inline for now)
@@ -127,16 +128,31 @@ Example:
 
 `/donate` pagina include:
 
+- Selectare campanie activă
 - Sume preset: 25 / 50 / 100 / 250 RON
 - Input sumă personalizată (numeric only)
-- Rezumat donație + buton „Continuă către plată” (simulat cu alert)
+- Câmp email pentru confirmarea Stripe
+- Rezumat donație + redirect către Stripe Checkout
 
-Integrare Stripe (plan):
+Flow-ul actual:
 
-1. Trimite `POST /api/donations/session` cu `{ amount }`.
-2. Primește `url` de redirecționare (Checkout Session / Payment Link).
-3. Redirecționare: `window.location = url`.
-4. Success/Cancel redirecționează către rutele existente `/donate/success` și `/donate/cancel`.
+1. Frontend citește `GET /api/payments/status` din CMS.
+2. Dacă plățile nu sunt configurate, butonul este dezactivat și utilizatorul vede mesajul relevant.
+3. La submit, frontend trimite `POST /api/payments/create-checkout-session` cu `{ amount, campaignId, donorEmail }`.
+4. CMS răspunde cu `url` de Stripe Checkout.
+5. Browserul redirecționează către Stripe.
+6. Success/Cancel revin în `/donate/success` și `/donate/cancel`.
+
+Observație:
+
+- Codul este pregătit pentru Stripe, dar poate rămâne în mod sigur „disabled” până când există cheile reale și `FRONTEND_URL` corect în CMS.
+
+### Deploy Notes
+
+- Domeniu frontend: `https://zambetemagice.com`
+- Domeniu CMS/API: `https://asociatia-zambete-magice.onrender.com`
+- Pentru refresh/direct hit pe rutele React (`/donate`, `/campaigns/...`) există fallback-uri SPA în `vercel.json` și `public/_redirects`.
+- Dacă `/donate` sau alte rute returnează 404 în producție, primul lucru de verificat este că hostul frontend folosește rewrite-ul către `index.html`.
 
 ### Services Layer
 
@@ -145,12 +161,12 @@ Integrare Stripe (plan):
 - `fetchCampaigns()` – listă campanii (mock + delay)
 - `fetchCampaignDetail(id)` – detaliu campanie
 
-Înlocuire viitoare: substituie mock cu request real (fetch/axios) spre backend.
+Înlocuire viitoare: substituie mock cu request real (fetch/axios) spre CMS API.
 
 ### Planned Next Steps
 
 1. Add reusable UI primitives (Button, Card, Section wrapper).
-2. Integrate backend API for campaigns list & detail (replace mocks).
+2. Integrate CMS API for campaigns list & detail (replace mocks).
 3. Wire Stripe Checkout creation endpoint + redirect.
 4. Global loading & error boundaries.
 5. SEO meta tags & OpenGraph (per route) – possibly via `react-helmet-async`.
@@ -179,12 +195,12 @@ Integrare Stripe (plan):
 
 ### Troubleshooting
 
-| Symptom                      | Possible Cause                                 | Fix                                                                                       |
-| ---------------------------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| Classes not applied          | Forgot `@tailwind` directives                  | Check `src/index.css` for the three directives.                                           |
-| New component styles missing | File path not in `content` globs               | Ensure `tailwind.config.js` includes `./src/**/*.{js,ts,jsx,tsx}`. Restart dev if needed. |
-| 404 for API calls            | Backend dev server not running / proxy missing | Start backend or configure Vite proxy in `vite.config.ts`.                                |
-| Mobile menu doesn’t animate  | Removed transition classes                     | Restore `transition-[max-height] duration-300`.                                           |
+| Symptom                      | Possible Cause                             | Fix                                                                                       |
+| ---------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------- |
+| Classes not applied          | Forgot `@tailwind` directives              | Check `src/index.css` for the three directives.                                           |
+| New component styles missing | File path not in `content` globs           | Ensure `tailwind.config.js` includes `./src/**/*.{js,ts,jsx,tsx}`. Restart dev if needed. |
+| 404 for API calls            | CMS dev server not running / proxy missing | Start CMS or configure Vite proxy in `vite.config.ts`.                                    |
+| Mobile menu doesn’t animate  | Removed transition classes                 | Restore `transition-[max-height] duration-300`.                                           |
 
 ### Quick Verification Script (Manual)
 

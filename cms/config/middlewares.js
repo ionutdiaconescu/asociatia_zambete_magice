@@ -26,6 +26,8 @@ module.exports = ({ env }) => {
           "http://localhost:3000",
           "http://localhost:5174",
           env("FRONTEND_URL", "http://localhost:5173"),
+          "https://zambetemagice.com",
+          "https://www.zambetemagice.com",
           "https://asociatia-zambete-magice.vercel.app",
           "https://asociatia-zambete-magice.onrender.com",
           ...(env("CORS_EXTRA_ORIGINS") || "")

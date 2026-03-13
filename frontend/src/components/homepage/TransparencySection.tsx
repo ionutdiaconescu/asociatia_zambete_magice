@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 interface TransparencySectionProps {
   title?: string | null;
 }
@@ -73,12 +75,15 @@ export function TransparencySection({ title }: TransparencySectionProps) {
 
         <div className="text-center mt-12">
           <p className="text-lg text-slate-600 mb-6">
-            Rapoartele noastre financiare sunt publice și verificate anual de un
-            auditor independent.
+            Pentru transparență, publicăm istoricul campaniilor și suma strânsă
+            pentru fiecare dintre ele.
           </p>
-          <button className="bg-amber-700 text-white px-8 py-3 rounded-full font-semibold hover:bg-amber-800 transition-colors duration-300 shadow">
-            Descarcă raportul anual
-          </button>
+          <Link
+            to="/campanii/istoric"
+            className="inline-flex items-center bg-amber-700 text-white px-8 py-3 rounded-full font-semibold hover:bg-amber-800 transition-colors duration-300 shadow"
+          >
+            Vezi istoricul campaniilor
+          </Link>
         </div>
       </div>
     </section>

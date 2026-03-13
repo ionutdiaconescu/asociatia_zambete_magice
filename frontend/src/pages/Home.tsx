@@ -9,7 +9,12 @@ import { Meta } from "../components/seo/Meta";
 import { RichHtml } from "../components/ui/RichHtml";
 import { ImageGallery } from "../components/ui/ImageGallery";
 import { excerptFromHtml } from "../utils/content";
-import { buildCanonical, buildCreativeWork } from "../utils/seo";
+import {
+  buildCanonical,
+  buildOrganization,
+  buildWebPage,
+  buildWebsite,
+} from "../utils/seo";
 
 export default function Home() {
   const { homepage, loading, error } = useHomepage();
@@ -78,18 +83,22 @@ export default function Home() {
         }
         canonical={buildCanonical("/")}
         ogImage={homepage.seoSocialImage || undefined}
-        jsonLd={buildCreativeWork({
-          name: homepage.seoTitle || homepage.heroTitle,
-          description:
-            homepage.seoDescription ||
-            excerptFromHtml(homepage.heroDescription || "", 200) ||
-            "Asociația Zâmbete Magice - Campanii umanitare pentru copii.",
-          image:
-            homepage.seoSocialImage ||
-            homepage.heroBackgroundImage ||
-            undefined,
-          url: buildCanonical("/"),
-        })}
+        jsonLd={[
+          buildWebsite(),
+          buildOrganization({ logo: homepage.seoSocialImage || undefined }),
+          buildWebPage({
+            name: homepage.seoTitle || homepage.heroTitle,
+            description:
+              homepage.seoDescription ||
+              excerptFromHtml(homepage.heroDescription || "", 200) ||
+              "Asociatia Zambete Magice - campanii umanitare pentru copii.",
+            image:
+              homepage.seoSocialImage ||
+              homepage.heroBackgroundImage ||
+              undefined,
+            url: buildCanonical("/"),
+          }),
+        ]}
       />
       {/* Hero Section */}
       <HeroSection

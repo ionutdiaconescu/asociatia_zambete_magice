@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import type { StaticPage, AsyncState } from "../types/page";
+import type { AsyncState } from "../types/async";
+import type { StaticPage } from "../types/page";
 import { fetchPage } from "../services/pages";
 
 export function usePage(slug: string | undefined): AsyncState<StaticPage> {

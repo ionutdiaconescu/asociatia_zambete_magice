@@ -1,53 +1,12 @@
 import { useState, useEffect } from "react";
 import { resolveCmsApiConfig } from "../services/cmsConfig";
 import { resolveMediaUrl } from "../services/cmsMedia";
-
-interface HomepageData {
-  id: number;
-  documentId: string;
-  heroTitle: string;
-  heroSubtitle: string;
-  heroDescription: string | null;
-  heroCtaText: string | null;
-  heroCtaLink: string | null;
-  heroBackgroundImage: string | null;
-  statsYearsActive: number;
-  statsTotalBeneficiaries: number;
-  statsCompletedProjects: number;
-  statsActiveVolunteers: number;
-  howWeWorkTitle: string | null;
-  howWeWorkDescription: string | null;
-  impactGalleryTitle: string | null;
-  impactGalleryDescription: string | null;
-  impactGalleryImages: string[];
-  teamTitle: string | null;
-  teamDescription: string | null;
-  teamImages: string[];
-  transparencyTitle: string | null;
-  donationIban?: string | null; // Added
-  donationBankName?: string | null;
-  donationBeneficiaryName?: string | null;
-  donationInstructions?: string | null;
-  donationReferenceHint?: string | null;
-  seoTitle?: string | null;
-  seoDescription?: string | null;
-  seoSocialImage?: string | null;
-}
-
-type RichTextChild = {
-  type?: string;
-  text?: string;
-  children?: RichTextChild[];
-};
-interface RichTextObject {
-  children?: RichTextChild[];
-}
-type RichTextBlock =
-  | RichTextObject
-  | string
-  | RichTextBlock[]
-  | null
-  | undefined;
+import type {
+  HomepageCmsAttributes,
+  HomepageCmsEntry,
+  HomepageData,
+  HomepageRichTextBlock,
+} from "../types/homepage";
 
 function resolveMediaList(
   input: unknown,
@@ -88,7 +47,9 @@ function resolveMediaList(
 }
 
 // Funcție pentru a converti rich-text în string simplu
-function extractTextFromRichText(richText: RichTextBlock): string | null {
+function extractTextFromRichText(
+  richText: HomepageRichTextBlock,
+): string | null {
   if (!richText) return null;
   if (typeof richText === "string") return richText;
   if (Array.isArray(richText)) {
@@ -157,48 +118,13 @@ export function useHomepage() {
         const effectiveMediaOrigin = mediaOrigin || responseOrigin;
 
         const result = await response.json();
-        const raw = result?.data as {
-          id?: number | string;
-          attributes?: Record<string, unknown>;
-          documentId?: string;
-        } | null;
+        const raw = result?.data as HomepageCmsEntry | null;
         if (!raw) throw new Error("Homepage: răspuns gol (data lipsă)");
         // Strapi v5: { data: { id, attributes: {...} } }
         const attrs: Record<string, unknown> = raw.attributes
           ? (raw.attributes as Record<string, unknown>)
           : (raw as unknown as Record<string, unknown>);
-        type Attrs = {
-          heroTitle?: string;
-          heroSubtitle?: string;
-          heroDescription?: RichTextBlock;
-          heroBackgroundMedia?: unknown; // definit în schema
-          heroBackgroundImage?: unknown; // fallback dacă denumire diferă
-          heroBackground?: unknown; // alte posibile încercări
-          heroCtaText?: string | null;
-          heroCtaLink?: string | null;
-          statsYearsActive?: number;
-          statsTotalBeneficiaries?: number;
-          statsCompletedProjects?: number;
-          statsActiveVolunteers?: number;
-          howWeWorkTitle?: string | null;
-          howWeWorkDescription?: RichTextBlock;
-          impactGalleryTitle?: string | null;
-          impactGalleryDescription?: RichTextBlock;
-          impactGalleryImages?: unknown;
-          teamTitle?: string | null;
-          teamDescription?: RichTextBlock;
-          teamImages?: unknown;
-          transparencyTitle?: string | null;
-          donationIban?: string | null;
-          donationBankName?: string | null;
-          donationBeneficiaryName?: string | null;
-          donationInstructions?: RichTextBlock;
-          donationReferenceHint?: string | null;
-          seoTitle?: string | null;
-          seoDescription?: string | null;
-          seoSocialImage?: unknown;
-        };
-        const a = attrs as Attrs;
+        const a = attrs as HomepageCmsAttributes;
 
         // Determină media pentru background hero din variante multiple de câmp
         const heroBgSource =
