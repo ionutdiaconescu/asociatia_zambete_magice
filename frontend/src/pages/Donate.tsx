@@ -383,7 +383,7 @@ export default function Donate() {
                   <p className="text-[11px] leading-relaxed text-slate-500">
                     {cardPaymentsReady
                       ? "Prin continuare vei fi redirecționat către pagina securizată de plată Stripe."
-                      : "Fluxul este pregătit și va deveni activ imediat ce adaugi contul Stripe și cheile necesare."}
+                      : "Fluxul este pregătit și va deveni activ in scurt timp."}
                   </p>
                 </div>
               </CardContent>
