@@ -9,6 +9,7 @@ import { buildWebPageMeta } from "../utils/seo";
 export default function CampaignDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { data: campaign, loading, error } = useCampaign(slug!);
+  const galleryImages = campaign?.gallery?.slice(0, 6) || [];
 
   const handleShare = async () => {
     const shareUrl = window.location.href;
@@ -238,6 +239,60 @@ export default function CampaignDetail() {
               </p>
             )}
           </div>
+
+          {galleryImages.length > 0 && (
+            <section className="mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+              <div className="border-b border-slate-200 bg-[linear-gradient(135deg,rgba(255,247,237,0.85),rgba(255,255,255,1))] px-5 py-6 sm:px-8">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-[0.22em] text-amber-700">
+                      Galerie campanie
+                    </p>
+                    <h2 className="mt-2 text-2xl font-extrabold text-slate-900">
+                      Imagini din teren
+                    </h2>
+                  </div>
+                  <p className="max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-right">
+                    Selectie vizuala din contextul campaniei. Pentru o pagina
+                    echilibrata si rapida, sunt afisate maximum 6 imagini.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-3 p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-3 lg:gap-4 lg:p-5">
+                {galleryImages.map((image, index) => {
+                  const isPrimary = index === 0;
+
+                  return (
+                    <figure
+                      key={`${image}-${index}`}
+                      className={[
+                        "group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-100",
+                        isPrimary
+                          ? "sm:col-span-2 lg:col-span-2"
+                          : "col-span-1",
+                      ].join(" ")}
+                    >
+                      <img
+                        src={image}
+                        alt={`${campaign.title} - galerie ${index + 1}`}
+                        className={[
+                          "h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]",
+                          isPrimary ? "aspect-[16/10]" : "aspect-[4/3]",
+                        ].join(" ")}
+                        loading="lazy"
+                      />
+                      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/65 via-slate-950/20 to-transparent px-4 py-3 text-white opacity-100 transition-opacity">
+                        <span className="text-xs font-medium uppercase tracking-[0.18em] text-white/85">
+                          Foto {index + 1}
+                        </span>
+                      </div>
+                    </figure>
+                  );
+                })}
+              </div>
+            </section>
+          )}
         </div>
       </div>
     </div>

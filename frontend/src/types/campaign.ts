@@ -20,6 +20,7 @@ export interface Campaign extends CampaignDerivedState {
   title: string;
   shortDescription: string;
   description?: string;
+  gallery?: string[];
   goal: number;
   raised: number;
   status: string;
@@ -35,6 +36,7 @@ export interface CampaignSummary extends CampaignDerivedState {
   title: string;
   slug: string; // friendly identifier (fallback to id if missing)
   shortDescription: string;
+  gallery?: string[];
   goal: number;
   raised: number; // may be 0 until donation aggregation implemented
   status?: string; // mapped from Strapi 'stare' / 'status'

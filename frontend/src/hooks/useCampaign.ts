@@ -25,6 +25,7 @@ export function useCampaign(slug: string) {
           title: detail.title,
           shortDescription: detail.shortDescription,
           description: detail.body || detail.shortDescription,
+          gallery: detail.gallery || [],
           goal: detail.goal,
           raised: detail.raised,
           status: detail.status || "active",

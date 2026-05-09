@@ -62,6 +62,8 @@ interface StrapiMediaItem {
   url?: string;
   data?: { attributes?: { url?: string } };
 }
+
+type MediaListInput = { data?: unknown[] } | unknown[] | null | undefined;
 interface StrapiCampaignAttributes {
   title?: string;
   // allow possible alternative legacy field names (defensive)
@@ -81,6 +83,7 @@ interface StrapiCampaignAttributes {
   coverImage?: StrapiMediaItem & {
     formats?: Record<string, StrapiMediaFormat>;
   };
+  gallery?: MediaListInput;
   updatedAt?: string;
   publishedAt?: string;
   createdAt?: string;
@@ -104,9 +107,20 @@ interface StrapiEntry<T> {
   startDate?: string;
   endDate?: string;
   coverImage?: StrapiCampaignAttributes["coverImage"];
+  gallery?: MediaListInput;
   updatedAt?: string;
   publishedAt?: string;
   createdAt?: string;
+}
+
+const onlyStrings = (value: string | null | undefined): value is string =>
+  typeof value === "string" && value.length > 0;
+
+function normalizeGallery(gallery?: MediaListInput): unknown[] {
+  if (!gallery) return [];
+  if (Array.isArray(gallery)) return gallery;
+  if (Array.isArray(gallery.data)) return gallery.data;
+  return [];
 }
 
 function mapStrapiCampaign(
@@ -137,12 +151,16 @@ function mapStrapiCampaign(
     a.shortDescription || a.short_description || a.body?.slice(0, 140) || "";
   const coverImage =
     resolveMediaUrl(a.coverImage, API_ORIGIN, 1600) || undefined;
+  const gallery = normalizeGallery(a.gallery)
+    .map((media) => resolveMediaUrl(media, API_ORIGIN, 1600))
+    .filter(onlyStrings);
 
   return enhanceCampaign({
     id: String(entry.id),
     title,
     slug: a.slug || String(entry.id),
     shortDescription: shortDesc,
+    gallery,
     goal: goalNum,
     raised: raisedNum,
     status: a.status || a.stare,
@@ -200,7 +218,7 @@ export async function fetchCampaignDetail(
       (b: string) =>
         `${b}/campaigns?filters[slug][$eq]=${encodeURIComponent(
           identifier,
-        )}&populate=coverImage`,
+        )}&populate=*`,
     ];
     if (!isNumeric) {
       for (const base of bases) {
@@ -228,9 +246,7 @@ export async function fetchCampaignDetail(
       }
     }
     // Try by id with path variants
-    const idPaths = [
-      (b: string) => `${b}/campaigns/${identifier}?populate=coverImage`,
-    ];
+    const idPaths = [(b: string) => `${b}/campaigns/${identifier}?populate=*`];
     for (const base of bases) {
       for (const build of idPaths) {
         try {
