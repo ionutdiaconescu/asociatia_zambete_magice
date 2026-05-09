@@ -15,6 +15,11 @@
     "goal": { "type": "integer", "default": 0 },
     "raised": { "type": "integer", "default": 0 },
     "coverImage": { "type": "media", "multiple": false },
+    "gallery": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": ["images"]
+    },
     "startDate": { "type": "date" },
     "endDate": { "type": "date" },
     "isFeatured": { "type": "boolean", "default": false },
