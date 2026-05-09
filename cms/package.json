@@ -26,6 +26,8 @@
     "admin:production-fix": "node scripts/copy-admin-build.js",
     "admin:verify": "node scripts/ultimate-verification.js",
     "fix:upload-settings": "node scripts/fix-upload-settings.js",
+    "db:rls": "node scripts/fix-supabase-rls.js",
+    "db:rls:apply": "node scripts/fix-supabase-rls.js --apply",
     "storage:orphans": "node scripts/cleanup-supabase-orphans.js",
     "storage:orphans:delete": "node scripts/cleanup-supabase-orphans.js --delete",
     "debug:routes": "node scripts/list-routes.js",

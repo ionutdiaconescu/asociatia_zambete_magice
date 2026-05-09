@@ -32,6 +32,12 @@ Acest fisier descrie scripturile ramase dupa cleanup si cand merita folosite.
 - `npm run bootstrap:db`
   Initializare baza de date / bootstrap.
 
+- `npm run db:rls`
+  Listeaza tabelele din schema `public` care nu au inca RLS activat. Ruleaza-l prima data ca verificare.
+
+- `npm run db:rls:apply`
+  Activeaza RLS pe toate tabelele `public` care inca nu il au. Este remedierea potrivita pentru warning-urile Supabase de tipul `Table ... is public, but RLS has not been enabled`.
+
 ## Admin si verificare
 
 - `npm run admin:complete-fix`
@@ -104,6 +110,9 @@ Acest fisier descrie scripturile ramase dupa cleanup si cand merita folosite.
 
 - `scripts/diagnose-supabase.js`
   Diagnostic dedicat Supabase.
+
+- `scripts/fix-supabase-rls.js`
+  Audit si remediere pentru tabelele din `public` fara RLS.
 
 - `scripts/ensure-pg-env.js`
   Verificare env Postgres.

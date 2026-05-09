@@ -7,6 +7,43 @@
 require("dotenv").config();
 const { Client } = require("pg");
 
+function getSslConfig() {
+  const rawValue = process.env.DATABASE_SSL;
+  const shouldUseSsl =
+    rawValue !== undefined
+      ? String(rawValue).toLowerCase() === "true"
+      : /(supabase|pooler)/i.test(process.env.DATABASE_HOST || "");
+
+  return shouldUseSsl ? { require: true, rejectUnauthorized: false } : false;
+}
+
+function shouldRetryWithoutSsl(error, sslConfig) {
+  return (
+    !!sslConfig &&
+    /does not support ssl connections/i.test(error && error.message)
+  );
+}
+
+async function connectClient(baseConfig) {
+  const initialConfig = { ...baseConfig, ssl: getSslConfig() };
+  let client = new Client(initialConfig);
+
+  try {
+    await client.connect();
+    return client;
+  } catch (error) {
+    await client.end().catch(() => {});
+
+    if (!shouldRetryWithoutSsl(error, initialConfig.ssl)) {
+      throw error;
+    }
+
+    client = new Client({ ...baseConfig, ssl: false });
+    await client.connect();
+    return client;
+  }
+}
+
 async function checkPostgres() {
   const cfg = {
     host: process.env.DATABASE_HOST,
@@ -14,18 +51,16 @@ async function checkPostgres() {
     database: process.env.DATABASE_NAME,
     user: process.env.DATABASE_USERNAME,
     password: process.env.DATABASE_PASSWORD,
-    ssl: { rejectUnauthorized: false, require: true },
     connectionTimeoutMillis: Number(
-      process.env.DATABASE_CONNECTION_TIMEOUT || 15000
+      process.env.DATABASE_CONNECTION_TIMEOUT || 15000,
     ),
   };
 
-  const client = new Client(cfg);
-  await client.connect();
+  const client = await connectClient(cfg);
   const out = { ok: true, tables: [], samples: {} };
   try {
     const who = await client.query(
-      "select current_database() as db, current_user as usr"
+      "select current_database() as db, current_user as usr",
     );
     out.db = who.rows[0];
 
@@ -118,7 +153,7 @@ async function checkStorage() {
         "  ok:",
         false,
         "error:",
-        (db.reason && db.reason.message) || String(db.reason)
+        (db.reason && db.reason.message) || String(db.reason),
       );
     }
 
@@ -134,7 +169,7 @@ async function checkStorage() {
         "  ok:",
         false,
         "error:",
-        (store.reason && store.reason.message) || String(store.reason)
+        (store.reason && store.reason.message) || String(store.reason),
       );
     }
   } catch (e) {
