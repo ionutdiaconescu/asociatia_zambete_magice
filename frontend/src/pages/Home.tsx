@@ -191,7 +191,10 @@ export default function Home() {
       )}
 
       {/* Active Campaigns */}
-      <section className="py-20 bg-[linear-gradient(180deg,#fff8f1_0%,#fffdf8_100%)]">
+      <section
+        id="campanii-active"
+        className="py-20 bg-[linear-gradient(180deg,#fff8f1_0%,#fffdf8_100%)]"
+      >
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-6">

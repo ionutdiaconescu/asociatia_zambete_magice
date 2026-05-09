@@ -15,11 +15,21 @@ function isPastEndDate(endDate?: string) {
   return end.getTime() < Date.now();
 }
 
+function isBeforeStartDate(startDate?: string) {
+  if (!startDate) return false;
+
+  const start = new Date(`${startDate}T00:00:00`);
+  if (Number.isNaN(start.getTime())) return false;
+
+  return start.getTime() > Date.now();
+}
+
 export function enhanceCampaign<
   T extends {
     raised: number;
     goal: number;
     status?: string;
+    startDate?: string;
     endDate?: string;
   },
 >(c: T): EnhancedCampaign<T> {
@@ -32,13 +42,14 @@ export function enhanceCampaign<
   const historicalByStatus =
     normalizedStatus === "completed" || normalizedStatus === "closed";
   const historicalByDate = isPastEndDate(c.endDate);
+  const startsInFuture = isBeforeStartDate(c.startDate);
   const isHistorical = historicalByStatus || historicalByDate || isCompleted;
 
   return Object.assign({}, c, {
     progressPercent,
     remaining: remainingRaw > 0 ? remainingRaw : 0,
     isCompleted,
-    isActiveNow: !isHistorical,
+    isActiveNow: !isHistorical && !startsInFuture,
     isHistorical,
   });
 }

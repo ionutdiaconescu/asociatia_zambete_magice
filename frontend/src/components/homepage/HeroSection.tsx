@@ -27,8 +27,27 @@ export function HeroSection({
   backgroundFit = "cover",
 }: HeroSectionProps) {
   const [imageFailed, setImageFailed] = useState(false);
-  const isExternalCta =
-    !!ctaLink && /^(https?:\/\/|\/\/|mailto:|tel:)/i.test(ctaLink);
+  let resolvedInternalPath: string | null = null;
+  let isExternalCta = false;
+
+  if (ctaLink) {
+    if (/^(mailto:|tel:)/i.test(ctaLink)) {
+      isExternalCta = true;
+    } else if (/^(https?:\/\/|\/\/)/i.test(ctaLink)) {
+      try {
+        const url = new URL(ctaLink, window.location.origin);
+        if (url.origin === window.location.origin) {
+          resolvedInternalPath = `${url.pathname}${url.search}${url.hash}`;
+        } else {
+          isExternalCta = true;
+        }
+      } catch {
+        isExternalCta = true;
+      }
+    } else {
+      resolvedInternalPath = ctaLink;
+    }
+  }
 
   useEffect(() => {
     setImageFailed(false);
@@ -122,7 +141,7 @@ export function HeroSection({
             </a>
           ) : (
             <Link
-              to={ctaLink}
+              to={resolvedInternalPath || ctaLink}
               className="inline-flex w-full items-center justify-center rounded-full bg-white px-6 py-3.5 text-base font-semibold text-amber-800 shadow-lg transition-all duration-300 hover:scale-[1.03] hover:bg-amber-50 hover:shadow-2xl sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
             >
               {ctaText}
