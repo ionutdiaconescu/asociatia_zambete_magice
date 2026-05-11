@@ -4,6 +4,7 @@ import {
   CampaignCard,
   CampaignCardSkeleton,
 } from "../components/campaigns/CampaignCard";
+import { CampaignEmptyState } from "../components/campaigns/CampaignGrid";
 import { Section } from "../components/ui/Section";
 import { Meta } from "../components/seo/Meta";
 import { ContentState } from "../components/ui/ContentState";
@@ -57,11 +58,7 @@ export default function Campaigns() {
               ))}
             </div>
           }
-          empty={
-            <p className="text-base text-slate-600">
-              Nu există campanii momentan.
-            </p>
-          }
+          empty={<CampaignEmptyState />}
         >
           {(list) => (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

@@ -3,6 +3,7 @@ import { useCampaign } from "../hooks/useCampaign";
 import { formatRON } from "../utils/format";
 import { ArrowLeft, Calendar, Target, Users, Share2 } from "lucide-react";
 import { RichHtml } from "../components/ui/RichHtml";
+import { ImageGallery } from "../components/ui/ImageGallery";
 import { Meta } from "../components/seo/Meta";
 import { buildWebPageMeta } from "../utils/seo";
 
@@ -258,38 +259,12 @@ export default function CampaignDetail() {
                   </p>
                 </div>
               </div>
-
-              <div className="grid gap-3 p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-3 lg:gap-4 lg:p-5">
-                {galleryImages.map((image, index) => {
-                  const isPrimary = index === 0;
-
-                  return (
-                    <figure
-                      key={`${image}-${index}`}
-                      className={[
-                        "group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-100",
-                        isPrimary
-                          ? "sm:col-span-2 lg:col-span-2"
-                          : "col-span-1",
-                      ].join(" ")}
-                    >
-                      <img
-                        src={image}
-                        alt={`${campaign.title} - galerie ${index + 1}`}
-                        className={[
-                          "h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]",
-                          isPrimary ? "aspect-[16/10]" : "aspect-[4/3]",
-                        ].join(" ")}
-                        loading="lazy"
-                      />
-                      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/65 via-slate-950/20 to-transparent px-4 py-3 text-white opacity-100 transition-opacity">
-                        <span className="text-xs font-medium uppercase tracking-[0.18em] text-white/85">
-                          Foto {index + 1}
-                        </span>
-                      </div>
-                    </figure>
-                  );
-                })}
+              <div className="p-3 sm:p-4 lg:p-5">
+                <ImageGallery
+                  images={galleryImages}
+                  altPrefix={campaign.title}
+                  className=""
+                />
               </div>
             </section>
           )}
