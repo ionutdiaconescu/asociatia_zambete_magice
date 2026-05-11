@@ -1,7 +1,5 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
-import { ImageLightbox } from "../ui/ImageLightbox";
 import { Progress } from "../ui/Progress";
 import type { CampaignSummary } from "../../types/campaign";
 import { formatRON, formatPercent } from "../../utils/format";
@@ -11,93 +9,61 @@ interface CampaignCardProps {
 }
 
 export function CampaignCard({ campaign }: CampaignCardProps) {
-  const [activePreviewIndex, setActivePreviewIndex] = useState<number | null>(
-    null,
-  );
   const percent =
     (campaign.progressPercent ??
       parseInt(formatPercent(campaign.raised, campaign.goal))) + "%";
-  const previewImages = campaign.coverImage ? [campaign.coverImage] : [];
 
   return (
-    <>
-      <Card className="flex flex-col h-full border-slate-200/90 transition group hover:scale-[1.015]">
-        {campaign.coverImage && (
-          <button
-            type="button"
-            onClick={() => setActivePreviewIndex(0)}
-            className="group/image relative overflow-hidden rounded-t-2xl -mx-6 -mt-6 mb-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2"
-            aria-label={`Deschide imaginea campaniei ${campaign.title}`}
+    <Card className="flex flex-col h-full border-slate-200/90 transition group hover:scale-[1.015]">
+      {campaign.coverImage && (
+        <div className="overflow-hidden rounded-t-2xl -mx-6 -mt-6 mb-4">
+          <img
+            src={campaign.coverImage}
+            alt={campaign.title}
+            className="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
+        </div>
+      )}
+      <CardHeader className="mb-2">
+        <CardTitle className="line-clamp-2 text-lg transition-colors hover:text-amber-800">
+          <Link
+            to={`/campanii/${campaign.slug}`}
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2"
           >
-            <img
-              src={campaign.coverImage}
-              alt={campaign.title}
-              className="h-44 w-full object-cover transition-transform duration-500 group-hover/image:scale-105"
-              loading="lazy"
-            />
-            <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent" />
-            <span className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between px-4 py-4 text-white">
-              <span>
-                <span className="block text-[11px] uppercase tracking-[0.22em] text-white/70">
-                  Previzualizare
-                </span>
-                <span className="mt-1 block text-sm font-semibold">
-                  Deschide imaginea
-                </span>
-              </span>
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-lg backdrop-blur-sm">
-                +
-              </span>
+            {campaign.title}
+          </Link>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4 flex-grow">
+        <p className="text-sm text-slate-600 line-clamp-3">
+          {campaign.shortDescription}
+        </p>
+        <div className="mt-auto space-y-2">
+          <Progress
+            value={campaign.raised}
+            max={campaign.goal}
+            srLabel={`Progres strângere fonduri: ${percent}`}
+            heightClass="h-2"
+          />
+          <div className="flex flex-col gap-1 text-xs text-slate-600 sm:flex-row sm:items-center sm:justify-between">
+            <span className="break-words">
+              {formatRON(campaign.raised)} strânși din{" "}
+              {formatRON(campaign.goal)}
             </span>
-          </button>
-        )}
-        <CardHeader className="mb-2">
-          <CardTitle className="line-clamp-2 text-lg transition-colors hover:text-amber-800">
-            <Link
-              to={`/campanii/${campaign.slug}`}
-              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2"
-            >
-              {campaign.title}
-            </Link>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4 flex-grow">
-          <p className="text-sm text-slate-600 line-clamp-3">
-            {campaign.shortDescription}
-          </p>
-          <div className="mt-auto space-y-2">
-            <Progress
-              value={campaign.raised}
-              max={campaign.goal}
-              srLabel={`Progres strângere fonduri: ${percent}`}
-              heightClass="h-2"
-            />
-            <div className="flex flex-col gap-1 text-xs text-slate-600 sm:flex-row sm:items-center sm:justify-between">
-              <span className="break-words">
-                {formatRON(campaign.raised)} strânși din{" "}
-                {formatRON(campaign.goal)}
-              </span>
-              <span className="font-semibold text-slate-800 sm:text-right">
-                {percent}
-              </span>
-            </div>
-            <Link
-              to={`/campanii/${campaign.slug}`}
-              className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
-            >
-              Vezi detalii
-            </Link>
+            <span className="font-semibold text-slate-800 sm:text-right">
+              {percent}
+            </span>
           </div>
-        </CardContent>
-      </Card>
-      <ImageLightbox
-        images={previewImages}
-        activeIndex={activePreviewIndex}
-        altPrefix={campaign.title}
-        onClose={() => setActivePreviewIndex(null)}
-        onSelect={setActivePreviewIndex}
-      />
-    </>
+          <Link
+            to={`/campanii/${campaign.slug}`}
+            className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
+          >
+            Vezi detalii
+          </Link>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

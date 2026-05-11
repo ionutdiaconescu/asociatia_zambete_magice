@@ -2,6 +2,12 @@ import React from "react";
 import { Spinner } from "./Spinner";
 import { Alert } from "./Alert";
 
+function isEmptyData<T>(data: T | null): boolean {
+  if (!data) return true;
+  if (Array.isArray(data)) return data.length === 0;
+  return false;
+}
+
 interface ContentStateProps<T> {
   state: {
     data: T | null;
@@ -23,6 +29,7 @@ export function ContentState<T>({
   ariaLabelLoading = "Se încarcă conținutul",
 }: ContentStateProps<T>) {
   const { data, loading, error, reload } = state;
+  const hasEmptyData = isEmptyData(data);
 
   if (loading) {
     return (
@@ -38,6 +45,6 @@ export function ContentState<T>({
       </Alert>
     );
   }
-  if (!data) return <>{empty}</>;
-  return <>{children(data)}</>;
+  if (hasEmptyData) return <>{empty}</>;
+  return <>{children(data as T)}</>;
 }

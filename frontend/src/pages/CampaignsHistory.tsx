@@ -1,15 +1,12 @@
-import { useState } from "react";
 import { useCampaigns } from "../hooks/useCampaigns";
 import { Link } from "react-router-dom";
 import { Meta } from "../components/seo/Meta";
-import { ImageLightbox } from "../components/ui/ImageLightbox";
 import { getHistoricalCampaigns } from "../utils/campaign";
 import { buildWebPageMeta } from "../utils/seo";
 
 export default function CampaignsHistory() {
   const { data, loading, error, reload } = useCampaigns();
   const historical = getHistoricalCampaigns(data);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const seo = buildWebPageMeta({
     title: "Istoric campanii",
     path: "/campanii/istoric",
@@ -63,33 +60,14 @@ export default function CampaignsHistory() {
             className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.07)] transition hover:shadow-[0_16px_40px_rgba(15,23,42,0.14)]"
           >
             {c.coverImage && (
-              <button
-                type="button"
-                onClick={() => setPreviewImage(c.coverImage ?? null)}
-                className="group/image relative aspect-video w-full overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2"
-                aria-label={`Deschide imaginea campaniei ${c.title}`}
-              >
+              <div className="aspect-video overflow-hidden">
                 <img
                   src={c.coverImage}
                   alt={c.title}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover/image:scale-105"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   loading="lazy"
                 />
-                <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent" />
-                <span className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between px-4 py-4 text-white">
-                  <span>
-                    <span className="block text-[11px] uppercase tracking-[0.22em] text-white/70">
-                      Previzualizare
-                    </span>
-                    <span className="mt-1 block text-sm font-semibold">
-                      Deschide imaginea
-                    </span>
-                  </span>
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-lg backdrop-blur-sm">
-                    +
-                  </span>
-                </span>
-              </button>
+              </div>
             )}
             <div className="p-4 flex flex-col gap-3">
               <h2 className="line-clamp-2 text-lg font-semibold text-slate-900">
@@ -120,13 +98,6 @@ export default function CampaignsHistory() {
           </li>
         ))}
       </ul>
-      <ImageLightbox
-        images={previewImage ? [previewImage] : []}
-        activeIndex={previewImage ? 0 : null}
-        altPrefix="Campanie"
-        onClose={() => setPreviewImage(null)}
-        onSelect={() => undefined}
-      />
     </div>
   );
 }
